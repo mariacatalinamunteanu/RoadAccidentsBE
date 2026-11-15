@@ -62,6 +62,10 @@ in `pipeline.py` (constants at the top) and add an entry to `decision_log.md`.
   in `decision_log.md`.
 - UI language: English; data labels stay Dutch.
 
+## Repository
+- GitHub: https://github.com/mariacatalinamunteanu/RoadAccidentsBE (public). `main` is the deployed branch;
+  push feature branches too, so the branch history stays visible.
+
 ## How to run
 ```
 python pipeline.py          # rebuild processed data (~3 min)
