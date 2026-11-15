@@ -378,3 +378,15 @@ to be confirmed by the student (marked ☐ until confirmed).
   `pipeline.EXPLANATIONS["d_map"]` mentions the new default.
 - **Tests:** the app test checks the default and runs all three choices with the switch on and off.
 - **Five-file check:** app.py, pipeline.py (text), tests, CLAUDE.md, decision_log.md updated (+ Concept.txt).
+
+### D45 · Border view starts at Municipalities; "Why Municipalities …" info point under the border-view buttons
+- **Decided by:** student (2026-11-15)
+- **What changed:** in tab ❓ Density vs severity the border view starts at **Municipalities** (was Provinces), and the
+  ℹ️ "Why Municipalities Reveal a Clearer Link Between Population Density and Severity Ratio" point (D40) moved from
+  under the "Heat map – …" title to directly under the four border-view buttons, where the choice is made.
+- **Effect:** the tab opens with 581 municipality dots, the municipality scatter (all municipalities, D43) and the
+  minimum-accidents slider; the info point explains this default right next to it.
+- **Tests:** the app test checks the default; `test_why_municipalities_info_point_under_the_border_view_buttons`
+  checks the place (once, between the buttons and the heat-map title).
+- **Five-file check:** app.py, tests, CLAUDE.md, decision_log.md updated (+ Concept.txt); pipeline.py: no change
+  needed (the explanation texts did not change).

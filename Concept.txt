@@ -230,9 +230,10 @@ TAB ❓ DENSITY VS SEVERITY  –  Q1
 ---------------------------------------------------------------------------------------------------------------------
 +---------------------------------------------------------------------------------------------------------------+
 | ▸ ⚠️ Assumptions behind this tab (only injury accidents · denominator · coordinates · categories · areas)       |
-| [Regions][Provinces][Municipalities][BE]   Years [2017 ●────────● 2024]   Heat layer (o)All (●)Severe (o)Off  |
-|                                                                           [ ] Include accidents placed at the |
-|                                                                               municipality centre (36,628)    |
+| [Regions][Provinces][■Municipalities■][BE] Years [2017 ●────────● 2024]   Heat layer (o)All (●)Severe (o)Off  |
+| ℹ️ Why Municipalities Reveal a Clearer Link … ?  (under the border-view buttons)                                 |
+|                                                                           [ ] Include severe accidents placed |
+|                                                                               at the municipality centre (n)  |
 | KPIs: injury accidents | severe (class 1–3) | Severity Ratio BE | Spearman rho (581 municipalities)           |
 | ✅ Answer box: "Yes. SR 13.6% (< 250 inh/km2) vs 4.9% (> 5,000 inh/km2) ..."                                  |
 +-------------------------------------------------------------+-------------------------------------------------+
@@ -295,7 +296,7 @@ PART D – FILTERS AND CONTROLS (complete list)
   1.2 Processed           Data set (radio)                            6 processed files            table shown
   1.2 Processed           Year, Region (multiselect)                  2017–2024, 3 regions         accidents table
   1.2 Processed           Rows (dropdown)                             All / only replaced coords   accidents table
-  ❓ Density              Border view (4 buttons)                     Regions/Provinces/Munic./BE  dots, scatter, table
+  ❓ Density              Border view (4 buttons, default Munic.)     Regions/Provinces/Munic./BE  dots, scatter, table
   ❓ Density              Years (range slider)                        2017–2024                    everything in tab
   ❓ Density              Heat layer (radio)                          All / Severe (default) / Off grey layer
   ❓ Density              Include accidents at municipality centre    off (default) / on           grey layer

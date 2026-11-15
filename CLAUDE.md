@@ -43,6 +43,8 @@ G1, G2, P1 and C3 group rows (nothing lost); only C1 and C2 really drop rows (ot
   - In the GPS heat layer they are **left out by default** (step 8); a switch on the map ("Include accidents placed at
     the municipality centre") draws them at the centre. The app always says how many are left out or placed on centres.
   - Step 8 never removes rows from the data set.
+- **Defaults in tab ❓ Density vs severity:** border view **Municipalities** (with the ℹ️ "Why Municipalities …" point
+  directly under its buttons), minimum accidents 1, heat layer severe.
 - **Heat layer default:** severe accidents (class 1–3); "All accidents" and "Off" can be chosen. Every count about
   the heat layer (switch label, caption, rows-used table) is computed on the selected layer, not on all accidents.
   - 0–1,000 m outside the municipality = kept (border roads).

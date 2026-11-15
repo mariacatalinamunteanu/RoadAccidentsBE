@@ -518,7 +518,10 @@ def density_tab():
 
     c1, c2, c3 = st.columns([2, 1.3, 1.3])
     level = c1.segmented_control("Border view", ["Regions", "Provinces", "Municipalities", "BE"],
-                                 default="Provinces", key="level") or "Provinces"
+                                 default="Municipalities", key="level") or "Municipalities"  # decision D45
+    with c1:  # info point directly under the border-view buttons (decision D45)
+        dot("Why Municipalities Reveal a Clearer Link Between Population Density and Severity Ratio",
+            "d_why_municipalities")
     years = c2.select_slider("Years", options=list(range(2017, 2025)), value=(2017, 2024))
     heat_mode = c3.radio("Accident heat layer (GPS positions)", ["All accidents", "Severe accidents", "Off"], index=1,
                          horizontal=True, key="heat_mode")  # default: severe accidents (decision D44)
@@ -557,8 +560,6 @@ def density_tab():
                "recorded injury accidents × 100. Each accident counts once.")
 
     st.markdown(f"#### Heat map – {level.lower() if level != 'BE' else 'Belgium'}")
-    dot("Why Municipalities Reveal a Clearer Link Between Population Density and Severity Ratio",
-        "d_why_municipalities")
     st.caption("Each **dot** sits at the centre of a unit. **Colour** = Severity Ratio (blue = low, red = high). "
                "**Size** = population density. The grey **heat layer** shows accidents at their own GPS position.")
     excl = len(layer) - len(geo)

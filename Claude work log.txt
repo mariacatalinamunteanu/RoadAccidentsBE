@@ -458,3 +458,14 @@ History of everything Claude does in this project, newest entries at the bottom.
      count the selected layer (severe/all); Off disables the switch. pipeline.EXPLANATIONS d_map text; Concept.txt.
    - tests/test_gaps.py: app test checks the default and all 3 choices. CLAUDE.md rule; decision_log.md D44.
    - Five files: all updated. Tests: 25 fast passed + app test passed. Only own files committed. Merged and pushed.
+
+
+------------------------------------------------------------------
+2026-11-15  |  Border view default Municipalities + info point moved under the border-view buttons
+------------------------------------------------------------------
+   - Branch ui/border-view-default-municipalities: app.py default "Municipalities"; dot("Why Municipalities ...")
+     moved from under "Heat map - ..." to under the border-view buttons (inside the same column).
+   - tests: app test checks the default; place test (between buttons and heat-map title, shown once).
+   - CLAUDE.md (defaults of the tab), decision_log.md D45, Concept.txt (drawing, controls table, switch label).
+   - Five files: app.py, tests, CLAUDE.md, decision_log.md updated; pipeline.py: no change needed.
+   - Tests: 25 fast passed + app test passed. Only own files committed. Merged and pushed.
