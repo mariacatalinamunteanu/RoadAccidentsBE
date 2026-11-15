@@ -222,8 +222,9 @@ EXPLANATIONS = {
         "severe crashes** among recorded injury crashes."
     ),
     "d_map": "One **dot per unit** of the selected border view, at its centre (step G2). Colour = Severity Ratio "
-             "(blue 0% → red 20%), size = population density (Σ population / Σ area). Grey layer = accidents at "
-             "their GPS position (step 8; switch adds the step-6 centres). `pipeline.aggregate_by_level`.",
+             "(blue 0% → red 20%), size = population density (Σ population / Σ area). Grey layer = **severe** "
+             "accidents at their GPS position by default (choose all accidents or off above the map; step 8; the "
+             "switch adds the step-6 centres). `pipeline.aggregate_by_level`.",
     "d_scatter": "Each dot = one unit of the border view. x = population density (log), y = Severity Ratio, size = "
                  "number of injury accidents. Dashed line = trend weighted by √accidents (`numpy.polyfit`).",
     "d_ch1": "Severity Ratio of all accidents in municipalities of each density class (fixed limits, decision D16). "

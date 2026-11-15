@@ -366,3 +366,15 @@ to be confirmed by the student (marked ☐ until confirmed).
   (their ratios jump between 0%, 25%, 50% …) – raise N to hide them.
 - **Five-file check:** app.py, tests, decision_log.md updated (+ Concept.txt); pipeline.py and CLAUDE.md: no change
   needed (no explanation text or rule mentions the default).
+
+### D44 · Heat layer shows severe accidents by default
+- **Decided by:** student (2026-11-15)
+- **What changed:** the radio "Accident heat layer (GPS positions)" in tab ❓ Density vs severity starts at
+  **Severe accidents** (was "All accidents"); "All accidents" and "Off" can still be chosen.
+- **Made consistent with it (Claude):** the counts about the heat layer now follow the selected layer – the switch label
+  ("Include severe accidents placed at the municipality centre (n)"), the caption under the map and the "Rows used"
+  table count severe accidents when the severe layer is shown (before, they always counted all accidents, which would
+  not match what is drawn). With "Off" the switch is disabled and the caption says the layer is off.
+  `pipeline.EXPLANATIONS["d_map"]` mentions the new default.
+- **Tests:** the app test checks the default and runs all three choices with the switch on and off.
+- **Five-file check:** app.py, pipeline.py (text), tests, CLAUDE.md, decision_log.md updated (+ Concept.txt).

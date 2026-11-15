@@ -520,16 +520,19 @@ def density_tab():
     level = c1.segmented_control("Border view", ["Regions", "Provinces", "Municipalities", "BE"],
                                  default="Provinces", key="level") or "Provinces"
     years = c2.select_slider("Years", options=list(range(2017, 2025)), value=(2017, 2024))
-    heat_mode = c3.radio("Accident heat layer (GPS positions)", ["All accidents", "Severe accidents", "Off"], horizontal=True)
-    n_imputed_sel = int(acc[acc.DT_YEAR_COLLISION.between(*years)].COORD_IMPUTED.sum())
-    include_imputed = c3.toggle(f"Include accidents placed at the municipality centre ({fmt(n_imputed_sel)})", value=False,
-                                key="heat_imputed",
-                                help="Off: only accidents at their own GPS position (step 8). On: also the accidents "
-                                     "whose coordinate was missing or abnormal, drawn at the centre of their municipality (step 6).")
+    heat_mode = c3.radio("Accident heat layer (GPS positions)", ["All accidents", "Severe accidents", "Off"], index=1,
+                         horizontal=True, key="heat_mode")  # default: severe accidents (decision D44)
     yrs = list(range(years[0], years[1] + 1))
     a, _ = P.filter_years(acc, yrs)
-    own_geo, _ = P.step_select_georeferenced(a)
-    geo = a if include_imputed else own_geo
+    # accidents of the selected heat layer: all, or severe only (counts in switch, caption and rows-used follow it)
+    layer = a[P.is_severe(a.CD_CLASS_ACCIDENTS).values] if heat_mode == "Severe accidents" else a
+    what = "severe accidents" if heat_mode == "Severe accidents" else "accidents"
+    include_imputed = c3.toggle(f"Include {what} placed at the municipality centre ({fmt(int(layer.COORD_IMPUTED.sum()))})",
+                                value=False, key="heat_imputed", disabled=heat_mode == "Off",
+                                help="Off: only accidents at their own GPS position (step 8). On: also the accidents "
+                                     "whose coordinate was missing or abnormal, drawn at the centre of their municipality (step 6).")
+    own_geo, _ = P.step_select_georeferenced(layer)
+    geo = layer if include_imputed else own_geo
     agg = P.aggregate_by_level(acc, dens, look, units, level, yrs)
     mun = P.aggregate_by_level(acc, dens, look, units, "Municipalities", yrs)
     prof = P.density_class_profile(a)
@@ -558,17 +561,19 @@ def density_tab():
         "d_why_municipalities")
     st.caption("Each **dot** sits at the centre of a unit. **Colour** = Severity Ratio (blue = low, red = high). "
                "**Size** = population density. The grey **heat layer** shows accidents at their own GPS position.")
-    excl = len(a) - len(geo)
-    n_imp = len(a) - len(own_geo)
-    if include_imputed:
-        st.caption(f"⚠️ Heat layer: **all {fmt(len(a))} accidents** are drawn, including **{fmt(n_imp)} "
-                   f"({n_imp / len(a) * 100:.1f}%)** placed at the **centre of their municipality** (step 6). Dark spots on "
-                   f"municipality centres are partly caused by these replaced coordinates, not by where the accidents "
-                   f"really happened.")
+    excl = len(layer) - len(geo)
+    n_imp = len(layer) - len(own_geo)
+    if heat_mode == "Off":
+        st.caption("Heat layer is **off**: only the dots are shown.")
+    elif include_imputed:
+        st.caption(f"⚠️ Heat layer: **all {fmt(len(layer))} {what}** are drawn, including **{fmt(n_imp)} "
+                   f"({n_imp / max(len(layer), 1) * 100:.1f}%)** placed at the **centre of their municipality** (step 6). "
+                   f"Dark spots on municipality centres are partly caused by these replaced coordinates, not by where the "
+                   f"accidents really happened.")
     else:
-        st.caption(f"⚠️ Heat layer: **{fmt(excl)} accidents ({excl / len(a) * 100:.1f}%)** without a usable own coordinate "
-                   f"are **not drawn** (step 8). Use the switch to draw them at their municipality centre. They are always "
-                   f"counted in the dots, which are grouped by municipality code.")
+        st.caption(f"⚠️ Heat layer: **{fmt(len(geo))} {what}** drawn; **{fmt(excl)} ({excl / max(len(layer), 1) * 100:.1f}%)** "
+                   f"without a usable own coordinate are **not drawn** (step 8). Use the switch to draw them at their "
+                   f"municipality centre. They are always counted in the dots, which are grouped by municipality code.")
     m1, m2 = st.columns([3, 2])
     with m1:
         show_fig(heat_map(agg, level, geo, heat_mode), key="map", explain="d_map", title="Heat map")
@@ -671,9 +676,12 @@ def density_tab():
     rows_used([
         ("Selected years", len(acc), len(a), len(acc) - len(a), "Outside the year selection"),
         ("Dots, table, charts 1-2-4", len(a), len(a), 0, "All rows (grouped by municipality code)"),
-        ("Grey heat layer", len(a), len(geo), excl,
-         "Switch on: nothing left out (replaced coordinates drawn at the municipality centre)" if include_imputed
-         else "No usable own coordinate (step 8); use the switch on the map to include them at the municipality centre"),
+        (f"Grey heat layer ({heat_mode.lower()})", len(a), 0 if heat_mode == "Off" else len(geo),
+         len(a) if heat_mode == "Off" else len(a) - len(geo),
+         "Layer switched off" if heat_mode == "Off" else
+         ("Not severe (class 4); " if heat_mode == "Severe accidents" else "")
+         + ("replaced coordinates drawn at the municipality centre (switch on)" if include_imputed
+            else "no usable own coordinate (step 8) – use the switch to include them at the municipality centre")),
         ("Chart 3 (inside / outside built-up area)", len(a), len(known_bu), len(a) - len(known_bu), "Built-up area unknown (code 9)"),
         ("Scatter (municipalities, units)", len(mun), int((mun.ACCIDENTS >= min_n).sum()) if level == "Municipalities" else len(mun),
          int((mun.ACCIDENTS < min_n).sum()) if level == "Municipalities" else 0, f"Fewer than {min_n} accidents (slider)"),
