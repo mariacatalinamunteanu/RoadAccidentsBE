@@ -449,3 +449,12 @@ History of everything Claude does in this project, newest entries at the bottom.
      decision_log.md D43 + "Later changed" note on D15; tests: new test for the default.
    - Five files: app.py, tests, decision_log.md updated; pipeline.py, CLAUDE.md: no change needed.
    - Tests: explanation tests 10 passed + app test passed. Only own files committed. Merged into main and pushed.
+
+
+------------------------------------------------------------------
+2026-11-15  |  Heat layer default = Severe accidents
+------------------------------------------------------------------
+   - Branch ui/heat-layer-default-severe: radio index=1 (key heat_mode); switch label, caption and rows-used row now
+     count the selected layer (severe/all); Off disables the switch. pipeline.EXPLANATIONS d_map text; Concept.txt.
+   - tests/test_gaps.py: app test checks the default and all 3 choices. CLAUDE.md rule; decision_log.md D44.
+   - Five files: all updated. Tests: 25 fast passed + app test passed. Only own files committed. Merged and pushed.
