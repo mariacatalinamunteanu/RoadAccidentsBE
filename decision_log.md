@@ -267,3 +267,23 @@ to be confirmed by the student (marked ☐ until confirmed).
   "fewer rows out" means rows were grouped, not lost (rows_dropped = 0).
 - **Why:** they were run by `run_all()` and described in `Concept.txt`, but invisible in the app; every number must be
   traceable to a visible step. `test_gaps.py::test_funnel_matches_data` now checks them.
+
+### D35 · Explanation dots (?) on every number, chart and table column
+- **Decided by:** student (2026-11-15: "add explanation dots, such as in https://yunleebe.streamlit.app/, for each
+  number presented"). Claude could not open the example (it redirects to a Streamlit login and needs JavaScript) and
+  used Streamlit's built-in help icon (a small "?" that shows the text on hover) – to adapt if the example differs.
+- **What:** 23 metrics get `help=`; the 24 charts get their title as a heading with a dot (`show_fig(..., explain=)`);
+  every table shows a dot on each column header (`table()` wrapper with `COLUMN_HELP`); the two answer boxes get
+  "ⓘ How is this answer computed?". One line under the app title explains how to use the dots.
+- **Where the texts live:** `pipeline.EXPLANATIONS` (50 texts) and `pipeline.COLUMN_HELP` (108 columns), next to
+  the steps they describe, so app and tests use the same text. Each text says what the number is, how it is
+  calculated and which step creates it.
+- **Why:** assignment criterion 1 ("for every number, in which step was it created?") and the no-AI conversation:
+  the explanation must be visible in the app itself, not only in the log.
+- **Tests:** `tests/test_explanations.py` (6 tests) + metric check in the app test (TEST_GAPS gap 10).
+
+### D36 · Standing rule: update pipeline.py, app.py, tests, CLAUDE.md and decision_log.md after every prompt
+- **Decided by:** student (2026-11-15)
+- **What:** after each prompt, every one of the five files that the task affects is updated, the others are checked,
+  and the answer says which needed no change. Recorded in `CLAUDE.md` (working agreements) so every session follows it.
+- **Why:** these five files are the deliverables of the assignment; they must always describe the project as it is.

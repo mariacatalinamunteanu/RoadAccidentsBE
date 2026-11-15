@@ -118,6 +118,213 @@ CATEGORY_RULES = [
 ]
 
 
+# ====================================================================================== explanation dots
+# Text behind every "?" dot in the app: what the number is, how it is calculated, and in which step it is created.
+# One place for all explanations, so the app and the tests use the same text. Every number, chart and table column
+# shown in app.py must have an entry here (checked by tests/test_explanations.py).
+EXPLANATIONS = {
+    # --- Pipeline & method
+    "funnel": "Number of **accident rows after each step 1–8**. Steps 2–7 only change or add values, so the count stays "
+              "289,532. Step 8 is a *view* for the GPS heat layer: accidents without a usable own coordinate are not "
+              "drawn there by default. Nothing is removed from the data. Source: `pipeline_steps.csv`.",
+    "step_rows_in": "Rows that went **into** this step (output of the previous step). Source: `StepReport.rows_in`.",
+    "step_rows_out": "Rows that came **out** of this step. Fewer rows out = rows dropped (steps 8, C1, C2) or rows "
+                     "grouped (G1, G2, P1, C3). Source: `StepReport.rows_out`.",
+    "step_dropped": "Rows **removed** by this step (rows in − rows out), 0 for grouping steps. For step 8: not drawn "
+                    "in the heat layer by default, not removed from the data. Source: `StepReport.rows_dropped`.",
+    "step_changed": "Rows in which this step **changed or added** a value (e.g. a filled province, a replaced "
+                    "coordinate). For grouping steps: number of new rows created. Source: `StepReport.rows_changed`.",
+    "coords_by_year": "Per year: % of accidents **without a usable own coordinate** (missing, outside Belgium or "
+                      "> 1 km outside their municipality) = accidents not drawn in the GPS heat layer by default. "
+                      "Label = number of accidents. Source: step 5 → `coordinates_by_year.csv`.",
+    # --- 1.1 Raw Data Explorer
+    "raw_rows": "Number of accidents (rows) in the raw Statbel file `OPENDATA_MAP_2017-2024.xlsx`. One row = one "
+                "accident with at least one death or injury. Step 1.",
+    "raw_columns": "Number of columns in the raw file: every text column exists in French and Dutch. Step 1.",
+    "raw_municipalities": "Number of different municipality codes (CD_NIS) in the raw file: the 581 municipalities "
+                          "after the 2019 mergers, used for all years. Step 1.",
+    "raw_rows_missing": "Accidents with **at least one empty cell** in any column. Almost all are an empty coordinate "
+                        "or the empty province of Brussels. Step 1 (raw).",
+    "raw_duplicates": "Rows identical in **all 45 columns** (counted once per extra copy). Kept: the data only has "
+                      "month and hour, so they can be different accidents. Decision D09.",
+    "raw_missing": "Empty cells per column (bar = number, label = % of all rows). Only 4 columns have empty cells. "
+                   "Step 1 (raw).",
+    "raw_unknown": "Cells that are filled in but mean **unknown / not specified** (codes 9, 99, 0, -1, -3, see "
+                   "`pipeline.UNKNOWN_CODES`). Bar = % of rows, label = number of rows. Step 1 (raw).",
+    "raw_code_dist": "Number of accidents per code of the selected column. Orange = a code that means 'unknown'. "
+                     "Step 1 (raw).",
+    "raw_coord_year": "Accidents per year whose coordinate is missing, outside Belgium, or > 1 km outside the "
+                      "municipality in CD_NIS. Checked in step 5 against the Statbel borders (step G1).",
+    "raw_coord_map": "Original position of the points lying **more than 1 km outside** their own municipality. "
+                     "Colour = distance to the municipality border (km). These are replaced in step 6.",
+    # --- 1.2 Processed Data Explorer
+    "proc_rows": "Rows in the processed accident data: the same 289,532 accidents as the raw file (no row is "
+                 "dropped in steps 1–7). Output of step 7.",
+    "proc_columns": "Columns after processing: 45 raw − 14 French (step 2) + 10 new columns (steps 4–7).",
+    "proc_empty_key": "Empty cells left in the key columns MS_X_COORD, MS_Y_COORD, TX_PROV_COLLISION_NL and "
+                      "POP_DENSITY. Must be 0 after steps 3–6 (tested in `test_gaps.py`).",
+    "proc_provinces": "Accidents per province after step 3. Orange = Brussels, whose empty province was filled with "
+                      "'Brussels Hoofdstedelijk Gewest'.",
+    "coord_replaced": "Accidents whose coordinate was **replaced by the centre of their municipality** in step 6 "
+                      "(COORD_IMPUTED = True). Delta = share of all accidents.",
+    "status_ok": "Coordinate inside the own municipality, or less than 1 km outside it (kept as is). Step 5.",
+    "status_missing": "No coordinate in the raw file. Replaced by the municipality centre in step 6.",
+    "status_out_of_range": "Coordinate impossible for Belgium (order of 10^15–10^16). Replaced in step 6.",
+    "status_outside_municipality": "Coordinate more than 1,000 m outside the municipality in CD_NIS. Replaced in "
+                                   "step 6 (threshold: decision D04).",
+    "proc_replaced_year": "Accidents per year whose coordinate was replaced in step 6, by reason (step 5 status).",
+    "proc_moved_map": "Red = original (wrong) position, green = municipality centre used instead (step 6), grey line "
+                      "= the move. Only the points > 1 km outside their municipality.",
+    "proc_density_box": "Spread of the population density of the 581 municipalities per year (log scale): box = "
+                        "middle 50%, line = median. Built in step P1.",
+    # --- Density vs severity
+    "d_accidents": "Injury accidents in the selected years (all of Belgium). Steps 1–7, filtered on the year slider.",
+    "d_severe": "Accidents of class 1 (deaths), 2 (fatally injured) or 3 (seriously injured) in the selected years. "
+                "`pipeline.is_severe`.",
+    "d_sr_be": "Severity Ratio of Belgium = severe accidents / all injury accidents × 100, selected years. "
+               "`pipeline.severity_ratio`.",
+    "d_rho": "Spearman rank correlation between population density and Severity Ratio over the 581 municipalities "
+             "(selected years). −1 = the denser, the lower the ratio; 0 = no relation. p = chance to see this by "
+             "luck. `scipy.stats.spearmanr` on `aggregate_by_level('Municipalities')`.",
+    "d_answer": "The two percentages are the Severity Ratio of the lowest (< 250 inh./km²) and highest (> 5,000 "
+                "inh./km²) density class (chart 1 below, `pipeline.density_class_profile`). 'Yes' when Spearman ρ "
+                "is negative and p < 0.05.",
+    "d_map": "One **dot per unit** of the selected border view, at its centre (step G2). Colour = Severity Ratio "
+             "(blue 0% → red 20%), size = population density (Σ population / Σ area). Grey layer = accidents at "
+             "their GPS position (step 8; switch adds the step-6 centres). `pipeline.aggregate_by_level`.",
+    "d_scatter": "Each dot = one unit of the border view. x = population density (log), y = Severity Ratio, size = "
+                 "number of injury accidents. Dashed line = trend weighted by √accidents (`numpy.polyfit`).",
+    "d_ch1": "Severity Ratio of all accidents in municipalities of each density class (fixed limits, decision D16). "
+             "Hover = number of accidents. `pipeline.density_class_profile`.",
+    "d_ch2": "Share of the accidents in each density class that happened outside built-up areas (code 2), were a "
+             "single-vehicle/obstacle crash (collision 6/7/8) or at night without street lighting (light 4).",
+    "d_ch3": "Severity Ratio per density class, separately for accidents inside (blue) and outside (red) built-up "
+             "areas. Built-up area unknown (code 9) is left out.",
+    "d_ch4": "Severity Ratio per collision group (`pipeline.collision_group`), all selected years and all of "
+             "Belgium. Hover = number of accidents.",
+    # --- COVID
+    "c_acc_vs_normal": "Injury accidents during the lockdown months. Delta = difference with 'normal' = the average "
+                       "of the same calendar months in 2017–2019. `pipeline.period_vs_baseline`.",
+    "c_sev_vs_normal": "Severe accidents (class 1–3) during the lockdown months. Delta = difference with the "
+                       "2017–2019 average of the same months.",
+    "c_sr_vs_normal": "Severity Ratio during the lockdown months; delta in percentage points (pp) against the "
+                      "Severity Ratio of the same months in 2017–2019. Significance: chi-square test below.",
+    "c_answer": "'Yes' for a lockdown when its Severity Ratio is higher than normal AND the chi-square test gives "
+                "p < 0.05. Numbers = the metrics above.",
+    "c_ts_n": "Injury accidents per month (blue), severe accidents (red bars) and 'normal' = 2017–2019 average of "
+              "the same month (dotted). Red shading = lockdowns, orange = relaxed phases. Step C3.",
+    "c_ts_sr": "Severity Ratio per month and its 'normal' (dotted). Shading = COVID phases. Step C3.",
+    "c_mob": "Bars = OxCGRT stringency index (0–100, national, step C2). Lines = Google mobility, % change against "
+             "Jan–Feb 2020, for the selected area (step C1). Monthly averages.",
+    "c_scatter": "Each dot = one region in one month (Mar 2020 – Oct 2022). x = workplace mobility vs pre-COVID, "
+                 "y = accidents or Severity Ratio vs normal. Spearman ρ below.",
+    "c_mix": "Share of all injury accidents with each feature, in the lockdown vs normal (same months 2017–2019). "
+             "Rules: `pipeline.mix_profile`, see Category rules.",
+    "c_within": "Severity Ratio inside each road-user group, lockdown vs normal. Each accident is in one group "
+                "(first matching rule, `pipeline.road_user_group`).",
+    "c_dec": "Normal = Severity Ratio in the same months 2017–2019. Expected = the ratio the lockdown would have had "
+             "if each accident type was as severe as normal (only the mix changed). Observed = real ratio. "
+             "`pipeline.mix_decomposition`.",
+}
+
+# Text behind the "?" on table column headers (same column name = same explanation in every table).
+COLUMN_HELP = {
+    # step reports
+    "order": "Step number: G = geography, P = population, 1–8 = accidents, C = COVID.",
+    "step": "What the step does.", "function": "Function in pipeline.py that performs the step.",
+    "why": "Why rows are dropped, changed or grouped in this step.",
+    "dataset": "Data set the step works on.", "data set": "Data set the step works on.",
+    "tabs": "App tabs that use the result of this step.", "used in tab(s)": "App tabs that use the result of this step.",
+    "rows_in": EXPLANATIONS["step_rows_in"], "rows_out": EXPLANATIONS["step_rows_out"],
+    "rows_dropped": EXPLANATIONS["step_dropped"], "rows_changed": EXPLANATIONS["step_changed"],
+    # accidents / aggregates
+    "NAME": "Name of the unit (region, province, municipality or België).",
+    "KEY": "Identifier of the unit (name, or NIS code for municipalities).",
+    "LEVEL": "Border view the unit belongs to.",
+    "POPULATION": "Population on 1 January (Statbel). For a unit: Σ over its municipalities, averaged over the "
+                  "selected years. Step P1.",
+    "AREA_KM2": "Area in km² (Statbel). For a unit: Σ over its municipalities. Step P1.",
+    "POP_DENSITY": "Population density = population / area (inhabitants per km²). Step P1 / step 4.",
+    "ACCIDENTS": "Number of injury accidents (each accident once).",
+    "ACCIDENTS_PER_1000_INH_YEAR": "Injury accidents per 1,000 inhabitants per year = accidents / number of years / "
+                                   "population × 1,000. Context only: there is no traffic-volume data.",
+    "SEVERE": "Accidents of class 1, 2 or 3 (deaths, fatally injured, seriously injured).",
+    "DEATHS": "Accidents of class 1 (with deaths) or 2 (fatally injured).",
+    "SEVERITY_RATIO": "Severe accidents / all injury accidents × 100 (%).",
+    "LAT": "Latitude (WGS84) of the centre / position. Step 7 or G2.",
+    "LON": "Longitude (WGS84) of the centre / position. Step 7 or G2.",
+    "CD_NIS": "NIS code of the municipality (Statbel).", "NAME_NL": "Dutch name.", "YEAR": "Year.", "MONTH": "Month.",
+    "SOURCE": "Statbel file the population figure comes from.",
+    "MS_X_COORD": "X coordinate (Lambert 72) after step 6.", "MS_Y_COORD": "Y coordinate (Lambert 72) after step 6.",
+    "MS_X_COORD_ORIG": "Original X coordinate from the raw file (step 5).",
+    "MS_Y_COORD_ORIG": "Original Y coordinate from the raw file (step 5).",
+    "DIST_TO_OWN_MUNTY_M": "Distance (m) from the original point to the border of its own municipality; 0 = inside. Step 5.",
+    "COORD_STATUS": "ok / missing / out_of_range / outside_municipality (step 5).",
+    "COORD_IMPUTED": "True = coordinate replaced by the municipality centre (step 6).",
+    "CENTER_X_L72": "X of the municipality centre (Lambert 72). Step G1.",
+    "CENTER_Y_L72": "Y of the municipality centre (Lambert 72). Step G1.",
+    "CENTER_LAT": "Latitude of the municipality centre. Step G1.", "CENTER_LON": "Longitude of the municipality centre. Step G1.",
+    "CENTER_METHOD": "centroid, or representative_point when the centroid falls outside the polygon.",
+    "METHOD": "centroid, or representative_point when the centroid falls outside the polygon.",
+    "AREA_KM2_GEO": "Area computed from the Statbel borders (km²). Step G1.",
+    # coordinates per year
+    "missing": "Accidents without coordinates.", "ok": "Accidents with a usable own coordinate.",
+    "out_of_range": "Accidents with an impossible coordinate (outside Belgium).",
+    "outside_municipality": "Accidents > 1 km outside their municipality.", "total": "All accidents of the year.",
+    "excluded_from_gps_map": "Accidents not drawn in the GPS heat layer by default (missing + out_of_range + outside).",
+    "excluded_pct": "excluded_from_gps_map / total × 100.", "missing_pct": "missing / total × 100.",
+    # quality tables
+    "column": "Column of the raw file.", "missing %": "Empty cells / all rows × 100.",
+    "codes meaning unknown": "Codes that mean 'unknown / not specified' (pipeline.UNKNOWN_CODES).",
+    "rows": "Number of rows (accidents).", "% of rows": "rows / all rows × 100.", "%": "Share of all rows (%).",
+    "status": "Coordinate status (step 5).",
+    "code column": "Column with the code.", "label column": "Column with the Dutch label.",
+    "codes with >1 label": "Codes that appear with more than one label (should be 0).",
+    "labels with >1 code": "Labels that appear with more than one code (should be 0).",
+    "category": "Kind of problem.", "issue": "What is wrong.", "handling": "What the pipeline does about it, and in which step.",
+    "check": "Consistency check on the raw file.", "passed": "✅ = passed, ❌ = failed.",
+    "empty before": "Empty cells in the raw file.", "values changed": "Cells changed by the pipeline.",
+    "empty after": "Empty cells left after processing (should be 0).", "how": "How the values were filled.",
+    "municipalities": "Number of municipalities with a value.", "population": "Σ population (Statbel).",
+    # rows used
+    "element": "Part of the tab.", "rows in": "Rows available to this element.",
+    "rows used": "Rows actually used.", "left out": "rows in − rows used.",
+    # density classes
+    "DENSITY_CLASS": "Density class of the municipality (inh./km²), fixed limits (decision D16).",
+    "Severity Ratio (%)": "Severe / all injury accidents × 100.", "accidents": "Number of injury accidents.",
+    "outside built-up area (%)": "% of accidents with CD_BUILD_UP_AREA = 2.",
+    "single vehicle / obstacle (%)": "% of accidents with CD_COLLISION_TYPE 6, 7 or 8.",
+    "night, no street lighting (%)": "% of accidents with CD_LIGHT_CONDITION = 4.",
+    "motorway (%)": "% of accidents with CD_ROAD_TYPE = 1.",
+    # COVID monthly
+    "AREA": "België or one of the 3 regions.", "DATE": "First day of the month.",
+    "PHASE": "COVID phase of the month (covid_phases.csv).",
+    "BASE_ACCIDENTS": "'Normal': average accidents in the same month of 2017–2019.",
+    "BASE_SEVERE": "'Normal': average severe accidents in the same month of 2017–2019.",
+    "BASE_SEVERITY_RATIO": "'Normal' Severity Ratio: BASE_SEVERE / BASE_ACCIDENTS × 100.",
+    "ACCIDENTS_CHANGE_PCT": "(ACCIDENTS / BASE_ACCIDENTS − 1) × 100.",
+    "SEVERE_CHANGE_PCT": "(SEVERE / BASE_SEVERE − 1) × 100.",
+    "SR_DIFF_PP": "SEVERITY_RATIO − BASE_SEVERITY_RATIO, in percentage points.",
+    "MOB_RETAIL_AND_RECREATION": "Google: visits to shops/restaurants, % vs Jan–Feb 2020 (monthly mean). Step C1.",
+    "MOB_GROCERY_AND_PHARMACY": "Google: visits to groceries/pharmacies, % vs Jan–Feb 2020. Step C1.",
+    "MOB_PARKS": "Google: visits to parks, % vs Jan–Feb 2020. Step C1.",
+    "MOB_TRANSIT_STATIONS": "Google: visits to transit stations, % vs Jan–Feb 2020. Step C1.",
+    "MOB_WORKPLACES": "Google: visits to workplaces, % vs Jan–Feb 2020. Step C1.",
+    "MOB_RESIDENTIAL": "Google: time at home, % vs Jan–Feb 2020. Step C1.",
+    "STRINGENCY": "OxCGRT stringency index 0–100 (national, monthly mean). Step C2.",
+    "STAY_HOME": "OxCGRT C6M stay-at-home requirement (0–3, monthly mean). Step C2.",
+    "WORKPLACE_CLOSING": "OxCGRT C2M workplace closing (0–3, monthly mean). Step C2.",
+    "MOVEMENT_RESTRICTION": "OxCGRT C7M restrictions on internal movement (0–2, monthly mean). Step C2.",
+    "CODE": "Short code of the COVID phase.", "FIRST_MONTH": "First month of the phase.",
+    "LAST_MONTH": "Last month of the phase.", "DESCRIPTION": "What the phase means.",
+}
+
+
+def explain(key):
+    """Explanation text for a number or chart (KeyError if missing - caught by the tests)."""
+    return EXPLANATIONS[key]
+
+
 # ====================================================================================== step reports
 # Per step: the data set it works on, and the app tabs that use its result (shown in the tab "Pipeline & method").
 TAB_RAW, TAB_PROC = "1.1 Raw Data Explorer", "1.2 Processed Data Explorer"

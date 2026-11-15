@@ -321,3 +321,21 @@ History of everything Claude does in this project, newest entries at the bottom.
          D34 (grouping steps reported); "Later changed" notes in D17 and D26.
        * Concept.txt: algorithm section uses the same step names and numbers.
    - Tests: 25 passed. Merged into main with --no-ff and pushed.
+
+
+------------------------------------------------------------------
+2026-11-15  |  Explanation dots on every number + standing rule "update the 5 files after every prompt"
+------------------------------------------------------------------
+   - Example https://yunleebe.streamlit.app/ could not be opened (Streamlit login redirect, JavaScript) -> used
+     Streamlit's built-in help icon (?) with hover text.
+   - Branch feature/explanation-dots:
+       * pipeline.py: EXPLANATIONS (50 texts: what, how calculated, which step), COLUMN_HELP (108 columns), explain().
+       * app.py: E(), table() (column-header dots, replaces all st.dataframe), dot(); help= on all 23 metrics;
+         show_fig(..., explain=, title=) on all 24 charts (title becomes a heading with a dot); dots under the 2 answer
+         boxes; one line under the app title explaining the dots.
+       * tests: test_explanations.py (6 static tests on app.py); app test checks every metric on screen has help;
+         TEST_GAPS.md gap 10.
+       * CLAUDE.md: rule for explanation dots + standing rule to update pipeline.py, app.py, tests, CLAUDE.md,
+         decision_log.md after every prompt; decision_log.md D35, D36. Concept.txt: note in part C.
+       * Memory: feedback rule saved (update-five-files).
+   - Tests: 31 passed. Merged into main with --no-ff and pushed.

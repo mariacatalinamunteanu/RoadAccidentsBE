@@ -172,6 +172,9 @@ B4. ALGORITHM – the steps, in order (pipeline.py; each step reports rows in / 
 PART C – THE DASHBOARD (drawing)
 #####################################################################################################################
 
+  Every metric, chart title and table column header has an explanation dot (?): hover to see what the number is,
+  how it is calculated and in which step it is created (texts: pipeline.EXPLANATIONS / COLUMN_HELP, decision D35).
+
 +===================================================================================================================+
 | 🚦 Road accidents in Belgium 2017–2024                                                                             |
 | [🔧 Pipeline & method] [📊 Data Explorer] [❓ Density vs severity] [🦠 COVID lockdowns]          <- 4 main tabs     |

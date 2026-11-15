@@ -13,7 +13,7 @@ in `pipeline.py` (constants at the top) and add an entry to `decision_log.md`.
 | `pipeline.py` | **All** data logic: one pure function per step, no Streamlit. `python pipeline.py` rebuilds every processed file. |
 | `app.py` | Streamlit app (`streamlit run app.py`). Shows data, never computes new data rules itself. |
 | `app_data.py` | Cached file loaders for the app only. |
-| `tests/` | `test_pipeline.py` (15 unit tests, fast) · `test_gaps.py` (8 tests on real data, `-m data`) · `test_app_cache.py` (2, app cache) · `TEST_GAPS.md` (what the tests miss) |
+| `tests/` | `test_pipeline.py` (15 unit tests, fast) · `test_gaps.py` (8 tests on real data, `-m data`) · `test_app_cache.py` (2, app cache) · `test_explanations.py` (6, explanation dots) · `TEST_GAPS.md` (what the tests miss) |
 | `pytest.ini`, `requirements.txt` | Test settings; packages for Streamlit Community Cloud. |
 | `decision_log.md` | What was decided, why, alternatives, impact. |
 | `Concept.txt` | Design: four pillars, sub-questions, categories, columns, filters, steps, drawing of every tab. |
@@ -58,6 +58,10 @@ G1, G2, P1 and C3 group rows (nothing lost); only C1 and C2 really drop rows (ot
 
 ## Working agreements
 - **Every number in the app shows its source** (`src(...)` caption: pipeline step / function).
+- **Every number has an explanation dot (?)**: `help=E("key")` on every `metric`, `explain="key"` on every
+  `show_fig`, `table(...)` instead of `st.dataframe` (dots on column headers), `dot(...)` for other numbers.
+  The texts live in `pipeline.EXPLANATIONS` and `pipeline.COLUMN_HELP` (what it is, how it is calculated, which
+  step). A new number without a text fails `tests/test_explanations.py`.
 - **Rows that drop out are shown** (row funnel at the top of the tab "Pipeline & method", step expanders,
   "Rows used in this tab"). The "only injury accidents" statement is the first item of the Assumptions box in
   both question tabs (tab 2 and tab 3).
@@ -67,7 +71,9 @@ G1, G2, P1 and C3 group rows (nothing lost); only C1 and C2 really drop rows (ot
 - Run `python -m pytest` (fast) and `python -m pytest -m data` (real data) before merging into `main`.
 - Work on a branch, merge into `main` with `--no-ff`. Commit messages say what and why.
 - Large files (> 40 MB) are not committed (see `.gitignore`); they are downloaded or rebuilt by `pipeline.py`.
-- After every task: append an entry to `Claude work log.txt` and, if a choice was made, to `decision_log.md`.
+- **After every prompt** (student's standing instruction, 2026-11-15): update `pipeline.py`, `app.py`, `tests/`,
+  `CLAUDE.md` and `decision_log.md` so they reflect what was done – change each file the task affects, check the
+  others, and say in the answer which of the five needed no change. Also append an entry to `Claude work log.txt`.
 - Before building something new: ask a question wherever an assumption would otherwise be made, and record the answer
   in `decision_log.md`.
 - UI language: English; data labels stay Dutch.
