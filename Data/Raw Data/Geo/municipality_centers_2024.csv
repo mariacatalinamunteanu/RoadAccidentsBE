@@ -68,25 +68,25 @@
 13046,Vosselaar,Provincie Antwerpen,Vlaams Gewest,186010.17,221843.47,51.305296,4.885121,centroid,11.8329
 13049,Westerlo,Provincie Antwerpen,Vlaams Gewest,185940.72,199720.04,51.10645,4.88193,centroid,55.4497
 13053,Laakdal,Provincie Antwerpen,Vlaams Gewest,194651.34,196951.23,51.080955,5.005958,centroid,42.4302
-21001,Anderlecht,,Brussels Hoofdstedelijk Gewest,144656.21,168730.83,50.828978,4.292902,centroid,17.9144
-21002,Oudergem,,Brussels Hoofdstedelijk Gewest,154883.23,166639.79,50.810184,4.438036,centroid,8.9659
-21003,Sint-Agatha-Berchem,,Brussels Hoofdstedelijk Gewest,144732.31,172700.12,50.864661,4.293926,centroid,2.9501
-21004,Brussel,,Brussels Hoofdstedelijk Gewest,148765.37,171623.26,50.855002,4.351218,representative_point,33.0869
-21005,Etterbeek,,Brussels Hoofdstedelijk Gewest,151821.33,169174.11,50.832984,4.394606,centroid,3.1743
-21006,Evere,,Brussels Hoofdstedelijk Gewest,152779.25,173293.82,50.870014,4.408236,centroid,5.1249
-21007,Vorst,,Brussels Hoofdstedelijk Gewest,146858.68,167069.55,50.81406,4.324178,centroid,6.2922
-21008,Ganshoren,,Brussels Hoofdstedelijk Gewest,145828.43,173780.83,50.874384,4.309484,centroid,2.4377
-21009,Elsene,,Brussels Hoofdstedelijk Gewest,150587.87,167987.59,50.82232,4.377095,centroid,6.4113
-21010,Jette,,Brussels Hoofdstedelijk Gewest,146666.34,174596.18,50.881719,4.321382,centroid,5.1894
-21011,Koekelberg,,Brussels Hoofdstedelijk Gewest,146855.53,172512.75,50.862991,4.324088,centroid,1.1819
-21012,Sint-Jans-Molenbeek,,Brussels Hoofdstedelijk Gewest,146458.6,171649.77,50.855231,4.318458,centroid,6.0157
-21013,Sint-Gillis,,Brussels Hoofdstedelijk Gewest,148302.36,168784.73,50.829484,4.344655,centroid,2.5338
-21014,Sint-Joost-ten-Node,,Brussels Hoofdstedelijk Gewest,150042.8,171490.84,50.853813,4.36936,centroid,1.1606
-21015,Schaarbeek,,Brussels Hoofdstedelijk Gewest,151218.79,172379.92,50.861804,4.386064,centroid,7.9014
-21016,Ukkel,,Brussels Hoofdstedelijk Gewest,149480.45,164377.64,50.789868,4.361383,centroid,22.8752
-21017,Watermaal-Bosvoorde,,Brussels Hoofdstedelijk Gewest,153859.5,164719.05,50.792925,4.423491,centroid,12.9682
-21018,Sint-Lambrechts-Woluwe,,Brussels Hoofdstedelijk Gewest,154422.61,170834.96,50.8479,4.431552,centroid,7.2937
-21019,Sint-Pieters-Woluwe,,Brussels Hoofdstedelijk Gewest,155236.89,168967.03,50.831101,4.443088,centroid,8.9444
+21001,Anderlecht,Brussels Hoofdstedelijk Gewest,Brussels Hoofdstedelijk Gewest,144656.21,168730.83,50.828978,4.292902,centroid,17.9144
+21002,Oudergem,Brussels Hoofdstedelijk Gewest,Brussels Hoofdstedelijk Gewest,154883.23,166639.79,50.810184,4.438036,centroid,8.9659
+21003,Sint-Agatha-Berchem,Brussels Hoofdstedelijk Gewest,Brussels Hoofdstedelijk Gewest,144732.31,172700.12,50.864661,4.293926,centroid,2.9501
+21004,Brussel,Brussels Hoofdstedelijk Gewest,Brussels Hoofdstedelijk Gewest,148765.37,171623.26,50.855002,4.351218,representative_point,33.0869
+21005,Etterbeek,Brussels Hoofdstedelijk Gewest,Brussels Hoofdstedelijk Gewest,151821.33,169174.11,50.832984,4.394606,centroid,3.1743
+21006,Evere,Brussels Hoofdstedelijk Gewest,Brussels Hoofdstedelijk Gewest,152779.25,173293.82,50.870014,4.408236,centroid,5.1249
+21007,Vorst,Brussels Hoofdstedelijk Gewest,Brussels Hoofdstedelijk Gewest,146858.68,167069.55,50.81406,4.324178,centroid,6.2922
+21008,Ganshoren,Brussels Hoofdstedelijk Gewest,Brussels Hoofdstedelijk Gewest,145828.43,173780.83,50.874384,4.309484,centroid,2.4377
+21009,Elsene,Brussels Hoofdstedelijk Gewest,Brussels Hoofdstedelijk Gewest,150587.87,167987.59,50.82232,4.377095,centroid,6.4113
+21010,Jette,Brussels Hoofdstedelijk Gewest,Brussels Hoofdstedelijk Gewest,146666.34,174596.18,50.881719,4.321382,centroid,5.1894
+21011,Koekelberg,Brussels Hoofdstedelijk Gewest,Brussels Hoofdstedelijk Gewest,146855.53,172512.75,50.862991,4.324088,centroid,1.1819
+21012,Sint-Jans-Molenbeek,Brussels Hoofdstedelijk Gewest,Brussels Hoofdstedelijk Gewest,146458.6,171649.77,50.855231,4.318458,centroid,6.0157
+21013,Sint-Gillis,Brussels Hoofdstedelijk Gewest,Brussels Hoofdstedelijk Gewest,148302.36,168784.73,50.829484,4.344655,centroid,2.5338
+21014,Sint-Joost-ten-Node,Brussels Hoofdstedelijk Gewest,Brussels Hoofdstedelijk Gewest,150042.8,171490.84,50.853813,4.36936,centroid,1.1606
+21015,Schaarbeek,Brussels Hoofdstedelijk Gewest,Brussels Hoofdstedelijk Gewest,151218.79,172379.92,50.861804,4.386064,centroid,7.9014
+21016,Ukkel,Brussels Hoofdstedelijk Gewest,Brussels Hoofdstedelijk Gewest,149480.45,164377.64,50.789868,4.361383,centroid,22.8752
+21017,Watermaal-Bosvoorde,Brussels Hoofdstedelijk Gewest,Brussels Hoofdstedelijk Gewest,153859.5,164719.05,50.792925,4.423491,centroid,12.9682
+21018,Sint-Lambrechts-Woluwe,Brussels Hoofdstedelijk Gewest,Brussels Hoofdstedelijk Gewest,154422.61,170834.96,50.8479,4.431552,centroid,7.2937
+21019,Sint-Pieters-Woluwe,Brussels Hoofdstedelijk Gewest,Brussels Hoofdstedelijk Gewest,155236.89,168967.03,50.831101,4.443088,centroid,8.9444
 23002,Asse,Provincie Vlaams-Brabant,Vlaams Gewest,139210.56,177450.15,50.907285,4.215352,centroid,50.2222
 23003,Beersel,Provincie Vlaams-Brabant,Vlaams Gewest,145278.98,159988.96,50.750397,4.301853,centroid,30.4018
 23009,Bever,Provincie Vlaams-Brabant,Vlaams Gewest,119164.71,155657.72,50.710666,3.93217,centroid,19.2362

@@ -1,14 +1,12 @@
 Municipalities: 581 (centre method: {'centroid': 576, 'representative_point': 5})
-Density table: 4,648 rows, years 2017-2024
-Raw accidents: 289,532 rows x 45 columns
-Dropped 14 FR columns: TX_RGN_COLLISION_FR, TX_PROV_COLLISION_FR, TX_MUNTY_COLLISION_FR, TX_CROSSWAY_FR, TX_WEATHER_FR, TX_ROAD_CONDITION_FR, TX_BUILD_UP_AREA_FR, TX_LIGHT_CONDITION_FR, CD_ROAD_TYPE_FR, TX_CLASS_ACCIDENTS_FR, TX_ROAD_USR_TYPE1_FR, TX_ROAD_USR_TYPE2_FR, TX_COLLISON_TYPE_FR, TX_OBSTACLES_FR
-TX_PROV_COLLISION_NL filled with 'Brussels Hoofdstedelijk Gewest': 30,022 rows (regions of those rows: ['Brussels Hoofdstedelijk Gewest'])
-Added POPULATION, AREA_KM2, POP_DENSITY (inhabitants/km2); rows without match: 0
-Coordinate check (Lambert 72, EPSG:31370):
-   ok                      252,904
-   missing                  35,881
-   outside_municipality        745
-   out_of_range                  2
-   -> 36,628 rows replaced by municipality centre (abnormal = missing, outside BE range, or > 1000 m outside own municipality)
-   points 0-1000 m outside own municipality kept as is: 3,932
-Processed accidents: 289,532 rows x 41 columns
+Density table: 4,648 rows, 2017-2024
+[1] Load raw accidents: 289,532 -> 289,532 | dropped 0 | changed 0 | All rows of OPENDATA_MAP_2017-2024.xlsx; nothing dropped.
+[2] Drop French columns: 289,532 -> 289,532 | dropped 0 | changed 0 | 14 columns removed (TX_RGN_COLLISION_FR, TX_PROV_COLLISION_FR, TX_MUNTY_COLLISION_FR, TX_CROSSWAY_FR, TX_WEATHER_FR, TX_ROAD_CONDITION_FR, TX_BUILD_UP_AREA_FR, TX_LIGHT_CONDITION_FR, CD_ROAD_TYPE_FR, TX_CLASS_ACCIDENTS_FR, TX_ROAD_USR_TYPE1_FR, TX_ROAD_USR_TYPE2_FR, TX_COLLISON_TYPE_FR, TX_OBSTACLES_FR); we work in Dutch only. No rows dropped.
+[3] Fill province for Brussels: 289,532 -> 289,532 | dropped 0 | changed 30,022 | Brussels belongs to no province. Empty province -> 'Brussels Hoofdstedelijk Gewest' so Brussels is its own unit in the province view.
+[4] Add population density: 289,532 -> 289,532 | dropped 0 | changed 289,532 | Joined on CD_NIS + year (population on 1 January). Rows without a match: 0. No rows dropped (left join, one density row per municipality-year).
+[5] Check coordinates: 289,532 -> 289,532 | dropped 0 | changed 36,628 | Flagged, not dropped: missing 35,881, out of Belgian range 2, > 1000 m outside own municipality 745.
+[6] Replace abnormal coordinates: 289,532 -> 289,532 | dropped 0 | changed 36,628 | Abnormal coordinates -> centre of the municipality in CD_NIS. Rows are kept because the municipality is known; COORD_IMPUTED marks them.
+[7] Add latitude / longitude: 289,532 -> 289,532 | dropped 0 | changed 289,532 | Lambert 72 (EPSG:31370) -> WGS84 for the maps. No rows dropped.
+[8] Keep accidents with own valid coordinates (maps at GPS position only): 289,532 -> 252,904 | dropped 36,628 | changed 0 | Accidents with a replaced coordinate sit on the municipality centre, not where they happened, so they are excluded from the GPS heat layer. They stay in all counts and ratios, which are grouped by municipality code.
+[C1] Mobility: country + regions only: 13,636 -> 3,896 | dropped 9,740 | changed 0 | Province rows dropped: accidents are compared per region.
+[C2] Measures: Belgium only: 202,760 -> 1,096 | dropped 201,664 | changed 0 | OxCGRT covers every country; only Belgium (national) is used.
