@@ -31,7 +31,7 @@ SAY:
 - "The work has three layers: raw data -> a Python script that cleans and combines it -> a Streamlit app
   that shows the data quality and answers the question."
 
-  Raw data (3 sources) --> Scripts/prepare_data.py --> Processed data --> App/app.py (Streamlit)
+  Raw data (3 sources) --> pipeline.py (one pure function per step) --> Processed data --> app.py (Streamlit)
 
 
 -----------------------------------------------------------------------------------------------------
@@ -64,10 +64,12 @@ c) Geography – statistical sectors 2024 (19,795 small areas with their borders
 
 
 -----------------------------------------------------------------------------------------------------
-3. DATA PROCESSING – Scripts/prepare_data.py  (2:00)
+3. DATA PROCESSING – pipeline.py  (2:00)
 -----------------------------------------------------------------------------------------------------
-SAY: "One script does all the processing, so it can be rerun at any time and gives the same result.
-     Four steps:"
+[SHOW] The row funnel at the top of the app, then tab "Pipeline & method" -> "Steps (rows in/out)".
+SAY: "pipeline.py does all the processing, one pure function per step. Each step reports rows in, rows out,
+     rows dropped or changed, and why. Steps 1-7 drop 0 rows; step 8 leaves 36,628 accidents (12.7%) out of the
+     GPS heat layer only. Every number in the app has a 'Source' line saying which step created it."
 
 Step 1 – Language: remove the 14 French columns; we work only in Dutch.
 
@@ -216,6 +218,16 @@ Q: What would you do next?
 A: A statistical model (e.g. logistic regression: severe yes/no) with density, built-up area, road type,
    light, and road users at the same time. That would show whether density still has an effect once
    speed and road type are taken into account.
+
+Q: How do you know the numbers are right?
+A: Two kinds of tests (tests/). 15 unit tests on the pipeline functions with small hand-made data, and 8 tests that
+   fill what those miss (tests/TEST_GAPS.md): an independent recalculation of the Severity Ratio from the raw file,
+   replaced coordinates lie inside their own municipality, all border views count the same accidents, population
+   equals Statbel's published totals, the funnel matches the data, and the app runs every button.
+
+Q: Where are your choices written down?
+A: CLAUDE.md (the project agreements), decision_log.md (each decision: what, why, alternatives, impact) and in the app:
+   tab "Pipeline & method" -> Assumptions, Category rules and Decision log.
 
 Q: Which tools did you use?
 A: Python: pandas (data), geopandas/shapely/pyproj (geo), scipy (statistics), Plotly (charts and maps,

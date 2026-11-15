@@ -1,0 +1,10 @@
+streamlit==1.64.0
+pandas
+numpy
+plotly==6.9.0
+scipy
+pyproj
+geopandas
+pyarrow
+openpyxl
+pytest

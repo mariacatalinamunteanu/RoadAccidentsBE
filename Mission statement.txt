@@ -1,5 +1,7 @@
 "In BE, is it true that as the density of the population increases, the severity of the accidents decreases? Why?"
 
+"Did the COVID-19 lockdowns make road accidents fewer but more severe? Why?"
+
 
 	   
 

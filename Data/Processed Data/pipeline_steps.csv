@@ -1,0 +1,11 @@
+﻿order,step,function,rows_in,rows_out,rows_dropped,rows_changed,why
+1,Load raw accidents,load_raw_accidents,289532,289532,0,0,All rows of OPENDATA_MAP_2017-2024.xlsx; nothing dropped.
+2,Drop French columns,step_drop_french,289532,289532,0,0,"14 columns removed (TX_RGN_COLLISION_FR, TX_PROV_COLLISION_FR, TX_MUNTY_COLLISION_FR, TX_CROSSWAY_FR, TX_WEATHER_FR, TX_ROAD_CONDITION_FR, TX_BUILD_UP_AREA_FR, TX_LIGHT_CONDITION_FR, CD_ROAD_TYPE_FR, TX_CLASS_ACCIDENTS_FR, TX_ROAD_USR_TYPE1_FR, TX_ROAD_USR_TYPE2_FR, TX_COLLISON_TYPE_FR, TX_OBSTACLES_FR); we work in Dutch only. No rows dropped."
+3,Fill province for Brussels,step_fill_province,289532,289532,0,30022,Brussels belongs to no province. Empty province -> 'Brussels Hoofdstedelijk Gewest' so Brussels is its own unit in the province view.
+4,Add population density,step_add_density,289532,289532,0,289532,"Joined on CD_NIS + year (population on 1 January). Rows without a match: 0. No rows dropped (left join, one density row per municipality-year)."
+5,Check coordinates,step_check_coordinates,289532,289532,0,36628,"Flagged, not dropped: missing 35,881, out of Belgian range 2, > 1000 m outside own municipality 745."
+6,Replace abnormal coordinates,step_impute_coordinates,289532,289532,0,36628,Abnormal coordinates -> centre of the municipality in CD_NIS. Rows are kept because the municipality is known; COORD_IMPUTED marks them.
+7,Add latitude / longitude,step_add_wgs84,289532,289532,0,289532,Lambert 72 (EPSG:31370) -> WGS84 for the maps. No rows dropped.
+8,Keep accidents with own valid coordinates (maps at GPS position only),step_select_georeferenced,289532,252904,36628,0,"Accidents with a replaced coordinate sit on the municipality centre, not where they happened, so they are excluded from the GPS heat layer. They stay in all counts and ratios, which are grouped by municipality code."
+C1,Mobility: country + regions only,mobility_monthly,13636,3896,9740,0,Province rows dropped: accidents are compared per region.
+C2,Measures: Belgium only,measures_belgium,202760,1096,201664,0,OxCGRT covers every country; only Belgium (national) is used.

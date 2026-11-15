@@ -163,3 +163,46 @@ History of everything Claude does in this project, newest entries at the bottom.
      empty roads). Cyclist share 22% -> 32%, single-vehicle 20% -> 24%, motorway 7.8% -> 5.8%.
    - Lockdown 2: 25% fewer accidents, SR 9.6% vs 9.7% (p = 0.85) -> no severity effect.
    - Brussels: fewer accidents in L1 but no SR increase (4.0%).
+
+
+------------------------------------------------------------------
+2026-11-15  |  Task: review against the evaluation criteria (demo-case PDF, page 6) and correct
+------------------------------------------------------------------
+
+1. Findings before the fixes
+   - No pipeline.py with one step per function; logic spread over Scripts/ and App/data.py.
+   - App did not show rows in/out per step; no row funnel.
+   - GPS heat layer also drew the 36,628 imputed centre points (pitfall "a map that hides this is lying").
+   - "Only injury accidents" and the denominator problem not stated in the app.
+   - No CLAUDE.md, no decision_log.md, no tests in the project, not a git repository.
+
+2. Git
+   - git init; .gitignore (large files > 40 MB not committed); baseline commit on main.
+   - All corrections on branch review/evaluation-criteria, merged back into main with --no-ff.
+
+3. pipeline.py (new, replaces Scripts/prepare_data.py, Scripts/prepare_covid.py and App/data.py logic)
+   - Steps 1-8 for accidents + C1/C2 for COVID; each returns a StepReport (rows in/out/dropped/changed/why).
+   - Writes pipeline_steps.csv, pipeline_samples/<step>.csv (rows the step changed), coordinates_by_year.csv,
+     unit_centers.csv, outlines_<level>.geojson, accidents_processed .csv + .parquet, covid_measures_BEL_daily.csv.
+   - Checked: output identical to the old scripts (289,532 x 41, cell by cell).
+   - Step 8 (new): accidents with own valid coordinates = 252,904; 36,628 excluded from the GPS heat layer only.
+
+4. App (app.py + app_data.py at the project root; App/ and Scripts/ removed)
+   - Row funnel at the top + warning "only accidents with casualties".
+   - New tab "Pipeline & method": expander per step (rows in/out, dropped, changed, why, function, sample),
+     excluded coordinates per year, lineage table, assumptions, category rules, decision log, test gaps.
+   - "Source:" caption under every number/chart; assumption boxes in tabs 2 and 3; "Rows used in this tab" tables.
+   - Heat layer uses step 8 only and says how many accidents are not drawn; tables show accidents per 1,000 inhabitants.
+
+5. Documents
+   - CLAUDE.md (project agreements), decision_log.md (D01-D25: what, why, alternatives, impact; Claude's own choices
+     marked ☐ for the student to confirm), tests/TEST_GAPS.md, requirements.txt, pytest.ini.
+   - Presentation.txt updated (pipeline.py, funnel, tests and decision-log questions).
+
+6. Tests
+   - tests/test_pipeline.py: 15 unit tests (synthetic data).
+   - tests/test_gaps.py: 8 tests on real data filling the gaps (independent SR recalculation from raw, imputed points
+     inside own municipality, border views consistent, population = Statbel totals, funnel = data, COVID baseline,
+     app runs every button).
+   - Result: 23 passed.
+   - App restarted from the new app.py (streamlit run app.py, port 8501).
