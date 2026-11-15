@@ -111,6 +111,7 @@ to be confirmed by the student (marked ☐ until confirmed).
 - **Decided by:** Claude
 - **Why:** a municipality with 4 accidents has a ratio of 0%, 25%, 50%…; such noise hides the pattern.
 - **Impact:** the slider shows how many municipalities are left out ("Rows used in this tab").
+- **Later changed:** D43 sets the default to 1 (all municipalities shown); 30 can still be chosen with the slider.
 
 ### D16 · Fixed density classes < 250 | 250–500 | 500–1,000 | 1,000–2,500 | 2,500–5,000 | > 5,000 ☐
 - **Decided by:** Claude
@@ -354,3 +355,14 @@ to be confirmed by the student (marked ☐ until confirmed).
   plain title. All three info points (density answer, "Why Municipalities …", COVID answer) look the same.
 - **Test:** `test_explanations.py::test_all_info_points_have_the_same_style` fails if a title brings its own icon or **.
 - **Five-file check:** app.py, tests, CLAUDE.md (dot rule), decision_log.md updated; pipeline.py: no change needed.
+
+### D43 · Scatter starts with all municipalities: minimum-accidents slider default 1 (was 30)
+- **Decided by:** student (2026-11-15)
+- **What changed:** the slider "Only municipalities with at least N accidents (small numbers = noisy ratios)" in the
+  municipality view of tab ❓ Density vs severity now starts at **1**, so all 581 municipalities are in the scatter,
+  its Spearman ρ and the trend line. Range stays 1–500. Replaces the default of D15 (30).
+- **Effect:** at N = 1 the scatter ρ is computed over all 581 municipalities, the same set as the headline metric
+  "Spearman ρ density ↔ SR (581 municipalities)"; the small, noisy municipalities are now visible by default
+  (their ratios jump between 0%, 25%, 50% …) – raise N to hide them.
+- **Five-file check:** app.py, tests, decision_log.md updated (+ Concept.txt); pipeline.py and CLAUDE.md: no change
+  needed (no explanation text or rule mentions the default).

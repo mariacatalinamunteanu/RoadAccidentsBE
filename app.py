@@ -577,7 +577,7 @@ def density_tab():
     min_n = 1
     with m2:
         if level == "Municipalities":
-            min_n = st.slider("Only municipalities with at least N accidents (small numbers = noisy ratios)", 1, 500, 30,
+            min_n = st.slider("Only municipalities with at least N accidents (small numbers = noisy ratios)", 1, 500, 1,
                               key="min_n")
         if level == "BE":
             r = agg.iloc[0]
