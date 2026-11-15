@@ -14,7 +14,7 @@ in `pipeline.py` (constants at the top) and add an entry to `decision_log.md`.
 | `app.py` | Streamlit app (`streamlit run app.py`). Shows data, never computes new data rules itself. |
 | `app_data.py` | Cached file loaders for the app only. |
 | `module_reload.py` | `fresh()`: reloads `pipeline.py` / `app_data.py` in a running app when the file changed. |
-| `tests/` | `test_pipeline.py` (15 unit tests, fast) · `test_gaps.py` (8 tests on real data, `-m data`) · `test_app_cache.py` (2, app cache) · `test_explanations.py` (12, explanation dots, conclusions, info points, test list) · `test_module_reload.py` (2, reload of changed modules) · `test_prompt_history_tab.py` (3, Prompt history sub-tab) · `test_docs_in_sync.py` (6, docs match the code) · `TEST_GAPS.md` (what the tests miss) |
+| `tests/` | `test_pipeline.py` (15 unit tests, fast) · `test_gaps.py` (8 tests on real data, `-m data`) · `test_app_cache.py` (2, app cache) · `test_explanations.py` (12, explanation dots, conclusions, info points, test list) · `test_module_reload.py` (2, reload of changed modules) · `test_prompt_history_tab.py` (3, Prompt history sub-tab) · `test_docs_in_sync.py` (7, docs match the code) · `TEST_GAPS.md` (what the tests miss) |
 | `pytest.ini`, `requirements.txt` | Test settings; packages for Streamlit Community Cloud. |
 | `decision_log.md` | What was decided, why, alternatives, impact. |
 | `Concept.txt` | Design: four pillars, sub-questions, categories, columns, filters, steps, drawing of every tab. |
@@ -95,6 +95,9 @@ Until D46 the accident steps were called 1–8; older decision-log entries use t
   others, and say in the answer which of the five needed no change. Also append an entry to `Claude work log.txt`.
 - Before building something new: ask a question wherever an assumption would otherwise be made, and record the answer
   in `decision_log.md`.
+- Every entry in `decision_log.md` has a **Decided by** line. A choice made by Claude (alone or as its part of a
+  decision) is marked **☐** until the student confirms it, then **✅ confirmed by student (date)**. Checked by
+  `test_docs_in_sync.py`.
 - UI language: English; data labels stay Dutch.
 
 ## Repository and deploy

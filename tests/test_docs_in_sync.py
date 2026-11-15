@@ -59,3 +59,15 @@ def test_lineage_table_names_only_existing_steps():
     codes = set(re.findall(r"\b([APGC]\d)\b", lineage))
     assert codes and codes <= set(P.STEP_DISPLAY_ORDER), codes - set(P.STEP_DISPLAY_ORDER)
     assert not re.search(r"[Ss]teps? [1-8]\b", lineage)  # old step numbers (renamed in D46)
+
+
+def test_every_decision_says_who_decided_and_claude_choices_are_marked():
+    # decision D51: every entry has 'Decided by'; a choice by Claude carries ☐ (open) or ✅ (confirmed by the student)
+    text = (ROOT / "decision_log.md").read_text(encoding="utf-8")
+    for d, body in re.findall(r"^### (D\d+)(.*?)(?=^### D\d+|\Z)", text, flags=re.S | re.M):
+        who = re.search(r"- \*\*Decided by:\*\* (.*)", body)  # rest of that line
+        assert who, f"{d}: no 'Decided by' line"
+        claude_choice = who.group(1).startswith("Claude") or "+ Claude" in who.group(1)
+        if claude_choice:
+            marks = body.splitlines()[0] + who.group(1)  # title line + 'Decided by' line
+            assert "☐" in marks or "✅" in marks, f"{d}: choice by Claude without ☐ / ✅"
