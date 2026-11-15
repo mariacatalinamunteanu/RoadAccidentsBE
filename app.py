@@ -551,6 +551,8 @@ def density_tab():
                "recorded injury accidents × 100. Each accident counts once.")
 
     st.markdown(f"#### Heat map – {level.lower() if level != 'BE' else 'Belgium'}")
+    dot("ℹ️ **Why Municipalities Reveal a Clearer Link Between Population Density and Severity Ratio**",
+        "d_why_municipalities")
     st.caption("Each **dot** sits at the centre of a unit. **Colour** = Severity Ratio (blue = low, red = high). "
                "**Size** = population density. The grey **heat layer** shows accidents at their own GPS position.")
     excl = len(a) - len(geo)

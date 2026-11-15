@@ -394,3 +394,13 @@ History of everything Claude does in this project, newest entries at the bottom.
    - Five files: pipeline.py (text), tests (new test in test_explanations.py), decision_log.md D39; app.py and CLAUDE.md:
      no change needed (app.py already shows this dot; CLAUDE.md rules unchanged).
    - Tests: fast suites 26 passed + app test passed. Merged into main with --no-ff and pushed.
+
+
+------------------------------------------------------------------
+2026-11-15  |  Info point "Why Municipalities Reveal a Clearer Link ..." under the heat-map title
+------------------------------------------------------------------
+   - Branch ui/why-municipalities-dot: app.py dot(...) under "Heat map – ..."; pipeline.EXPLANATIONS["d_why_municipalities"]
+     = student text as sections with bullet points.
+   - tests: new test; key-check regex fixed for dot() calls over 2 lines (it failed first: test limitation, not app).
+   - Five files: pipeline.py, app.py, tests, decision_log.md D40 updated; CLAUDE.md: no change needed.
+   - Tests: fast suites 27 passed + app test passed. Merged into main with --no-ff and pushed.

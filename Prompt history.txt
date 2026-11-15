@@ -8,7 +8,7 @@
   Create a processed data set, based on C:\Users\catut\Learning\Data Scientist 2025-2028\2026-2027\Project 1\Project 1.1\Data\Raw Data\Accidents, where:
   - remove all the FR columns - we will be working only based on the NL language
   - add the density population per municipality
-  - check all the geo coordinates for abnormal/missing values; where abnormal values are found replace these with the geo coordinates of the centers of the municipalities where the accident happened 
+  - check all the geo coordinates for abnormal/missing values; where abnormal/missing values are found replace these with the geo coordinates of the centers of the municipalities where the accident happened 
   - fill in the column TX_PROV_COLLISION_NL with "Brussels Hoofdstedelijk Gewest" (for the purpose of the province view)
 
 ***** Create a txt file in C:\Users\catut\Learning\Data Scientist 2025-2028\2026-2027\Project 1\Project 1.1 where you keep a history of everything you do, from now on. Include also what you already did.
@@ -55,3 +55,24 @@
   Has at least one branch been used and merged back?
   Have you inves􀆟gated yourselves what the AI tests do not test, and done something about it?
   Is the decision log concrete? (not “we changed something”, but what and why)
+
+***** Move the Row funnel section that you added on top of all the tabs into the Pipeline and Method tab. Doesn't it make more sense to be there?
+
+***** Include a switch on the map: "Include accidents placed at the municipality centre (36,628)", off by default. You can then show both views in your presentation and explain the difference.
+
+***** Remove this statement from under the title of the app and make sure it is included in each of the 2 question tabs, in the Assumptions: This dataset contains only accidents with at least one death or injury. Accidents with only material damage are not included, so the most dangerous place according to this data is not the same as the place with the most accidents.
+
+***** In the Pipeline Tab, rename the steps to reflect what tab they refer to and what data set it is being worked in those steps
+
+***** For this project, help me build a Concept.txt file that answers to these questions: Apply the four pillars to your central ques􀆟on: decomposi􀆟on, pa􀆩ern recogni􀆟on, abstrac􀆟on, algorithm. Draw the dashboard: which sub‑ques􀆟ons, which categories, which columns and filters, which steps. You are
+only done when another pair can explain it without having to ask anything.
+
+***** Are all these reflecting the entire project structure, steps and development: pipeline.py, app.py, tests, CLAUDE.md and decision_log.md
+
+***** Add explanation dots, such as in this project: https://yunleebe.streamlit.app/, for each number presented. Update these files: pipeline.py, app.py, tests, CLAUDE.md and decision_log.md. Remember the command to always update these file after the execution of each prompt.
+
+***** Include this explanation in the question mark dot that follows "How is this answer computed?" in the tab Density vs Severity: "Spearman ρ (“rho”) compares two rankings. Put the municipalities in order by population density, then put them in order by the share of injury crashes that were severe. If denser municipalities tend to rank lower on that second list, ρ is negative. It ranges from −1 (exactly opposite rankings) to +1 (identical rankings). ρ = −0.50 shows a clear tendency for denser municipalities to have a lower severe share.
+The p-value asks: if there were no association, how often would we see a correlation this strong or stronger in either direction? p < 0.001 means less than 1 time in 1,000 under that assumption. That’s strong evidence of an association. Whether density causes the difference is a separate question." Use a writing style that is easy to read, wiht tabs and bullet points, etc
+
+*****  Include under the "Heat map -...." title, an "I" info point named "Why Municipalities Reveal a Clearer Link Between Population Density and Severity Ratio", add to this a "?" info point, add in this the following "Municipalities are the more informative scale for this question. They preserve local differences in population density and crash severity that can be averaged away when municipalities are grouped into larger areas. Comparing 581 municipalities also gives the analysis more observations to work with than comparing 11 larger areas. At the municipal level, the evidence is clearer that denser places tend to have a smaller share of severe crashes among recorded injury crashes."
+

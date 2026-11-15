@@ -320,3 +320,15 @@ to be confirmed by the student (marked ☐ until confirmed).
 - **Note:** ρ = −0.50 is the value for all years 2017–2024; with another year selection the metric above shows the
   current value. Tooltips support Markdown (headings, lists) but no real tab stops, so lists replace tabs.
 - **Test:** `test_explanations.py::test_answer_dot_explains_spearman_and_p_value_in_plain_words`.
+
+### D40 · Info point "Why Municipalities Reveal a Clearer Link …" under the heat-map title
+- **Decided by:** student (2026-11-15), text written by the student
+- **What changed:** directly under "Heat map – …" in tab ❓ Density vs severity: an ℹ️ line "Why Municipalities Reveal a
+  Clearer Link Between Population Density and Severity Ratio" with a "?" dot. Behind the dot
+  (`pipeline.EXPLANATIONS["d_why_municipalities"]`), in short sections with bullet points: municipalities keep local
+  differences that are averaged away in larger areas; 581 municipalities give more observations than 11 larger areas;
+  at municipal level the evidence is clearer that denser places have a smaller severe share.
+- **Why:** explains to the viewer why the municipality view is the most informative of the four border views.
+- **Note:** "11 larger areas" = the province view (10 provinces + Brussels); the region view has 3 units.
+- **Test:** `test_explanations.py::test_why_municipalities_info_point_under_the_heat_map`. The key-check regex in
+  `test_every_explanation_key_used_in_the_app_exists` now also finds `dot(...)` calls spread over two lines.

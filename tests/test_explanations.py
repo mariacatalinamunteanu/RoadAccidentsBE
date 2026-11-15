@@ -47,7 +47,7 @@ def test_every_table_goes_through_the_column_help_wrapper():
 
 
 def test_every_explanation_key_used_in_the_app_exists():
-    used = set(re.findall(r'(?:explain=|E\(|dot\([^,]+, )"([a-z0-9_]+)"', APP))
+    used = set(re.findall(r'(?:explain=|E\(|dot\([^,]+,\s*)"([a-z0-9_]+)"', APP))  # \s*: calls may span lines
     used |= {f"status_{s}" for s in ["ok", "missing", "out_of_range", "outside_municipality"]}  # E(f"status_{...}")
     assert used, "no explanation keys found"
     assert not used - set(P.EXPLANATIONS), used - set(P.EXPLANATIONS)
@@ -68,6 +68,17 @@ def test_answer_dot_explains_spearman_and_p_value_in_plain_words():
                  "association", "causes"]:
         assert must in t, must
     assert t.count("\n- ") >= 8 and "\n1. " in t  # bullet points and numbered steps, not one long sentence
+
+
+def test_why_municipalities_info_point_under_the_heat_map():
+    # decision D40: info point under the heat-map title, with the student's explanation behind its "?"
+    assert 'dot("ℹ️ **Why Municipalities Reveal a Clearer Link Between Population Density and Severity Ratio**"' in APP
+    assert APP.index("#### Heat map –") < APP.index("d_why_municipalities") < APP.index('explain="d_map"')
+    t = P.EXPLANATIONS["d_why_municipalities"]
+    for must in ["more informative scale", "averaged away", "581 municipalities", "11 larger areas",
+                 "smaller share of severe crashes"]:
+        assert must in t, must
+    assert t.count("\n- ") >= 4
 
 
 def test_columns_of_the_pipeline_outputs_have_column_help():
