@@ -175,6 +175,7 @@ to be confirmed by the student (marked ☐ until confirmed).
 ### D24 · Show rows in/out per step, a funnel at the top and the source of every number
 - **Why:** evaluation criteria 1–2. Every step returns a `StepReport` (rows in/out/dropped/changed/why) saved in
   `pipeline_steps.csv` with a sample per step. Every metric/chart has a "Source:" caption.
+- **Later changed:** D26 moved the row funnel from above all tabs into the tab Pipeline & method.
 
 ### D25 · Large files not in git; app reads Parquet ☐
 - **Why:** GitHub refuses files > 100 MB. The processed CSV is 109 MB; the Parquet copy is 17 MB and loads faster.
@@ -207,6 +208,7 @@ to be confirmed by the student (marked ☐ until confirmed).
 - **Alternatives:** keep D17 only (hides the student's instruction on the map); always draw them (false hot spots).
 - **Impact:** all years: 36,628 accidents (12.7%) switched on/off. Tested in
   `test_gaps.py::test_app_runs_every_tab_and_button`.
+- **Later changed:** D44 made the heat layer show severe accidents by default; the switch label and counts now follow the selected layer ("Include severe accidents placed at the municipality centre (n)").
 
 ### D28 · "Only accidents with casualties" statement moved into the Assumptions of both question tabs
 - **Decided by:** student (2026-11-15)
@@ -226,6 +228,7 @@ to be confirmed by the student (marked ☐ until confirmed).
   columns "data set" and "used in tab(s)". Steps 1–8 = accident data, C1–C2 = COVID data.
 - **Why:** with only the action in the title ("Check coordinates") it was not visible which data set a step changes and
   where in the app its result can be seen – needed to point out every number "from within the app" (assignment).
+- **Later changed:** D46 renamed steps 1–8 to A1–A8 and set the display order A, P, G, C (with a run_order column).
 
 ### D30 · App caches follow file changes (bug fix)
 - **Decided by:** Claude, after the student reported the error (2026-11-15)
@@ -285,6 +288,7 @@ to be confirmed by the student (marked ☐ until confirmed).
 - **Why:** assignment criterion 1 ("for every number, in which step was it created?") and the no-AI conversation:
   the explanation must be visible in the app itself, not only in the log.
 - **Tests:** `tests/test_explanations.py` (6 tests) + metric check in the app test (TEST_GAPS gap 10).
+- **Later changed:** D42 gave all info points one style (ℹ️ + bold title + ?), added by `dot()`.
 
 ### D36 · Standing rule: update pipeline.py, app.py, tests, CLAUDE.md and decision_log.md after every prompt
 - **Decided by:** student (2026-11-15)
@@ -336,6 +340,7 @@ to be confirmed by the student (marked ☐ until confirmed).
 - **Note:** "11 larger areas" = the province view (10 provinces + Brussels); the region view has 3 units.
 - **Test:** `test_explanations.py::test_why_municipalities_info_point_under_the_heat_map`. The key-check regex in
   `test_every_explanation_key_used_in_the_app_exists` now also finds `dot(...)` calls spread over two lines.
+- **Later changed:** D45 moved this info point from under the heat-map title to under the border-view buttons.
 
 ### D41 · File rules: Presentation.txt stays deleted; Prompt history.txt only pushed on request; commit only own files
 - **Decided by:** student (2026-11-15)
@@ -349,6 +354,7 @@ to be confirmed by the student (marked ☐ until confirmed).
   edit of `Prompt history.txt`). Staging named files makes that impossible.
 - **Five-file check for this prompt:** `CLAUDE.md` and `decision_log.md` updated; `pipeline.py`, `app.py`, tests: no
   change needed (rules about files, no code or data change).
+- **Later changed:** D48: `Prompt history.txt` is now included in every commit (no longer only on request).
 
 ### D42 · One style for all info points (ℹ️ + bold title + ?)
 - **Decided by:** student (2026-11-15: "Keep the formatting of the 'I' point consistent in the tab")
@@ -425,6 +431,7 @@ to be confirmed by the student (marked ☐ until confirmed).
 - **Never changes the file:** `tests/test_prompt_history_tab.py` checks that no code writes it; the app test checks
   that the tab shows exactly the file content (Streamlit drops only the final line break).
 - **Deployed app:** shows the version of the file that is on GitHub, i.e. as of the last push.
+- **Later changed:** D49 moved Prompt history from a main tab to a sub-tab of Pipeline & method.
 
 ### D48 · Prompt history.txt is included in every commit
 - **Decided by:** student (2026-11-15: "Always include the prompt history.txt in the commit")
@@ -443,3 +450,22 @@ to be confirmed by the student (marked ☐ until confirmed).
 - **Also fixed:** `Concept.txt` still said "Steps used: … 1–8" (missed by the D46 rename) → A1–A8.
 - **Test:** `test_prompt_history_is_a_subtab_right_of_decision_log_and_tests`.
 - **Five-file check:** app.py, tests, CLAUDE.md, decision_log.md updated (+ Concept.txt); pipeline.py: no change needed.
+
+### D50 · Full consistency check of the five files and the Pipeline & method tab
+- **Decided by:** student (2026-11-15: check that pipeline.py, app.py, tests, CLAUDE.md, decision_log.md and the tab
+  Pipeline & method reflect all steps and changes)
+- **Found and fixed:**
+  - 7 decisions were changed later but did not say so → "Later changed" links added to D24, D27, D29, D35, D40, D41,
+    D47 (D15, D17, D26 already had one).
+  - Test counts were stale: TEST_GAPS.md said 39 (real: 42), CLAUDE.md did not list `test_prompt_history_tab.py`.
+  - Pipeline & method → "Where does each number come from?": rows added for the Prompt history sub-tab and the COVID
+    info point; the heat-layer row now mentions the severe default (D44).
+  - The module descriptions at the top of `pipeline.py` and `app.py` now describe the step groups, the display/run
+    order, the explanation dots, the conclusions and the tabs.
+- **Checked and up to date:** step data in the app (`pipeline_steps.csv`) = `STEP_CONTEXT` and `STEP_DISPLAY_ORDER`;
+  decision IDs D01–D50 without gaps or duplicates; no old step names left outside the history; the Decision log,
+  TEST_GAPS, All tests and Prompt history sub-tabs read their files live.
+- **So it does not drift again:** new `tests/test_docs_in_sync.py` fails when a documented test count, the test list
+  in CLAUDE.md, the step data, the decision numbering or the lineage step codes no longer match the code.
+- **Five-file check:** pipeline.py (docstring), app.py (lineage + docstring), tests (new file), CLAUDE.md,
+  decision_log.md updated.
