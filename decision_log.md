@@ -332,3 +332,16 @@ to be confirmed by the student (marked ☐ until confirmed).
 - **Note:** "11 larger areas" = the province view (10 provinces + Brussels); the region view has 3 units.
 - **Test:** `test_explanations.py::test_why_municipalities_info_point_under_the_heat_map`. The key-check regex in
   `test_every_explanation_key_used_in_the_app_exists` now also finds `dot(...)` calls spread over two lines.
+
+### D41 · File rules: Presentation.txt stays deleted; Prompt history.txt only pushed on request; commit only own files
+- **Decided by:** student (2026-11-15)
+- **What:**
+  - `Presentation.txt` was deleted on purpose by the student; it is not restored or recreated (the deletion was
+    committed in f25cd17).
+  - `Prompt history.txt` is the student's file: Claude never changes its content and commits/pushes it only when the
+    student asks. (Its latest edit was already pushed with D40, before this rule – left as it is.)
+  - Claude stages only the files it changed itself (`git add <files>`), never `git add -A`, and reports other changes.
+- **Why:** twice a change made by the student was committed without being asked (deletion of `Presentation.txt`,
+  edit of `Prompt history.txt`). Staging named files makes that impossible.
+- **Five-file check for this prompt:** `CLAUDE.md` and `decision_log.md` updated; `pipeline.py`, `app.py`, tests: no
+  change needed (rules about files, no code or data change).
