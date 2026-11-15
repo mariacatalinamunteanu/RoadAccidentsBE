@@ -424,3 +424,11 @@ History of everything Claude does in this project, newest entries at the bottom.
    - tests: new test_all_info_points_have_the_same_style; why-municipalities test adapted.
    - Five files: app.py, tests, CLAUDE.md, decision_log.md D42 updated; pipeline.py: no change needed.
    - Tests: fast suites 28 passed + app test passed. Only own files committed. Merged into main and pushed.
+
+
+------------------------------------------------------------------
+2026-11-15  |  Question: were the five files updated after the info-point prompt?
+------------------------------------------------------------------
+   - Checked with git (commit 8520e22): app.py, tests/test_explanations.py, CLAUDE.md, decision_log.md (D42) updated;
+     pipeline.py checked, no change needed (texts unchanged).
+   - This prompt (a question): no change needed in any of the five files.
