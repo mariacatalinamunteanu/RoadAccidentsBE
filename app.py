@@ -36,7 +36,8 @@ ASSUMPTIONS = {
                     "36,628 accidents (12.7%) have no usable own coordinate: 35,881 missing, 2 impossible, 745 more than "
                     "1 km outside their municipality. 15-19% per year before 2022, 3-6% from 2022. They get the "
                     "municipality centre (step 6) so they still count in all numbers grouped by municipality, but they are "
-                    "EXCLUDED from everything drawn at GPS position (step 8, grey heat layer)."),
+                    "by default not drawn in the grey GPS heat layer (step 8). A switch on the map adds them at the "
+                    "municipality centre."),
     "denominator": ("The denominator problem",
                     "More accidents in a place can simply mean more residents or more traffic. This project does not "
                     "rank places by accident counts. It uses (1) the Severity Ratio, a share that does not grow with "
@@ -101,8 +102,8 @@ def top_funnel():
         st.markdown("**Row funnel – where data disappears**")
         st.markdown(f"- Raw accidents: **{fmt(raw_n)}**\n"
                     f"- Steps 2–7 drop **0 rows**: they fix or add values\n"
-                    f"- Step 8: **{fmt(raw_n - geo_n)} ({(raw_n - geo_n) / raw_n * 100:.1f}%)** have no usable own "
-                    f"coordinate → left out of the GPS heat layer only\n"
+                    f"- Step 8 is **not** a drop from the data: **{fmt(raw_n - geo_n)} ({(raw_n - geo_n) / raw_n * 100:.1f}%)** "
+                    f"have no usable own coordinate → by default not drawn in the GPS heat layer (switch on the map)\n"
                     f"- All counts and ratios use all **{fmt(raw_n)}** rows (grouped by municipality code)")
         st.caption("Details per step: the expanders below.")
 
@@ -124,7 +125,8 @@ LINEAGE = [
      "pipeline.build_density → population_density_2017-2024.csv; joined in pipeline.step_add_density", "step 4"),
     ("1.2 Processed: coordinates replaced", "36,628 rows", "pipeline.step_impute_coordinates → COORD_IMPUTED", "step 6"),
     ("Maps: LAT / LON", "WGS84 positions", "pipeline.step_add_wgs84", "step 7"),
-    ("Tab 2: grey heat layer", "accidents at GPS position", "pipeline.step_select_georeferenced (excludes imputed)", "step 8"),
+    ("Tab 2: grey heat layer", "accidents at GPS position", "switch off: pipeline.step_select_georeferenced (step 8, own "
+     "coordinates only) · switch on: all rows, replaced ones at the municipality centre (step 6)", "steps 6–8"),
     ("Tab 2: severe / Severity Ratio (all)", "class 1-3 share", "pipeline.is_severe, pipeline.severity_ratio", "analysis"),
     ("Tab 2: dots on the map + table", "per region / province / municipality / BE",
      "pipeline.aggregate_by_level (density = Σ population / Σ area; centre from unit_centers.csv)", "analysis (uses steps 4, 7)"),
@@ -151,7 +153,7 @@ def pipeline_tab():
         st.dataframe(steps, hide_index=True, width="stretch")
         for r in steps.itertuples():
             label = (f"Step {r.order} · {r.step} — in {fmt(r.rows_in)} → out {fmt(r.rows_out)}"
-                     f"{' · dropped ' + fmt(r.rows_dropped) if r.rows_dropped else ''}"
+                     f"{(' · not drawn in heat layer by default ' if r.order == '8' else ' · dropped ') + fmt(r.rows_dropped) if r.rows_dropped else ''}"
                      f"{' · changed ' + fmt(r.rows_changed) if r.rows_changed else ''}")
             with st.expander(label):
                 c = st.columns(4)
@@ -484,9 +486,15 @@ def density_tab():
                                  default="Provinces", key="level") or "Provinces"
     years = c2.select_slider("Years", options=list(range(2017, 2025)), value=(2017, 2024))
     heat_mode = c3.radio("Accident heat layer (GPS positions)", ["All accidents", "Severe accidents", "Off"], horizontal=True)
+    n_imputed_sel = int(acc[acc.DT_YEAR_COLLISION.between(*years)].COORD_IMPUTED.sum())
+    include_imputed = c3.toggle(f"Include accidents placed at the municipality centre ({fmt(n_imputed_sel)})", value=False,
+                                key="heat_imputed",
+                                help="Off: only accidents at their own GPS position (step 8). On: also the accidents "
+                                     "whose coordinate was missing or abnormal, drawn at the centre of their municipality (step 6).")
     yrs = list(range(years[0], years[1] + 1))
     a, _ = P.filter_years(acc, yrs)
-    geo, _ = P.step_select_georeferenced(a)
+    own_geo, _ = P.step_select_georeferenced(a)
+    geo = a if include_imputed else own_geo
     agg = P.aggregate_by_level(acc, dens, look, units, level, yrs)
     mun = P.aggregate_by_level(acc, dens, look, units, "Municipalities", yrs)
     prof = P.density_class_profile(a)
@@ -513,13 +521,21 @@ def density_tab():
     st.caption("Each **dot** sits at the centre of a unit. **Colour** = Severity Ratio (blue = low, red = high). "
                "**Size** = population density. The grey **heat layer** shows accidents at their own GPS position.")
     excl = len(a) - len(geo)
-    st.caption(f"⚠️ Heat layer: **{fmt(excl)} accidents ({excl / len(a) * 100:.1f}%)** without a usable own coordinate "
-               f"are **not drawn** (step 8). They are counted in the dots, which are grouped by municipality code.")
+    n_imp = len(a) - len(own_geo)
+    if include_imputed:
+        st.caption(f"⚠️ Heat layer: **all {fmt(len(a))} accidents** are drawn, including **{fmt(n_imp)} "
+                   f"({n_imp / len(a) * 100:.1f}%)** placed at the **centre of their municipality** (step 6). Dark spots on "
+                   f"municipality centres are partly caused by these replaced coordinates, not by where the accidents "
+                   f"really happened.")
+    else:
+        st.caption(f"⚠️ Heat layer: **{fmt(excl)} accidents ({excl / len(a) * 100:.1f}%)** without a usable own coordinate "
+                   f"are **not drawn** (step 8). Use the switch to draw them at their municipality centre. They are always "
+                   f"counted in the dots, which are grouped by municipality code.")
     m1, m2 = st.columns([3, 2])
     with m1:
         show_fig(heat_map(agg, level, geo, heat_mode), key="map")
         src("dots: pipeline.aggregate_by_level (centres: unit_centers.csv from pipeline.build_units) · "
-            "heat layer: step 8 pipeline.step_select_georeferenced, LAT/LON from step 7")
+            "heat layer: LAT/LON from step 7; switch off = step 8 (own coordinates only), on = also step-6 centres")
     min_n = 1
     with m2:
         if level == "Municipalities":
@@ -617,7 +633,9 @@ def density_tab():
     rows_used([
         ("Selected years", len(acc), len(a), len(acc) - len(a), "Outside the year selection"),
         ("Dots, table, charts 1-2-4", len(a), len(a), 0, "All rows (grouped by municipality code)"),
-        ("Grey heat layer", len(a), len(geo), excl, "No usable own coordinate (step 8)"),
+        ("Grey heat layer", len(a), len(geo), excl,
+         "Switch on: nothing left out (replaced coordinates drawn at the municipality centre)" if include_imputed
+         else "No usable own coordinate (step 8); use the switch on the map to include them at the municipality centre"),
         ("Chart 3 (inside / outside built-up area)", len(a), len(known_bu), len(a) - len(known_bu), "Built-up area unknown (code 9)"),
         ("Scatter (municipalities, units)", len(mun), int((mun.ACCIDENTS >= min_n).sum()) if level == "Municipalities" else len(mun),
          int((mun.ACCIDENTS < min_n).sum()) if level == "Municipalities" else 0, f"Fewer than {min_n} accidents (slider)"),

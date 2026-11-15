@@ -30,7 +30,9 @@ in `pipeline.py` (constants at the top) and add an entry to `decision_log.md`.
 - **Missing / abnormal coordinates:** missing, outside the Belgian Lambert range, or more than **1,000 m** outside the
   municipality in `CD_NIS` → replaced by the **municipality centre** (step 6) and flagged `COORD_IMPUTED = True`.
   - They **stay in all counts and ratios** (grouped by municipality code).
-  - They are **excluded from anything drawn at GPS position** (step 8, heat layer), and the app must show how many.
+  - In the GPS heat layer they are **left out by default** (step 8); a switch on the map ("Include accidents placed at
+    the municipality centre") draws them at the centre. The app always says how many are left out or placed on centres.
+  - Step 8 never removes rows from the data set.
   - 0–1,000 m outside the municipality = kept (border roads).
 - **Municipality centre:** centroid of the polygon; representative point if the centroid falls outside (5 cases).
 - **Municipalities:** the 581 post-2019 municipalities (NIS codes as in the accident data). 2017–2018 population is
