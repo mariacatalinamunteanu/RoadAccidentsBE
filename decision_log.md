@@ -433,3 +433,13 @@ to be confirmed by the student (marked ☐ until confirmed).
 - **Why:** with D47 the app shows the file; committing it every time keeps the deployed tab up to date.
 - **Five-file check (D47 + D48):** app.py (+ app_data.py), pipeline.py (path), tests (new file + app test),
   CLAUDE.md, decision_log.md updated (+ Concept.txt).
+
+### D49 · Prompt history becomes a sub-tab of "Pipeline & method", right of "Decision log & tests"
+- **Decided by:** student (2026-11-15)
+- **What changed:** the main tab "📝 Prompt history" (D47) is removed; the same content is now the sixth sub-tab of
+  🔧 Pipeline & method, directly to the right of "Decision log & tests". It still reads `Prompt history.txt` live and
+  never changes it. The app has 4 main tabs again.
+- **Why:** the prompt history documents how the project was built, like the decision log and the tests next to it.
+- **Also fixed:** `Concept.txt` still said "Steps used: … 1–8" (missed by the D46 rename) → A1–A8.
+- **Test:** `test_prompt_history_is_a_subtab_right_of_decision_log_and_tests`.
+- **Five-file check:** app.py, tests, CLAUDE.md, decision_log.md updated (+ Concept.txt); pipeline.py: no change needed.

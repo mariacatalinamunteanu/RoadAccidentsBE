@@ -190,8 +190,8 @@ def pipeline_tab():
     st.markdown("Every number in this app comes from a function in `pipeline.py`. `python pipeline.py` runs the steps "
                 "below in order and writes the files in `Data/Processed Data`. The app only reads those files.")
     top_funnel()
-    t1, t2, t3, t4, t5 = st.tabs(["Steps (rows in/out)", "Where does each number come from?", "Assumptions",
-                                  "Category rules", "Decision log & tests"])
+    t1, t2, t3, t4, t5, t6 = st.tabs(["Steps (rows in/out)", "Where does each number come from?", "Assumptions",
+                                      "Category rules", "Decision log & tests", "📝 Prompt history"])
     with t1:
         steps = D.load_steps()
         table(steps[["order", "run_order", "dataset", "step", "tabs", "rows_in", "rows_out", "rows_dropped",
@@ -254,6 +254,8 @@ def pipeline_tab():
             st.caption(f"{len(tl)} tests in {tl.file.nunique()} files, read directly from the `tests/` folder, so this list "
                        "is always up to date. Run them with `python -m pytest`.")
             table(tl, hide_index=True, width="stretch", height=560)
+    with t6:  # right of "Decision log & tests" (decision D49)
+        prompt_history_tab()
 
 
 # =================================================================== DATA EXPLORER
@@ -1056,7 +1058,8 @@ road type × collision type × cyclist yes/no) had been as severe as normal, so 
 
 # =================================================================== PROMPT HISTORY
 def prompt_history_tab():
-    st.subheader("Prompt history")
+    """Sub-tab of Pipeline & method: the student's Prompt history.txt, read live (decisions D47, D49)."""
+    st.markdown("#### Prompt history")
     text = D.load_prompt_history()
     if text is None:
         st.info("`Prompt history.txt` was not found in the project folder.")
@@ -1071,8 +1074,7 @@ def prompt_history_tab():
 st.title("🚦 Road accidents in Belgium 2017–2024")
 st.caption("Hover over a **?** next to a number, chart title or column header to see what it means, how it is "
            "calculated and in which pipeline step it is created.")
-tab0, tab1, tab2, tab3, tab4 = st.tabs(["🔧 Pipeline & method", "📊 Data Explorer", "❓ Density vs severity",
-                                        "🦠 COVID lockdowns", "📝 Prompt history"])
+tab0, tab1, tab2, tab3 = st.tabs(["🔧 Pipeline & method", "📊 Data Explorer", "❓ Density vs severity", "🦠 COVID lockdowns"])
 with tab0:
     pipeline_tab()
 with tab1:
@@ -1085,5 +1087,3 @@ with tab2:
     density_tab()
 with tab3:
     covid_tab()
-with tab4:
-    prompt_history_tab()

@@ -503,3 +503,15 @@ History of everything Claude does in this project, newest entries at the bottom.
      (replaces "only when asked" of D41), memory updated.
    - CLAUDE.md, Concept.txt (tab list + tab description), decision_log.md D47, D48.
    - Five files: all updated. Tests: 42 passed. Committed with Prompt history.txt. Merged and pushed.
+
+
+------------------------------------------------------------------
+2026-11-15  |  Prompt history moved to a sub-tab of Pipeline & method
+------------------------------------------------------------------
+   - Branch ui/prompt-history-subtab: app.py – "📝 Prompt history" is now the 6th sub-tab of Pipeline & method, right
+     of "Decision log & tests"; main tab removed (4 main tabs again).
+   - tests/test_prompt_history_tab.py: checks the place (sub-tab right of Decision log & tests, not a main tab).
+     (First version had a line break written into a string by the edit script -> fixed.)
+   - CLAUDE.md, Concept.txt (drawing; also fixed leftover "Steps used: ... 1–8" -> A1–A8), decision_log.md D49.
+   - Five files: app.py, tests, CLAUDE.md, decision_log.md updated; pipeline.py: no change needed.
+   - Tests: 42 passed. Committed with Prompt history.txt (D48). Merged and pushed.
