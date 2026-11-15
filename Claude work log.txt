@@ -301,3 +301,23 @@ History of everything Claude does in this project, newest entries at the bottom.
    - GitHub warning (not an error): OPENDATA_MAP_2017-2024.xlsx is 58.33 MB, above the recommended 50 MB.
    - Files the app needs on Streamlit Cloud are all committed (large files in .gitignore are only used by pipeline.py
      and the data tests).
+
+
+------------------------------------------------------------------
+2026-11-15  |  Consistency review: do pipeline.py, app.py, tests, CLAUDE.md, decision_log.md reflect the project?
+------------------------------------------------------------------
+   - Findings: 4 pieces of work in run_all() were not reported steps (municipalities, border-view centres, density
+     table, monthly COVID table); CLAUDE.md said Raw Data is never written by code (G1 writes the centres there, as the
+     student asked) and its file table missed test_app_cache.py, Concept.txt, Presentation.txt, requirements.txt,
+     pytest.ini and the student's own files; decision log missed the public push (incl. PDFs), the mobility/OxCGRT
+     file choice and the UI language; D17/D26 did not say they were changed later.
+   - Branch docs/consistency-review:
+       * pipeline.py: step reports G1 (19,795 sectors -> 581), G2 (581 -> 596 units), P1 (5,120 sheet rows -> 4,648),
+         C3 (289,532 accidents -> 384 rows), with samples; STEP_CONTEXT extended. Pipeline rerun.
+       * app.py: lineage table names G1/G2/P1/C3; note on the steps tab that grouping steps lose nothing.
+       * tests/test_gaps.py: funnel test also checks G1, P1, C3.
+       * CLAUDE.md: complete file table, Raw Data exception, list of all pipeline steps.
+       * decision_log.md: D31 (public push incl. PDFs, student), D32 (mobility/OxCGRT files), D33 (UI language),
+         D34 (grouping steps reported); "Later changed" notes in D17 and D26.
+       * Concept.txt: algorithm section uses the same step names and numbers.
+   - Tests: 25 passed. Merged into main with --no-ff and pushed.

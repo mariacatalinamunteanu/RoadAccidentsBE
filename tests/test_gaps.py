@@ -98,6 +98,10 @@ def test_funnel_matches_data(proc):
     assert steps.loc["8", "rows_out"] == int((~proc.COORD_IMPUTED).sum())
     assert (steps.loc[[str(i) for i in range(1, 8)], "rows_dropped"] == 0).all()
     assert steps.loc["6", "rows_changed"] == int(proc.COORD_IMPUTED.sum())
+    # the grouping steps are reported too, with the numbers the app relies on
+    assert steps.loc["G1", "rows_out"] == proc.CD_NIS.nunique() == 581
+    assert steps.loc["P1", "rows_out"] == 581 * 8
+    assert steps.loc["C3", "rows_in"] == len(proc) and steps.loc["C3", "rows_out"] == 4 * 96
 
 
 # GAP 7 - the COVID baseline: 'normal' must be the plain 2017-2019 average of that month
