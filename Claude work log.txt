@@ -270,3 +270,21 @@ History of everything Claude does in this project, newest entries at the bottom.
          (First version wrongly expected the same object back – st.cache_data returns a copy – corrected.)
        * TEST_GAPS.md gap 9, CLAUDE.md rule, decision_log.md D30.
    - Tests: 25 passed. Merged into main with --no-ff.
+
+
+------------------------------------------------------------------
+2026-11-15  |  Run app.py
+------------------------------------------------------------------
+   - Restarted the app server with the latest code (streamlit run app.py, port 8501) and opened it in the browser.
+
+
+------------------------------------------------------------------
+2026-11-15  |  Concept.txt (design: four pillars + dashboard drawing)
+------------------------------------------------------------------
+   - Branch docs/concept: created Concept.txt at the project root:
+       A. the 2 central questions + key definitions;
+       B. four pillars – decomposition (sub-questions per tab), pattern recognition, abstraction (what is kept /
+          left out + category table), algorithm (geography, density, steps 1-8, C1-C3, analysis);
+       C. ASCII drawing of every tab (content, charts, filters, columns and steps used);
+       D. complete list of filters/controls; E. answers and limits.
+   - Numbers checked against the app/pipeline outputs. Merged into main with --no-ff.
