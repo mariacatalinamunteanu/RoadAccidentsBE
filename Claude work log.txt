@@ -384,3 +384,13 @@ History of everything Claude does in this project, newest entries at the bottom.
      noticed or reported. Last version is recoverable: git show f25cd17^:Presentation.txt
    - Asked the student whether the deletion was intended. New working agreement in CLAUDE.md: check `git status`
      before `git add -A` and report deletions that Claude did not make.
+
+
+------------------------------------------------------------------
+2026-11-15  |  Answer dot in tab Density vs severity: plain-language Spearman rho and p-value
+------------------------------------------------------------------
+   - Branch ui/answer-dot-spearman: pipeline.EXPLANATIONS["d_answer"] rewritten with the student text, as sections with
+     bullet points and numbered steps.
+   - Five files: pipeline.py (text), tests (new test in test_explanations.py), decision_log.md D39; app.py and CLAUDE.md:
+     no change needed (app.py already shows this dot; CLAUDE.md rules unchanged).
+   - Tests: fast suites 26 passed + app test passed. Merged into main with --no-ff and pushed.

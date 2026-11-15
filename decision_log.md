@@ -308,3 +308,15 @@ to be confirmed by the student (marked ☐ until confirmed).
   (no code change). Kept as the first thing to try in `CLAUDE.md`.
 - **Open risk:** the free cloud has limited memory and the Raw Data Explorer reads the 58 MB raw xlsx (D25). If the
   app runs out of memory: let the pipeline write the raw data as Parquet for the app.
+
+### D39 · Plain-language explanation of Spearman ρ and the p-value in the answer dot (tab ❓ Density vs severity)
+- **Decided by:** student (2026-11-15), text written by the student
+- **What changed:** the dot after "ⓘ How is this answer computed?" (`pipeline.EXPLANATIONS["d_answer"]`) now explains,
+  in short sections with bullet points and numbered steps: what the two percentages are, when the answer is "Yes",
+  what Spearman ρ means (two rankings, −1 / 0 / +1, ρ = −0.50), what the p-value means (p < 0.001 = less than 1 time
+  in 1,000 if there were no association) and that association is not causation.
+- **Why:** the earlier text named ρ and p without explaining them; the audience of the presentation and the no-AI
+  conversation need the meaning, not only the name.
+- **Note:** ρ = −0.50 is the value for all years 2017–2024; with another year selection the metric above shows the
+  current value. Tooltips support Markdown (headings, lists) but no real tab stops, so lists replace tabs.
+- **Test:** `test_explanations.py::test_answer_dot_explains_spearman_and_p_value_in_plain_words`.
