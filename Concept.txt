@@ -180,7 +180,7 @@ PART C – THE DASHBOARD (drawing)
 
 +===================================================================================================================+
 | 🚦 Road accidents in Belgium 2017–2024                                                                             |
-| [🔧 Pipeline & method] [📊 Data Explorer] [❓ Density vs severity] [🦠 COVID lockdowns] [📝 Prompt history]  <- 5  |
+| [🔧 Pipeline & method] [📊 Data Explorer] [❓ Density vs severity] [🦠 COVID lockdowns]          <- 4 main tabs     |
 +===================================================================================================================+
 
 ---------------------------------------------------------------------------------------------------------------------
@@ -193,6 +193,7 @@ TAB 🔧 PIPELINE & METHOD  –  "Where does every number come from, and where d
 |  8 ████████████████████     252,904                         |                                                 |
 +-------------------------------------------------------------+-------------------------------------------------+
 | [Steps (rows in/out)] [Where does each number come from?] [Assumptions] [Category rules] [Decision log & tests] |
+| [📝 Prompt history]  <- Prompt history.txt (student's file), read live, never changed (D47, D49)              |
 |                                                                                                               |
 |  Steps table: order | data set | step | used in tab(s) | rows in | rows out | dropped | changed | function | why|
 |  ▸ Step A1 · Accidents – raw (OPENDATA_MAP_2017-2024.xlsx) · Load raw accidents → used in: 1.1 ... — in → out  |
@@ -257,12 +258,7 @@ TAB ❓ DENSITY VS SEVERITY  –  Q1
   Columns used: DT_YEAR_COLLISION, CD_NIS, TX_RGN/PROV/MUNTY_COLLISION_NL, CD_CLASS_ACCIDENTS, POPULATION,
                 AREA_KM2, POP_DENSITY, CD_BUILD_UP_AREA (+TX), CD_COLLISION_TYPE, CD_LIGHT_CONDITION, CD_ROAD_TYPE,
                 LAT, LON, COORD_IMPUTED.
-  Steps used: G1, G2, P1, 1–8 + aggregate_by_level, density_class_profile, collision_group.
-
----------------------------------------------------------------------------------------------------------------------
-TAB 📝 PROMPT HISTORY  –  "Which instructions built this project?"
-  Shows Prompt history.txt (the student's file) exactly as it is, read live from the project folder; never changed
-  by the app or by Claude (decision D47). No filters.
+  Steps used: G1, G2, P1, A1–A8 + aggregate_by_level, density_class_profile, collision_group.
 
 ---------------------------------------------------------------------------------------------------------------------
 TAB 🦠 COVID LOCKDOWNS  –  Q2
