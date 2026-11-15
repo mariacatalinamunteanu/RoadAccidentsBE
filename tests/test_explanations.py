@@ -91,6 +91,11 @@ def test_all_info_points_have_the_same_style():
     assert 'st.caption(f"{INFO_ICON} **{label}**", help=E(key))' in APP
 
 
+def test_min_accidents_slider_defaults_to_all_municipalities():
+    # decision D43: the scatter starts with every municipality (N = 1); the user can raise N
+    assert 'at least N accidents (small numbers = noisy ratios)", 1, 500, 1,' in APP
+
+
 def test_columns_of_the_pipeline_outputs_have_column_help():
     step_cols = [f.name for f in fields(P.StepReport)]
     acc = pd.DataFrame({"DT_YEAR_COLLISION": [2019], "CD_NIS": ["11001"], "CD_CLASS_ACCIDENTS": [1],

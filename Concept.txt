@@ -239,7 +239,7 @@ TAB ❓ DENSITY VS SEVERITY  –  Q1
 | HEAT MAP (Belgium)                                          | SCATTER                                         |
 |   ● dot at centre of each unit                              |   x = density (log), y = Severity Ratio,        |
 |     colour = Severity Ratio (blue 0% → red 20%)             |   size = accidents, dashed weighted trend line  |
-|     size   = population density                             |   [Min. accidents per municipality 1–500, 30]   |
+|     size   = population density                             |   [Min. accidents per municipality 1–500, 1]    |
 |   ░ grey heat layer = accidents at GPS position             |   (municipality view only)                      |
 |   ─ borders of the selected view                            |   rho, p, slope                                 |
 +-------------------------------------------------------------+-------------------------------------------------+
@@ -299,7 +299,7 @@ PART D – FILTERS AND CONTROLS (complete list)
   ❓ Density              Years (range slider)                        2017–2024                    everything in tab
   ❓ Density              Heat layer (radio)                          All / Severe / Off           grey layer
   ❓ Density              Include accidents at municipality centre    off (default) / on           grey layer
-  ❓ Density              Min. accidents (slider, municipalities)     1–500, default 30            scatter
+  ❓ Density              Min. accidents (slider, municipalities)     1–500, default 1             scatter
   🦠 COVID                Area (4 buttons)                            Belgium/Flanders/Wallonia/BXL everything in tab
   🦠 COVID                Y axis (radio)                              accidents / SR vs normal     scatter
   🦠 COVID                Compare with normal (radio)                 Lockdown 1 / Lockdown 2      "Why" charts 1–3

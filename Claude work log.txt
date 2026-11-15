@@ -440,3 +440,12 @@ History of everything Claude does in this project, newest entries at the bottom.
    - Everything was already on GitHub; only local change: Prompt history.txt (student edit).
    - Pushed it on the student request ("push to git again"), content not changed by Claude (rule D41).
    - Five files: no change needed (pipeline.py, app.py, tests, CLAUDE.md, decision_log.md).
+
+
+------------------------------------------------------------------
+2026-11-15  |  Minimum-accidents slider default 30 -> 1
+------------------------------------------------------------------
+   - Branch ui/min-accidents-default-1: app.py slider default 1; Concept.txt (drawing + controls table);
+     decision_log.md D43 + "Later changed" note on D15; tests: new test for the default.
+   - Five files: app.py, tests, decision_log.md updated; pipeline.py, CLAUDE.md: no change needed.
+   - Tests: explanation tests 10 passed + app test passed. Only own files committed. Merged into main and pushed.
