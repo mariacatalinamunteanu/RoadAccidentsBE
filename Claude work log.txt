@@ -488,3 +488,18 @@ History of everything Claude does in this project, newest entries at the bottom.
    - Docs: CLAUDE.md (steps list + conclusion rule + test counts), decision_log.md note at top + D46, TEST_GAPS.md
      gap 12, Concept.txt.
    - Five files: all updated. Tests: 39 passed. Prompt history.txt (student edit) NOT committed. Merged and pushed.
+
+
+------------------------------------------------------------------
+2026-11-15  |  New tab "📝 Prompt history" + rule: Prompt history.txt in every commit
+------------------------------------------------------------------
+   - Branch feature/prompt-history-tab:
+       * pipeline.py: PROMPT_HISTORY path (read only). app_data.py: load_prompt_history() (stamped cache, re-read on change).
+       * app.py: 5th main tab "📝 Prompt history": st.code(text, wrap_lines=True) + last-changed date; message if missing.
+       * tests/test_prompt_history_tab.py (3 tests: tab exists, content unchanged, no code writes the file);
+         app test checks the tab shows the file (first version compared exactly and failed: st.code drops the final
+         line break -> compare without trailing whitespace).
+   - Student (mid-task): "Always include the prompt history.txt in the commit" -> CLAUDE.md rule, decision_log D48
+     (replaces "only when asked" of D41), memory updated.
+   - CLAUDE.md, Concept.txt (tab list + tab description), decision_log.md D47, D48.
+   - Five files: all updated. Tests: 42 passed. Committed with Prompt history.txt. Merged and pushed.

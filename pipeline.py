@@ -44,6 +44,7 @@ OUT_COVID_MONTHLY = PROC / "covid_monthly_2017-2024.csv"
 OUT_COVID_PHASES = PROC / "covid_phases.csv"
 OUT_MEASURES_BEL = PROC / "covid_measures_BEL_daily.csv"
 OUT_LOG = PROC / "processing_log.txt"
+PROMPT_HISTORY = ROOT / "Prompt history.txt"  # the student's file: only READ (app tab), never written (decision D47)
 
 # ====================================================================================== agreements
 # (also written down in CLAUDE.md and decision_log.md - change them there too)

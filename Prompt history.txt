@@ -78,3 +78,12 @@ The p-value asks: if there were no association, how often would we see a correla
 
 ***** Keep the formating of the "I" point consistend in the tab. You used 2 different style in 2 diffreent locations.
 
+***** In the "Only municipalities with at least N accidents (small numbers = noisy ratios)" set the default to 1
+
+***** Set the "Accident heat layer (GPS positions)" to default Severe Accidents
+
+***** Set Border View to default Municipalities and move the "I" explanation from under "Heat map- ..." to under the buttons from Border view
+
+***** Include the source for chart 4. write under each chart title the conclusions of that chart
+
+***** Include the source for chart 4. write under each chart title the conclusions of that chart. In the Pipeline tab: move the P1 step behind the step8, move the G1 and G2 steps after P1. Rename steps 1 to 8 by A1 to A8. Move the Check if all the tabs in the Pipeline and method tab are still up to date with the decision log and the tests done so far
