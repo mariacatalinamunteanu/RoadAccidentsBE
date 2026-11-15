@@ -115,6 +115,11 @@ CATEGORY_RULES = [
     ("COVID phase (tab 3)", "by month, see covid_phases.csv",
      "Data has no day, so March 2020 counts fully as Lockdown 1 (lockdown started on 18/03)."),
     ("'Normal' (tab 3)", "average of the same calendar month in 2017-2019", ""),
+    ("Heat layer (tab 2)", "default: severe accidents (class 1-3); 'All accidents' and 'Off' selectable",
+     "Only accidents with their own valid coordinate (step A8); a switch adds the step-A6 centres. Decisions D27, D44."),
+    ("Minimum accidents per municipality (tab 2 scatter)", "default 1 (all 581 municipalities); slider 1-500",
+     "Raise it to hide small municipalities with noisy ratios. Decisions D15, D43."),
+    ("Border view default (tab 2)", "Municipalities", "Decision D45."),
 ]
 
 
@@ -124,61 +129,61 @@ CATEGORY_RULES = [
 # shown in app.py must have an entry here (checked by tests/test_explanations.py).
 EXPLANATIONS = {
     # --- Pipeline & method
-    "funnel": "Number of **accident rows after each step 1–8**. Steps 2–7 only change or add values, so the count stays "
-              "289,532. Step 8 is a *view* for the GPS heat layer: accidents without a usable own coordinate are not "
+    "funnel": "Number of **accident rows after each step A1–A8**. Steps A2–A7 only change or add values, so the count stays "
+              "289,532. Step A8 is a *view* for the GPS heat layer: accidents without a usable own coordinate are not "
               "drawn there by default. Nothing is removed from the data. Source: `pipeline_steps.csv`.",
     "step_rows_in": "Rows that went **into** this step (output of the previous step). Source: `StepReport.rows_in`.",
-    "step_rows_out": "Rows that came **out** of this step. Fewer rows out = rows dropped (steps 8, C1, C2) or rows "
+    "step_rows_out": "Rows that came **out** of this step. Fewer rows out = rows dropped (steps A8, C1, C2) or rows "
                      "grouped (G1, G2, P1, C3). Source: `StepReport.rows_out`.",
-    "step_dropped": "Rows **removed** by this step (rows in − rows out), 0 for grouping steps. For step 8: not drawn "
+    "step_dropped": "Rows **removed** by this step (rows in − rows out), 0 for grouping steps. For step A8: not drawn "
                     "in the heat layer by default, not removed from the data. Source: `StepReport.rows_dropped`.",
     "step_changed": "Rows in which this step **changed or added** a value (e.g. a filled province, a replaced "
                     "coordinate). For grouping steps: number of new rows created. Source: `StepReport.rows_changed`.",
     "coords_by_year": "Per year: % of accidents **without a usable own coordinate** (missing, outside Belgium or "
                       "> 1 km outside their municipality) = accidents not drawn in the GPS heat layer by default. "
-                      "Label = number of accidents. Source: step 5 → `coordinates_by_year.csv`.",
+                      "Label = number of accidents. Source: step A5 → `coordinates_by_year.csv`.",
     # --- 1.1 Raw Data Explorer
     "raw_rows": "Number of accidents (rows) in the raw Statbel file `OPENDATA_MAP_2017-2024.xlsx`. One row = one "
-                "accident with at least one death or injury. Step 1.",
-    "raw_columns": "Number of columns in the raw file: every text column exists in French and Dutch. Step 1.",
+                "accident with at least one death or injury. Step A1.",
+    "raw_columns": "Number of columns in the raw file: every text column exists in French and Dutch. Step A1.",
     "raw_municipalities": "Number of different municipality codes (CD_NIS) in the raw file: the 581 municipalities "
-                          "after the 2019 mergers, used for all years. Step 1.",
+                          "after the 2019 mergers, used for all years. Step A1.",
     "raw_rows_missing": "Accidents with **at least one empty cell** in any column. Almost all are an empty coordinate "
-                        "or the empty province of Brussels. Step 1 (raw).",
+                        "or the empty province of Brussels. Step A1 (raw).",
     "raw_duplicates": "Rows identical in **all 45 columns** (counted once per extra copy). Kept: the data only has "
                       "month and hour, so they can be different accidents. Decision D09.",
     "raw_missing": "Empty cells per column (bar = number, label = % of all rows). Only 4 columns have empty cells. "
-                   "Step 1 (raw).",
+                   "Step A1 (raw).",
     "raw_unknown": "Cells that are filled in but mean **unknown / not specified** (codes 9, 99, 0, -1, -3, see "
-                   "`pipeline.UNKNOWN_CODES`). Bar = % of rows, label = number of rows. Step 1 (raw).",
+                   "`pipeline.UNKNOWN_CODES`). Bar = % of rows, label = number of rows. Step A1 (raw).",
     "raw_code_dist": "Number of accidents per code of the selected column. Orange = a code that means 'unknown'. "
-                     "Step 1 (raw).",
+                     "Step A1 (raw).",
     "raw_coord_year": "Accidents per year whose coordinate is missing, outside Belgium, or > 1 km outside the "
-                      "municipality in CD_NIS. Checked in step 5 against the Statbel borders (step G1).",
+                      "municipality in CD_NIS. Checked in step A5 against the Statbel borders (step G1).",
     "raw_coord_map": "Original position of the points lying **more than 1 km outside** their own municipality. "
-                     "Colour = distance to the municipality border (km). These are replaced in step 6.",
+                     "Colour = distance to the municipality border (km). These are replaced in step A6.",
     # --- 1.2 Processed Data Explorer
     "proc_rows": "Rows in the processed accident data: the same 289,532 accidents as the raw file (no row is "
-                 "dropped in steps 1–7). Output of step 7.",
-    "proc_columns": "Columns after processing: 45 raw − 14 French (step 2) + 10 new columns (steps 4–7).",
+                 "dropped in steps A1–A7). Output of step A7.",
+    "proc_columns": "Columns after processing: 45 raw − 14 French (step A2) + 10 new columns (steps A4–A7).",
     "proc_empty_key": "Empty cells left in the key columns MS_X_COORD, MS_Y_COORD, TX_PROV_COLLISION_NL and "
-                      "POP_DENSITY. Must be 0 after steps 3–6 (tested in `test_gaps.py`).",
-    "proc_provinces": "Accidents per province after step 3. Orange = Brussels, whose empty province was filled with "
+                      "POP_DENSITY. Must be 0 after steps A3–A6 (tested in `test_gaps.py`).",
+    "proc_provinces": "Accidents per province after step A3. Orange = Brussels, whose empty province was filled with "
                       "'Brussels Hoofdstedelijk Gewest'.",
-    "coord_replaced": "Accidents whose coordinate was **replaced by the centre of their municipality** in step 6 "
+    "coord_replaced": "Accidents whose coordinate was **replaced by the centre of their municipality** in step A6 "
                       "(COORD_IMPUTED = True). Delta = share of all accidents.",
-    "status_ok": "Coordinate inside the own municipality, or less than 1 km outside it (kept as is). Step 5.",
-    "status_missing": "No coordinate in the raw file. Replaced by the municipality centre in step 6.",
-    "status_out_of_range": "Coordinate impossible for Belgium (order of 10^15–10^16). Replaced in step 6.",
+    "status_ok": "Coordinate inside the own municipality, or less than 1 km outside it (kept as is). Step A5.",
+    "status_missing": "No coordinate in the raw file. Replaced by the municipality centre in step A6.",
+    "status_out_of_range": "Coordinate impossible for Belgium (order of 10^15–10^16). Replaced in step A6.",
     "status_outside_municipality": "Coordinate more than 1,000 m outside the municipality in CD_NIS. Replaced in "
-                                   "step 6 (threshold: decision D04).",
-    "proc_replaced_year": "Accidents per year whose coordinate was replaced in step 6, by reason (step 5 status).",
-    "proc_moved_map": "Red = original (wrong) position, green = municipality centre used instead (step 6), grey line "
+                                   "step A6 (threshold: decision D04).",
+    "proc_replaced_year": "Accidents per year whose coordinate was replaced in step A6, by reason (step A5 status).",
+    "proc_moved_map": "Red = original (wrong) position, green = municipality centre used instead (step A6), grey line "
                       "= the move. Only the points > 1 km outside their municipality.",
     "proc_density_box": "Spread of the population density of the 581 municipalities per year (log scale): box = "
                         "middle 50%, line = median. Built in step P1.",
     # --- Density vs severity
-    "d_accidents": "Injury accidents in the selected years (all of Belgium). Steps 1–7, filtered on the year slider.",
+    "d_accidents": "Injury accidents in the selected years (all of Belgium). Steps A1–A7, filtered on the year slider.",
     "d_severe": "Accidents of class 1 (deaths), 2 (fatally injured) or 3 (seriously injured) in the selected years. "
                 "`pipeline.is_severe`.",
     "d_sr_be": "Severity Ratio of Belgium = severe accidents / all injury accidents × 100, selected years. "
@@ -223,8 +228,8 @@ EXPLANATIONS = {
     ),
     "d_map": "One **dot per unit** of the selected border view, at its centre (step G2). Colour = Severity Ratio "
              "(blue 0% → red 20%), size = population density (Σ population / Σ area). Grey layer = **severe** "
-             "accidents at their GPS position by default (choose all accidents or off above the map; step 8; the "
-             "switch adds the step-6 centres). `pipeline.aggregate_by_level`.",
+             "accidents at their GPS position by default (choose all accidents or off above the map; step A8; the "
+             "switch adds the step-A6 centres). `pipeline.aggregate_by_level`.",
     "d_scatter": "Each dot = one unit of the border view. x = population density (log), y = Severity Ratio, size = "
                  "number of injury accidents. Dashed line = trend weighted by √accidents (`numpy.polyfit`).",
     "d_ch1": "Severity Ratio of all accidents in municipalities of each density class (fixed limits, decision D16). "
@@ -263,7 +268,9 @@ EXPLANATIONS = {
 # Text behind the "?" on table column headers (same column name = same explanation in every table).
 COLUMN_HELP = {
     # step reports
-    "order": "Step number: G = geography, P = population, 1–8 = accidents, C = COVID.",
+    "order": "Step code: A = accidents (A1–A8), P = population, G = geography, C = COVID.",
+    "run_order": "Order in which `python pipeline.py` runs the steps. P1, G1 and G2 run first, because A4 and A5/A6 "
+                 "need their results; the table shows the steps in the order A, P, G, C.",
     "step": "What the step does.", "function": "Function in pipeline.py that performs the step.",
     "why": "Why rows are dropped, changed or grouped in this step.",
     "dataset": "Data set the step works on.", "data set": "Data set the step works on.",
@@ -277,23 +284,23 @@ COLUMN_HELP = {
     "POPULATION": "Population on 1 January (Statbel). For a unit: Σ over its municipalities, averaged over the "
                   "selected years. Step P1.",
     "AREA_KM2": "Area in km² (Statbel). For a unit: Σ over its municipalities. Step P1.",
-    "POP_DENSITY": "Population density = population / area (inhabitants per km²). Step P1 / step 4.",
+    "POP_DENSITY": "Population density = population / area (inhabitants per km²). Step P1 / step A4.",
     "ACCIDENTS": "Number of injury accidents (each accident once).",
     "ACCIDENTS_PER_1000_INH_YEAR": "Injury accidents per 1,000 inhabitants per year = accidents / number of years / "
                                    "population × 1,000. Context only: there is no traffic-volume data.",
     "SEVERE": "Accidents of class 1, 2 or 3 (deaths, fatally injured, seriously injured).",
     "DEATHS": "Accidents of class 1 (with deaths) or 2 (fatally injured).",
     "SEVERITY_RATIO": "Severe accidents / all injury accidents × 100 (%).",
-    "LAT": "Latitude (WGS84) of the centre / position. Step 7 or G2.",
-    "LON": "Longitude (WGS84) of the centre / position. Step 7 or G2.",
+    "LAT": "Latitude (WGS84) of the centre / position. Step A7 or G2.",
+    "LON": "Longitude (WGS84) of the centre / position. Step A7 or G2.",
     "CD_NIS": "NIS code of the municipality (Statbel).", "NAME_NL": "Dutch name.", "YEAR": "Year.", "MONTH": "Month.",
     "SOURCE": "Statbel file the population figure comes from.",
-    "MS_X_COORD": "X coordinate (Lambert 72) after step 6.", "MS_Y_COORD": "Y coordinate (Lambert 72) after step 6.",
-    "MS_X_COORD_ORIG": "Original X coordinate from the raw file (step 5).",
-    "MS_Y_COORD_ORIG": "Original Y coordinate from the raw file (step 5).",
-    "DIST_TO_OWN_MUNTY_M": "Distance (m) from the original point to the border of its own municipality; 0 = inside. Step 5.",
-    "COORD_STATUS": "ok / missing / out_of_range / outside_municipality (step 5).",
-    "COORD_IMPUTED": "True = coordinate replaced by the municipality centre (step 6).",
+    "MS_X_COORD": "X coordinate (Lambert 72) after step A6.", "MS_Y_COORD": "Y coordinate (Lambert 72) after step A6.",
+    "MS_X_COORD_ORIG": "Original X coordinate from the raw file (step A5).",
+    "MS_Y_COORD_ORIG": "Original Y coordinate from the raw file (step A5).",
+    "DIST_TO_OWN_MUNTY_M": "Distance (m) from the original point to the border of its own municipality; 0 = inside. Step A5.",
+    "COORD_STATUS": "ok / missing / out_of_range / outside_municipality (step A5).",
+    "COORD_IMPUTED": "True = coordinate replaced by the municipality centre (step A6).",
     "CENTER_X_L72": "X of the municipality centre (Lambert 72). Step G1.",
     "CENTER_Y_L72": "Y of the municipality centre (Lambert 72). Step G1.",
     "CENTER_LAT": "Latitude of the municipality centre. Step G1.", "CENTER_LON": "Longitude of the municipality centre. Step G1.",
@@ -310,7 +317,7 @@ COLUMN_HELP = {
     "column": "Column of the raw file.", "missing %": "Empty cells / all rows × 100.",
     "codes meaning unknown": "Codes that mean 'unknown / not specified' (pipeline.UNKNOWN_CODES).",
     "rows": "Number of rows (accidents).", "% of rows": "rows / all rows × 100.", "%": "Share of all rows (%).",
-    "status": "Coordinate status (step 5).",
+    "status": "Coordinate status (step A5).",
     "code column": "Column with the code.", "label column": "Column with the Dutch label.",
     "codes with >1 label": "Codes that appear with more than one label (should be 0).",
     "labels with >1 code": "Labels that appear with more than one code (should be 0).",
@@ -348,6 +355,8 @@ COLUMN_HELP = {
     "STAY_HOME": "OxCGRT C6M stay-at-home requirement (0–3, monthly mean). Step C2.",
     "WORKPLACE_CLOSING": "OxCGRT C2M workplace closing (0–3, monthly mean). Step C2.",
     "MOVEMENT_RESTRICTION": "OxCGRT C7M restrictions on internal movement (0–2, monthly mean). Step C2.",
+    "file": "Test file in tests/.", "test": "Name of the test function.",
+    "what it checks": "What the test checks (docstring or first comment of the test).",
     "CODE": "Short code of the COVID phase.", "FIRST_MONTH": "First month of the phase.",
     "LAST_MONTH": "Last month of the phase.", "DESCRIPTION": "What the phase means.",
 }
@@ -366,18 +375,23 @@ STEP_CONTEXT = {
     "G1": ("Municipality borders (Statbel statistical sectors 2024)", f"{TAB_RAW} (coordinates), {TAB_PROC}, {TAB_DENS}"),
     "G2": ("Municipality borders -> regions, provinces, BE (unit_centers.csv, outlines_*.geojson)", f"{TAB_DENS} (dots and borders)"),
     "P1": ("Population (Pop_density_en.xlsx, Bevolking_per_gemeente.xlsx)", f"{TAB_PROC} (population density), {TAB_DENS}"),
-    "1": ("Accidents – raw (OPENDATA_MAP_2017-2024.xlsx)", f"{TAB_RAW}; input of all other tabs"),
-    "2": ("Accidents – processing", f"{TAB_PROC}, {TAB_DENS}, {TAB_COVID}"),
-    "3": ("Accidents – processing", f"{TAB_PROC}, {TAB_DENS} (province view)"),
-    "4": ("Accidents + population density (population_density_2017-2024.csv)", f"{TAB_PROC}, {TAB_DENS}"),
-    "5": ("Accidents + municipality borders (Statbel statistical sectors 2024)", f"{TAB_RAW} (coordinates), {TAB_PROC}, {TAB_DENS}"),
-    "6": ("Accidents + municipality centres (municipality_centers_2024.csv)", f"{TAB_PROC}, {TAB_DENS} (heat-layer switch)"),
-    "7": ("Accidents – processed (accidents_processed_2017-2024.csv / .parquet)", f"{TAB_PROC}, {TAB_DENS} (maps)"),
-    "8": ("Accidents – processed, view for the map (not saved)", f"{TAB_DENS} (grey heat layer)"),
+    "A1": ("Accidents – raw (OPENDATA_MAP_2017-2024.xlsx)", f"{TAB_RAW}; input of all other tabs"),
+    "A2": ("Accidents – processing", f"{TAB_PROC}, {TAB_DENS}, {TAB_COVID}"),
+    "A3": ("Accidents – processing", f"{TAB_PROC}, {TAB_DENS} (province view)"),
+    "A4": ("Accidents + population density (population_density_2017-2024.csv)", f"{TAB_PROC}, {TAB_DENS}"),
+    "A5": ("Accidents + municipality borders (Statbel statistical sectors 2024)", f"{TAB_RAW} (coordinates), {TAB_PROC}, {TAB_DENS}"),
+    "A6": ("Accidents + municipality centres (municipality_centers_2024.csv)", f"{TAB_PROC}, {TAB_DENS} (heat-layer switch)"),
+    "A7": ("Accidents – processed (accidents_processed_2017-2024.csv / .parquet)", f"{TAB_PROC}, {TAB_DENS} (maps)"),
+    "A8": ("Accidents – processed, view for the map (not saved)", f"{TAB_DENS} (grey heat layer)"),
     "C1": ("Google COVID-19 mobility reports BE 2020-2022", f"{TAB_COVID} (via covid_monthly_2017-2024.csv)"),
     "C2": ("OxCGRT government measures (OxCGRT_compact_national_v1.csv)", f"{TAB_COVID} (via covid_measures_BEL_daily.csv, covid_monthly_2017-2024.csv)"),
     "C3": ("Accidents – processed + C1 + C2 -> covid_monthly_2017-2024.csv", f"{TAB_COVID}"),
 }
+
+
+# Order in which the steps are SHOWN (student, decision D46). They RUN in another order: P1, G1 and G2 first,
+# because A4 (density) and A5/A6 (borders, centres) need their results -> column run_order in pipeline_steps.csv.
+STEP_DISPLAY_ORDER = ["A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8", "P1", "G1", "G2", "C1", "C2", "C3"]
 
 
 @dataclass
@@ -525,14 +539,14 @@ def build_density(density_by_year: dict, population_by_year: dict, valid_codes) 
 
 # ====================================================================================== accident steps
 def step_load(raw: pd.DataFrame):
-    return raw.copy(), _report("1", "Load raw accidents", "load_raw_accidents", raw, raw,
+    return raw.copy(), _report("A1", "Load raw accidents", "load_raw_accidents", raw, raw,
                                why="All rows of OPENDATA_MAP_2017-2024.xlsx; nothing dropped.")
 
 
 def step_drop_french(df):
     fr = [c for c in df.columns if c.endswith("_FR")]
     out = df.drop(columns=fr)
-    return out, _report("2", "Drop French columns", "step_drop_french", df, out,
+    return out, _report("A2", "Drop French columns", "step_drop_french", df, out,
                         why=f"{len(fr)} columns removed ({', '.join(fr)}); we work in Dutch only. No rows dropped.")
 
 
@@ -543,7 +557,7 @@ def step_fill_province(df):
     if not_bru.any():
         raise ValueError(f"{not_bru.sum()} rows without province outside Brussels")
     out.loc[miss, "TX_PROV_COLLISION_NL"] = BRUSSELS
-    return out, _report("3", "Fill province for Brussels", "step_fill_province", df, out, changed=miss.sum(),
+    return out, _report("A3", "Fill province for Brussels", "step_fill_province", df, out, changed=miss.sum(),
                         why="Brussels belongs to no province. Empty province -> 'Brussels Hoofdstedelijk Gewest' "
                             "so Brussels is its own unit in the province view.")
 
@@ -552,7 +566,7 @@ def step_add_density(df, density):
     d = density[["YEAR", "CD_NIS", "POPULATION", "AREA_KM2", "POP_DENSITY"]].rename(columns={"YEAR": "DT_YEAR_COLLISION"})
     out = df.merge(d, on=["DT_YEAR_COLLISION", "CD_NIS"], how="left", validate="many_to_one")
     unmatched = int(out.POP_DENSITY.isna().sum())
-    return out, _report("4", "Add population density", "step_add_density", df, out, changed=len(out) - unmatched,
+    return out, _report("A4", "Add population density", "step_add_density", df, out, changed=len(out) - unmatched,
                         why=f"Joined on CD_NIS + year (population on 1 January). Rows without a match: {unmatched}. "
                             "No rows dropped (left join, one density row per municipality-year).")
 
@@ -577,7 +591,7 @@ def step_check_coordinates(df, munis, tolerance_m=OUTSIDE_TOLERANCE_M):
     status[dist[dist > tolerance_m].index] = "outside_municipality"
     out["COORD_STATUS"] = status
     n = status.value_counts()
-    return out, _report("5", "Check coordinates", "step_check_coordinates", df, out, changed=int((status != "ok").sum()),
+    return out, _report("A5", "Check coordinates", "step_check_coordinates", df, out, changed=int((status != "ok").sum()),
                         why=f"Flagged, not dropped: missing {n.get('missing', 0):,}, out of Belgian range "
                             f"{n.get('out_of_range', 0):,}, > {tolerance_m} m outside own municipality "
                             f"{n.get('outside_municipality', 0):,}.")
@@ -590,7 +604,7 @@ def step_impute_coordinates(df, centers_table):
     out.loc[fix, "MS_X_COORD"] = out.loc[fix, "CD_NIS"].map(c.CENTER_X_L72)
     out.loc[fix, "MS_Y_COORD"] = out.loc[fix, "CD_NIS"].map(c.CENTER_Y_L72)
     out["COORD_IMPUTED"] = fix
-    return out, _report("6", "Replace abnormal coordinates", "step_impute_coordinates", df, out, changed=fix.sum(),
+    return out, _report("A6", "Replace abnormal coordinates", "step_impute_coordinates", df, out, changed=fix.sum(),
                         why="Abnormal coordinates -> centre of the municipality in CD_NIS. Rows are kept because "
                             "the municipality is known; COORD_IMPUTED marks them.")
 
@@ -601,14 +615,14 @@ def step_add_wgs84(df):
     out = df.copy()
     w = gpd.GeoSeries(gpd.points_from_xy(out.MS_X_COORD, out.MS_Y_COORD), crs=31370).to_crs(4326)
     out["LAT"], out["LON"] = w.y.round(6).values, w.x.round(6).values
-    return out, _report("7", "Add latitude / longitude", "step_add_wgs84", df, out, changed=len(out),
+    return out, _report("A7", "Add latitude / longitude", "step_add_wgs84", df, out, changed=len(out),
                         why="Lambert 72 (EPSG:31370) -> WGS84 for the maps. No rows dropped.")
 
 
 def step_select_georeferenced(df):
     """Rows whose OWN coordinates are valid - used for everything plotted at GPS position (heat layer)."""
     out = df[~df.COORD_IMPUTED]
-    return out, _report("8", "Heat layer only: accidents at their own GPS position",
+    return out, _report("A8", "Heat layer only: accidents at their own GPS position",
                         "step_select_georeferenced", df, out,
                         why="NOT removed from the data. Accidents with a replaced coordinate sit on the municipality "
                             "centre, not where they happened, so by default the GPS heat layer leaves them out (a switch "
@@ -897,6 +911,8 @@ def run_all(verbose=True):
         OUT_COVID_PHASES, index=False, encoding="utf-8-sig")
 
     steps = pd.DataFrame([asdict(r) for r in reports])
+    steps["run_order"] = range(1, len(steps) + 1)  # order in which run_all() executes the steps
+    steps = steps.set_index("order").loc[STEP_DISPLAY_ORDER].reset_index()  # order shown in the app
     steps.to_csv(OUT_STEPS, index=False, encoding="utf-8-sig")
     log += [f"[{r.order}] {r.step}: {r.rows_in:,} -> {r.rows_out:,} | dropped {r.rows_dropped:,} | "
             f"changed {r.rows_changed:,} | {r.why}" for r in reports]

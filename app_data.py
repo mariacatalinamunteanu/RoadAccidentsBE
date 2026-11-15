@@ -151,6 +151,35 @@ def load_covid_accidents():
     return _covid_accidents_cached(stamp(P.OUT_ACCIDENTS_PARQUET))
 
 
+# ------------------------------------------------------------------ tests overview (Pipeline & method tab)
+TESTS_DIR = P.ROOT / "tests"
+
+
+@st.cache_data(show_spinner=False)
+def _list_tests_cached(file_stamp):
+    import ast
+
+    rows = []
+    for f in sorted(TESTS_DIR.glob("test_*.py")):
+        src = f.read_text(encoding="utf-8")
+        lines = src.splitlines()
+        for node in ast.walk(ast.parse(src)):
+            if isinstance(node, ast.FunctionDef) and node.name.startswith("test_"):
+                doc = ast.get_docstring(node)
+                if not doc:  # first comment line inside the test, if any
+                    nxt = lines[node.body[0].lineno - 2].strip() if node.body else ""
+                    doc = nxt.lstrip("# ").strip() if nxt.startswith("#") else ""
+                what = doc or node.name.replace("test_", "").replace("_", " ")
+                rows.append({"file": f.name, "test": node.name, "what it checks": what.splitlines()[0],
+                             "line": node.lineno})
+    return pd.DataFrame(rows).sort_values(["file", "line"]).drop(columns="line").reset_index(drop=True)
+
+
+def list_tests():
+    """Every test function in tests/ (read from the files, so always up to date)."""
+    return _list_tests_cached(stamp(*sorted(TESTS_DIR.glob("test_*.py"))))
+
+
 # ------------------------------------------------------------------ raw data quality
 def raw_coordinate_status():
     return _raw_coordinate_status_cached(stamp(P.RAW_ACCIDENTS, P.OUT_ACCIDENTS_PARQUET))
@@ -198,14 +227,14 @@ def _raw_quality_cached(file_stamp):
                        "rows": int(count) if count is not None else None, "handling": action})
 
     add("Missing", "TX_PROV_COLLISION_NL / _FR", "Province empty: all rows are in the Brussels Capital Region "
-        "(Brussels has no province)", raw.TX_PROV_COLLISION_NL.isna().sum(), "Step 3: filled with 'Brussels Hoofdstedelijk Gewest'")
+        "(Brussels has no province)", raw.TX_PROV_COLLISION_NL.isna().sum(), "Step A3: filled with 'Brussels Hoofdstedelijk Gewest'")
     add("Missing", "MS_X_COORD / MS_Y_COORD", "Coordinates missing", raw.MS_X_COORD.isna().sum(),
-        "Step 6: municipality centre; step 8: excluded from GPS map")
+        "Step A6: municipality centre; step A8: excluded from GPS map")
     oor = raw.MS_X_COORD.notna() & ~(raw.MS_X_COORD.between(*P.LAMBERT_RANGE) & raw.MS_Y_COORD.between(*P.LAMBERT_RANGE))
     add("Incorrect", "MS_X_COORD / MS_Y_COORD", "Coordinates impossible (order of 1e15-1e16, outside Belgium)",
-        oor.sum(), "Step 6: municipality centre; step 8: excluded from GPS map")
+        oor.sum(), "Step A6: municipality centre; step A8: excluded from GPS map")
     add("Incorrect", "MS_X_COORD / MS_Y_COORD", "Point lies > 1 km outside the municipality given in CD_NIS",
-        (st_ == "> 1 km outside municipality").sum(), "Step 6: municipality centre; step 8: excluded from GPS map")
+        (st_ == "> 1 km outside municipality").sum(), "Step A6: municipality centre; step A8: excluded from GPS map")
     add("Inconsistent (minor)", "MS_X_COORD / MS_Y_COORD", "Point lies 0-1 km outside its municipality "
         "(typically border roads)", (st_ == "0-1 km outside municipality (kept)").sum(), "Kept")
     add("Incorrect", "DT_TIME", "Hour = 99 (not a valid hour 0-23)", (~raw.DT_TIME.between(0, 23)).sum(),
@@ -228,7 +257,7 @@ def _raw_quality_cached(file_stamp):
     add("Inconsistent", ", ".join(lower + upper), "'unknown' spelled 'onbekend' in some columns and 'Onbekend' in "
         "others; label capitalisation varies", None, "Kept")
     add("Naming", "CD_ROAD_TYPE_FR / CD_ROAD_TYPE_NL", "Prefix CD_ (code) but the columns hold text labels", None, "Kept")
-    add("Naming", "TX_COLLISON_TYPE_FR", "Typo in column name (COLLISON)", None, "Step 2: removed (FR)")
+    add("Naming", "TX_COLLISON_TYPE_FR", "Typo in column name (COLLISON)", None, "Step A2: removed (FR)")
     add("Metadata", "VAR_LIST", "Declares all codes as 'Char'; the file stores most as numbers. Header 'Lenght' "
         "is misspelt", None, "-")
     res["issues"] = pd.DataFrame(issues)

@@ -94,10 +94,14 @@ def test_population_matches_statbel_totals(dens):
 # GAP 6 - the funnel shown in the app must agree with the data it describes
 def test_funnel_matches_data(proc):
     steps = pd.read_csv(P.OUT_STEPS, dtype={"order": str}, encoding="utf-8-sig").set_index("order")
-    assert steps.loc["1", "rows_in"] == len(proc)
-    assert steps.loc["8", "rows_out"] == int((~proc.COORD_IMPUTED).sum())
-    assert (steps.loc[[str(i) for i in range(1, 8)], "rows_dropped"] == 0).all()
-    assert steps.loc["6", "rows_changed"] == int(proc.COORD_IMPUTED.sum())
+    assert steps.loc["A1", "rows_in"] == len(proc)
+    assert steps.loc["A8", "rows_out"] == int((~proc.COORD_IMPUTED).sum())
+    assert (steps.loc[[f"A{i}" for i in range(1, 8)], "rows_dropped"] == 0).all()
+    assert steps.loc["A6", "rows_changed"] == int(proc.COORD_IMPUTED.sum())
+    # shown in the order A, P, G, C (decision D46) but run P1, G1, G2 first, because A4-A6 need them
+    assert list(steps.index) == P.STEP_DISPLAY_ORDER
+    run = steps.run_order
+    assert run["P1"] < run["A4"] and run["G1"] < run["A5"] and run["G1"] < run["A6"]
     # the grouping steps are reported too, with the numbers the app relies on
     assert steps.loc["G1", "rows_out"] == proc.CD_NIS.nunique() == 581
     assert steps.loc["P1", "rows_out"] == 581 * 8

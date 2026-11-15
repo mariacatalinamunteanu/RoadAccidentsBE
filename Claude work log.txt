@@ -469,3 +469,22 @@ History of everything Claude does in this project, newest entries at the bottom.
    - CLAUDE.md (defaults of the tab), decision_log.md D45, Concept.txt (drawing, controls table, switch label).
    - Five files: app.py, tests, CLAUDE.md, decision_log.md updated; pipeline.py: no change needed.
    - Tests: 25 fast passed + app test passed. Only own files committed. Merged and pushed.
+
+
+------------------------------------------------------------------
+2026-11-15  |  Conclusions under every chart · chart 4 source · steps A1-A8 and new order · Pipeline tab audit
+------------------------------------------------------------------
+   - Branch feature/conclusions-step-names.
+   - app.py: show_fig(conclusion=) -> "📌 Conclusion:" under all 24 chart titles, computed from the chart data
+     (map_conclusion helper for the heat map). All 24 rendered with AppTest and read; 2 corrected (tie MS_X/MS_Y_COORD;
+     "until 2022" replaced by the measured last-month value). Chart 3 and chart 4 each got their own source line.
+   - Steps 1-8 renamed A1-A8 in pipeline.py, app.py, app_data.py, CLAUDE.md, Concept.txt, TEST_GAPS.md (one false
+     positive "step 1 of the assignment" restored). pipeline.STEP_DISPLAY_ORDER = A1-A8, P1, G1, G2, C1-C3;
+     new column run_order (G1, G2, P1 run first). Pipeline rerun; samples now A1.csv ...; old 1-8.csv removed.
+   - Pipeline & method audit vs D01-D45 and tests: lineage +5 rows; category rules +3 (D43-D45); TEST_GAPS count 33->39;
+     new sub-tab "All tests" (app_data.list_tests reads tests/).
+   - tests: test_every_chart_has_a_conclusion, test_pipeline_tab_lists_every_test; funnel test uses A-names, checks
+     display order and run order; why-municipalities test made robust (lineage text also names the key).
+   - Docs: CLAUDE.md (steps list + conclusion rule + test counts), decision_log.md note at top + D46, TEST_GAPS.md
+     gap 12, Concept.txt.
+   - Five files: all updated. Tests: 39 passed. Prompt history.txt (student edit) NOT committed. Merged and pushed.
