@@ -61,6 +61,15 @@ def test_explanations_are_real_sentences():
         P.explain("does_not_exist")
 
 
+def test_answer_dot_explains_spearman_and_p_value_in_plain_words():
+    # decision D39: the student's explanation of rho and p, as an easy-to-read list
+    t = P.EXPLANATIONS["d_answer"]
+    for must in ["compares two rankings", "−1", "+1", "ρ = −0.50", "p < 0.001", "1 time in 1,000",
+                 "association", "causes"]:
+        assert must in t, must
+    assert t.count("\n- ") >= 8 and "\n1. " in t  # bullet points and numbered steps, not one long sentence
+
+
 def test_columns_of_the_pipeline_outputs_have_column_help():
     step_cols = [f.name for f in fields(P.StepReport)]
     acc = pd.DataFrame({"DT_YEAR_COLLISION": [2019], "CD_NIS": ["11001"], "CD_CLASS_ACCIDENTS": [1],

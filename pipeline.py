@@ -186,9 +186,29 @@ EXPLANATIONS = {
     "d_rho": "Spearman rank correlation between population density and Severity Ratio over the 581 municipalities "
              "(selected years). −1 = the denser, the lower the ratio; 0 = no relation. p = chance to see this by "
              "luck. `scipy.stats.spearmanr` on `aggregate_by_level('Municipalities')`.",
-    "d_answer": "The two percentages are the Severity Ratio of the lowest (< 250 inh./km²) and highest (> 5,000 "
-                "inh./km²) density class (chart 1 below, `pipeline.density_class_profile`). 'Yes' when Spearman ρ "
-                "is negative and p < 0.05.",
+    "d_answer": (
+        "**What the two percentages are**\n"
+        "- The Severity Ratio of the **least dense** municipalities (< 250 inh./km²)\n"
+        "- … and of the **densest** municipalities (> 5,000 inh./km²)\n"
+        "- Source: chart 1 below (`pipeline.density_class_profile`)\n\n"
+        "**When the answer is \"Yes\"**\n"
+        "- Spearman ρ is **negative** *and* p < 0.05\n\n"
+        "**Spearman ρ (\"rho\") compares two rankings**\n"
+        "1. Put the municipalities in order by **population density**.\n"
+        "2. Put them in order again by the **share of injury crashes that were severe**.\n"
+        "3. If denser municipalities tend to rank **lower** on that second list, ρ is **negative**.\n\n"
+        "- **−1** = exactly opposite rankings\n"
+        "- **0** = no relation\n"
+        "- **+1** = identical rankings\n"
+        "- **ρ = −0.50** (all years 2017–2024): a clear tendency for denser municipalities to have a "
+        "lower severe share.\n\n"
+        "**The p-value**\n"
+        "- It asks: *if there were no association, how often would we see a correlation this strong or "
+        "stronger, in either direction?*\n"
+        "- **p < 0.001** = less than 1 time in 1,000 under that assumption.\n"
+        "- → **Strong evidence of an association.**\n\n"
+        "**Careful:** whether density *causes* the difference is a separate question (see \"Why?\" below)."
+    ),
     "d_map": "One **dot per unit** of the selected border view, at its centre (step G2). Colour = Severity Ratio "
              "(blue 0% → red 20%), size = population density (Σ population / Σ area). Grey layer = accidents at "
              "their GPS position (step 8; switch adds the step-6 centres). `pipeline.aggregate_by_level`.",
