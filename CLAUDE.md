@@ -13,11 +13,21 @@ in `pipeline.py` (constants at the top) and add an entry to `decision_log.md`.
 | `pipeline.py` | **All** data logic: one pure function per step, no Streamlit. `python pipeline.py` rebuilds every processed file. |
 | `app.py` | Streamlit app (`streamlit run app.py`). Shows data, never computes new data rules itself. |
 | `app_data.py` | Cached file loaders for the app only. |
-| `tests/` | `test_pipeline.py` (unit tests, fast) · `test_gaps.py` (real data, `-m data`) · `TEST_GAPS.md` |
+| `tests/` | `test_pipeline.py` (15 unit tests, fast) · `test_gaps.py` (8 tests on real data, `-m data`) · `test_app_cache.py` (2, app cache) · `TEST_GAPS.md` (what the tests miss) |
+| `pytest.ini`, `requirements.txt` | Test settings; packages for Streamlit Community Cloud. |
 | `decision_log.md` | What was decided, why, alternatives, impact. |
-| `Data/Raw Data/` | Downloaded files, **never edited by hand or by code** (only new files are added next to them). |
-| `Data/Processed Data/` | Everything written by `pipeline.py`. Safe to delete and rebuild. |
+| `Concept.txt` | Design: four pillars, sub-questions, categories, columns, filters, steps, drawing of every tab. |
+| `Presentation.txt` | 10-minute talk script + backup questions. |
+| `Data/Raw Data/` | Downloaded files, **never edited** (by hand or code). Exception: `Geo/municipality_centers_2024.csv` and `Geo/municipalities_2024.geojson` are written by `pipeline.py` (step G1), because the student asked for the centres in that folder. |
+| `Data/Processed Data/` | Everything else written by `pipeline.py`. Safe to delete and rebuild. |
 | `Claude work log.txt` | Chronological history of every task. |
+| `Mission statement.txt`, `Progress.txt`, `Prompt history.txt`, `Project 1 - demo-case *.pdf` | The student's own notes and the course assignment (not edited by Claude). |
+
+## Pipeline steps (pipeline_steps.csv, shown in the app)
+G1 municipalities + centres · G2 regions/provinces/BE centres + borders · P1 population density ·
+1 load accidents · 2 drop FR · 3 Brussels province · 4 add density · 5 check coordinates · 6 replace by centre ·
+7 lat/lon · 8 heat-layer view (not saved) · C1 mobility · C2 measures · C3 monthly COVID table.
+G1, G2, P1 and C3 group rows (nothing lost); only C1 and C2 really drop rows (other provinces / countries).
 
 ## Data agreements
 - **Language:** Dutch only. All `_FR` columns are dropped (step 2).

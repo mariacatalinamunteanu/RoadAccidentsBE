@@ -1,0 +1,6 @@
+﻿LEVEL,KEY,NAME,LAT,LON,METHOD
+Regions,Brussels Hoofdstedelijk Gewest,Brussels Hoofdstedelijk Gewest,50.836038,4.370655,centroid
+Regions,Vlaams Gewest,Vlaams Gewest,51.041201,4.236065,centroid
+Regions,Waals Gewest,Waals Gewest,50.315339,5.011359,centroid
+Provinces,Brussels Hoofdstedelijk Gewest,Brussels Hoofdstedelijk Gewest,50.836038,4.370655,centroid
+Provinces,Provincie Antwerpen,Provincie Antwerpen,51.229641,4.719603,centroid

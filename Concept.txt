@@ -126,15 +126,16 @@ Categories (classification rules; full list in pipeline.CATEGORY_RULES, shown in
 B4. ALGORITHM – the steps, in order (pipeline.py; each step reports rows in / out / dropped / changed / why)
 =====================================================================================================================
 
-  PREPARE GEOGRAPHY
-    G1  Read Statbel statistical sectors 2024 (19,795 polygons, Lambert 72).
-    G2  Dissolve into 581 municipalities; centre = centroid (representative point if outside: 5 cases).
-    G3  Dissolve into provinces (+ Brussels), regions and BE; compute their centres and simplified borders.
+  PREPARE GEOGRAPHY                                                      rows in -> out (grouped, nothing lost)
+    G1  Statbel statistical sectors 2024 (Lambert 72) dissolved into municipalities;
+        centre = centroid (representative point if outside: 5 cases)    19,795 -> 581
+    G2  Municipalities dissolved into 3 regions, 11 provinces (incl. Brussels), BE; centre + simplified
+        borders for every border view                                     581 -> 596 units
 
   PREPARE POPULATION DENSITY
-    P1  2019–2024: take Statbel density per municipality as is.
-    P2  2017–2018: population per municipality (old codes) -> map to 2019 codes (7 mergers + Hainaut renumbering)
-        -> sum -> divide by the 2019 area.  Check: Belgium 2017 = 11,322,088 (Statbel).
+    P1  2019–2024: Statbel density per municipality as is. 2017–2018: population per municipality (old codes)
+        -> map to 2019 codes (7 mergers + Hainaut renumbering) -> sum -> divide by the 2019 area.
+        Check: Belgium 2017 = 11,322,088 (Statbel).                       5,120 sheet rows -> 4,648 (581 x 8)
 
   ACCIDENT STEPS                                                         rows in -> out     changed
     1  Load raw accidents (OPENDATA_MAP_2017-2024.xlsx)                  289,532 -> 289,532   –
@@ -152,7 +153,7 @@ B4. ALGORITHM – the steps, in order (pipeline.py; each step reports rows in / 
     C1  Google mobility: keep Belgium + 3 regions, drop provinces         13,636 -> 3,896 rows; monthly mean
     C2  OxCGRT: keep Belgium (national)                                   202,760 -> 1,096 days; monthly mean
     C3  Per month x area: accidents, severe, Severity Ratio, "normal" (same month 2017–2019), phase,
-        mobility, stringency -> covid_monthly_2017-2024.csv
+        mobility, stringency -> covid_monthly_2017-2024.csv                289,532 -> 384 rows (4 areas x 96)
 
   ANALYSIS (in the app, with pipeline functions)
     Q1  for the selected years and border view:
@@ -249,7 +250,7 @@ TAB ❓ DENSITY VS SEVERITY  –  Q1
   Columns used: DT_YEAR_COLLISION, CD_NIS, TX_RGN/PROV/MUNTY_COLLISION_NL, CD_CLASS_ACCIDENTS, POPULATION,
                 AREA_KM2, POP_DENSITY, CD_BUILD_UP_AREA (+TX), CD_COLLISION_TYPE, CD_LIGHT_CONDITION, CD_ROAD_TYPE,
                 LAT, LON, COORD_IMPUTED.
-  Steps used: 1–8 + aggregate_by_level, density_class_profile, collision_group.
+  Steps used: G1, G2, P1, 1–8 + aggregate_by_level, density_class_profile, collision_group.
 
 ---------------------------------------------------------------------------------------------------------------------
 TAB 🦠 COVID LOCKDOWNS  –  Q2

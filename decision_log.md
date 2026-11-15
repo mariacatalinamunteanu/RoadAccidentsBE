@@ -125,6 +125,7 @@ to be confirmed by the student (marked ☐ until confirmed).
 - **Why:** "a map that hides missing coordinates is lying" (assignment, pitfall 1). The centres are fine for counting
   per municipality, not for showing *where* an accident happened.
 - **Impact:** 252,904 of 289,532 accidents drawn (−12.7%; 15–19% per year before 2022, 3–6% after).
+- **Later changed:** D27 adds a switch to draw the replaced accidents at their municipality centre (off by default).
 
 ---
 
@@ -184,6 +185,7 @@ to be confirmed by the student (marked ☐ until confirmed).
 - **Why:** the funnel describes the pipeline steps, so it belongs with them; above every tab it pushed the actual
   questions down. The casualties warning applies to every number in the app, so it stays visible everywhere
   (assignment: "name that difference explicitly on your dashboard").
+- **Later changed:** D28 moved the casualties statement from above all tabs into the Assumptions of the two question tabs.
 
 ### D27 · Switch on the map: include the accidents placed at the municipality centre (off by default)
 - **Decided by:** student (2026-11-15, option 3 of 3 proposed by Claude)
@@ -232,3 +234,36 @@ to be confirmed by the student (marked ☐ until confirmed).
 - **Alternatives:** a time-to-live on the cache (still stale for minutes, re-reads unchanged files); clearing the cache
   by hand after every pipeline run (easy to forget – exactly what went wrong).
 - **Side effect:** the raw xlsx is read once more (~1 min) because its cache key changed.
+
+---
+
+## Added during the consistency review (2026-11-15)
+
+### D31 · Push everything to the public GitHub repo, the course PDFs included
+- **Decided by:** student (2026-11-15, asked by Claude before the first push)
+- **What:** `main` + all branches pushed to https://github.com/mariacatalinamunteanu/RoadAccidentsBE (public),
+  including the two Syntra/RivNox demo-case PDFs.
+- **Alternatives offered:** remove the PDFs from the history before the first push; make the repo private first.
+- **Impact:** the PDFs are publicly visible; to remove them later, the history must be rewritten and force-pushed.
+
+### D32 · Keep only the Belgian Google mobility files; keep the full OxCGRT file locally ☐
+- **Decided by:** Claude
+- **What:** from Google's worldwide zip (98 MB) only `2020/2021/2022_BE_Region_Mobility_Report.csv` were kept, the zip
+  was deleted. OxCGRT (44 MB, all countries) is kept as downloaded but not committed; step C2 writes the Belgian rows
+  to `covid_measures_BEL_daily.csv`, which the app reads.
+- **Why:** only Belgium is analysed; raw files are kept as downloaded where their size allows, so step C2 shows what is
+  filtered (202,760 → 1,096 days).
+
+### D33 · Interface in English, data labels in Dutch ☐
+- **Decided by:** Claude
+- **Why:** the student's prompts and the course material are in English; the data labels stay Dutch because the French
+  columns were removed (D01) and translating labels would add an unchecked step.
+
+### D34 · Grouping steps G1, G2, P1, C3 reported in the pipeline like the other steps
+- **Decided by:** Claude, during the consistency review asked by the student
+- **What changed:** building the municipalities (G1: 19,795 sectors → 581), the border-view centres (G2), the density
+  table (P1: → 4,648 rows) and the monthly COVID table (C3: 289,532 accidents → 384 rows) now return a step report,
+  are saved in `pipeline_steps.csv` with a sample, and appear in the "Pipeline & method" tab. For these steps
+  "fewer rows out" means rows were grouped, not lost (rows_dropped = 0).
+- **Why:** they were run by `run_all()` and described in `Concept.txt`, but invisible in the app; every number must be
+  traceable to a visible step. `test_gaps.py::test_funnel_matches_data` now checks them.

@@ -123,6 +123,9 @@ CATEGORY_RULES = [
 TAB_RAW, TAB_PROC = "1.1 Raw Data Explorer", "1.2 Processed Data Explorer"
 TAB_DENS, TAB_COVID = "❓ Density vs severity", "🦠 COVID lockdowns"
 STEP_CONTEXT = {
+    "G1": ("Municipality borders (Statbel statistical sectors 2024)", f"{TAB_RAW} (coordinates), {TAB_PROC}, {TAB_DENS}"),
+    "G2": ("Municipality borders -> regions, provinces, BE (unit_centers.csv, outlines_*.geojson)", f"{TAB_DENS} (dots and borders)"),
+    "P1": ("Population (Pop_density_en.xlsx, Bevolking_per_gemeente.xlsx)", f"{TAB_PROC} (population density), {TAB_DENS}"),
     "1": ("Accidents – raw (OPENDATA_MAP_2017-2024.xlsx)", f"{TAB_RAW}; input of all other tabs"),
     "2": ("Accidents – processing", f"{TAB_PROC}, {TAB_DENS}, {TAB_COVID}"),
     "3": ("Accidents – processing", f"{TAB_PROC}, {TAB_DENS} (province view)"),
@@ -133,6 +136,7 @@ STEP_CONTEXT = {
     "8": ("Accidents – processed, view for the map (not saved)", f"{TAB_DENS} (grey heat layer)"),
     "C1": ("Google COVID-19 mobility reports BE 2020-2022", f"{TAB_COVID} (via covid_monthly_2017-2024.csv)"),
     "C2": ("OxCGRT government measures (OxCGRT_compact_national_v1.csv)", f"{TAB_COVID} (via covid_measures_BEL_daily.csv, covid_monthly_2017-2024.csv)"),
+    "C3": ("Accidents – processed + C1 + C2 -> covid_monthly_2017-2024.csv", f"{TAB_COVID}"),
 }
 
 
@@ -588,22 +592,41 @@ def run_all(verbose=True):
                   f"changed {rep.rows_changed:,})")
         return df
 
-    # geography
+    def grouped(order, step, function, rows_in, out_df, why):
+        """Report for a step that GROUPS rows (nothing is lost, rows are combined)."""
+        r = StepReport(order, step, function, int(rows_in), len(out_df), 0, len(out_df), why)
+        return keep(out_df, r)
+
+    # geography (G1-G2)
     sectors = gpd.read_file(RAW_SECTORS)
     munis, centers = build_municipalities(sectors)
     centers.to_csv(OUT_CENTERS, index=False, encoding="utf-8-sig")
     munis.to_crs(4326).to_file(OUT_MUNI_GEOJSON, driver="GeoJSON")
+    grouped("G1", "Build municipalities and their centres", "build_municipalities", len(sectors), centers,
+            f"{len(sectors):,} statistical sectors dissolved into {len(munis)} municipalities (grouped, nothing lost). "
+            f"Centre = centroid, or a point inside the polygon when the centroid falls outside "
+            f"({(centers.CENTER_METHOD != 'centroid').sum()} cases). Saved as municipality_centers_2024.csv in Raw Data/Geo "
+            f"(asked by the student) and municipalities_2024.geojson.")
     units, outlines = build_units(munis, centers)
     units.to_csv(OUT_UNIT_CENTERS, index=False, encoding="utf-8-sig")
     for level, gj in outlines.items():
         Path(str(OUT_OUTLINES).format(level=level)).write_text(json.dumps(gj), encoding="utf-8")
-    log.append(f"Municipalities: {len(munis)} (centre method: {centers.CENTER_METHOD.value_counts().to_dict()})")
+    grouped("G2", "Build centres and borders of every border view", "build_units", len(munis), units,
+            "Municipalities dissolved into " + ", ".join(f"{n} {lvl if lvl == 'BE' else lvl.lower()}" for lvl, n in units.LEVEL.value_counts()
+                                                          .reindex(list(LEVELS)).items())
+            + " (Brussels = own province). One centre per unit (unit_centers.csv) + simplified borders per view.")
 
-    # population density
-    dens = build_density({y: load_density_sheet(y) for y in range(2019, 2025)},
-                         {y: load_population_sheet(y) for y in (2017, 2018)}, set(munis.CD_NIS))
+    # population density (P1)
+    dens_sheets = {y: load_density_sheet(y) for y in range(2019, 2025)}
+    pop_sheets = {y: load_population_sheet(y) for y in (2017, 2018)}
+    dens = build_density(dens_sheets, pop_sheets, set(munis.CD_NIS))
     dens.to_csv(OUT_DENSITY, index=False, encoding="utf-8-sig")
-    log.append(f"Density table: {len(dens):,} rows, {dens.YEAR.min()}-{dens.YEAR.max()}")
+    grouped("P1", "Build population density per municipality and year", "build_density",
+            sum(map(len, dens_sheets.values())) + sum(map(len, pop_sheets.values())), dens,
+            f"2019-2024 from Statbel's density file; 2017-2018 = population (old codes, mapped to the 2019 codes: 7 "
+            f"mergers + Hainaut renumbering) / 2019 area. Rows for Belgium, regions, provinces and arrondissements are "
+            f"not municipalities and are left out. Result: {dens.CD_NIS.nunique()} municipalities x "
+            f"{dens.YEAR.nunique()} years.")
 
     # accidents
     acc = keep(*step_load(load_raw_accidents()))
@@ -619,13 +642,17 @@ def run_all(verbose=True):
     coordinates_by_year(acc).to_csv(OUT_MISSING_BY_YEAR, index=False, encoding="utf-8-sig")
 
     # COVID
-    mob_m, rep = mobility_monthly(load_mobility())
-    reports.append(rep)
+    raw_mob = load_mobility()
+    mob_m, rep = mobility_monthly(raw_mob)
+    keep(mob_m, rep)
     mea_bel, rep = measures_belgium(load_measures())
-    reports.append(rep)
+    keep(mea_bel, rep)
     mea_bel.to_csv(OUT_MEASURES_BEL, index=False, encoding="utf-8-sig")
     mon = covid_monthly(acc, mob_m, measures_monthly(mea_bel))
     mon.to_csv(OUT_COVID_MONTHLY, index=False, encoding="utf-8-sig")
+    grouped("C3", "Build the monthly COVID table", "covid_monthly", len(acc), mon,
+            f"{len(acc):,} accidents counted per month x area (Belgium + 3 regions) = {len(mon)} rows (grouped, nothing "
+            f"lost), with 'normal' (same month 2017-2019), phase, Google mobility (C1) and stringency (C2).")
     pd.DataFrame(COVID_PHASES, columns=["CODE", "PHASE", "FIRST_MONTH", "LAST_MONTH", "DESCRIPTION"]).to_csv(
         OUT_COVID_PHASES, index=False, encoding="utf-8-sig")
 

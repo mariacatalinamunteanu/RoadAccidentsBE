@@ -117,7 +117,7 @@ LINEAGE = [
     ("1.2 Processed: columns removed", "14 FR columns", "pipeline.step_drop_french", "step 2"),
     ("1.2 Processed: province filled", "30,022 rows", "pipeline.step_fill_province", "step 3"),
     ("1.2 Processed / tab 2: POPULATION, AREA_KM2, POP_DENSITY", "per municipality and year",
-     "pipeline.build_density → population_density_2017-2024.csv; joined in pipeline.step_add_density", "step 4"),
+     "pipeline.build_density → population_density_2017-2024.csv; joined in pipeline.step_add_density", "P1 + step 4"),
     ("1.2 Processed: coordinates replaced", "36,628 rows", "pipeline.step_impute_coordinates → COORD_IMPUTED", "step 6"),
     ("Maps: LAT / LON", "WGS84 positions", "pipeline.step_add_wgs84", "step 7"),
     ("Tab 2: grey heat layer", "accidents at GPS position", "switch off: pipeline.step_select_georeferenced (step 8, own "
@@ -125,11 +125,12 @@ LINEAGE = [
     ("Tab 2: severe / Severity Ratio (all)", "class 1-3 share", "pipeline.is_severe, pipeline.severity_ratio", "analysis"),
     ("Tab 2: dots on the map + table", "per region / province / municipality / BE",
      "pipeline.aggregate_by_level (density = Σ population / Σ area; centre from unit_centers.csv)", "analysis (uses steps 4, 7)"),
-    ("Tab 2: unit centres", "LAT / LON of each dot", "pipeline.build_units → unit_centers.csv", "geography"),
+    ("1.1 / 1.2 / tab 2: municipality borders and centres", "581 municipalities", "pipeline.build_municipalities → municipality_centers_2024.csv", "G1"),
+    ("Tab 2: unit centres and borders", "LAT / LON of each dot", "pipeline.build_units → unit_centers.csv, outlines_*.geojson", "G2"),
     ("Tab 2: Spearman ρ, trend", "relation density ↔ SR", "scipy.stats.spearmanr / numpy.polyfit in app.py on aggregate_by_level", "analysis"),
     ("Tab 2: 'Why' charts", "per density class", "pipeline.density_class_profile, pipeline.collision_group", "analysis"),
     ("Tab 3: monthly accidents, SR, normal, mobility, stringency", "per month and area",
-     "pipeline.covid_monthly → covid_monthly_2017-2024.csv", "C1, C2 + analysis"),
+     "pipeline.covid_monthly → covid_monthly_2017-2024.csv", "C1, C2, C3"),
     ("Tab 3: lockdown metrics, chi-square", "per lockdown vs normal", "pipeline.period_vs_baseline + scipy.stats.chi2_contingency", "analysis"),
     ("Tab 3: mix vs within effect", "standardised SR", "pipeline.mix_decomposition", "analysis"),
     ("Tab 3: accident mix / SR per group", "shares and SR", "pipeline.mix_profile, pipeline.road_user_group", "analysis"),
@@ -148,8 +149,10 @@ def pipeline_tab():
         st.dataframe(steps[["order", "dataset", "step", "tabs", "rows_in", "rows_out", "rows_dropped", "rows_changed",
                             "function", "why"]].rename(columns={"dataset": "data set", "tabs": "used in tab(s)"}),
                      hide_index=True, width="stretch")
-        st.markdown("Steps **1–8** work on the **accident data**; steps **C1–C2** on the **COVID data**. Each title "
-                    "shows the data set, what the step does, and the tabs that use the result.")
+        st.markdown("Steps **G1–G2** build the **geography**, **P1** the **population density**, **1–8** work on the "
+                    "**accident data**, **C1–C3** on the **COVID data**. Each title shows the data set, what the step "
+                    "does, and the tabs that use the result. Steps that *group* rows (G1, G2, P1, C3) lose nothing: "
+                    "fewer rows out means rows were combined.")
         for r in steps.itertuples():
             label = (f"Step {r.order} · {r.dataset} · {r.step}  →  used in: {r.tabs}  —  in {fmt(r.rows_in)} → out {fmt(r.rows_out)}"
                      f"{(' · not drawn in heat layer by default ' if r.order == '8' else ' · dropped ') + fmt(r.rows_dropped) if r.rows_dropped else ''}"
