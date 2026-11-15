@@ -127,6 +127,9 @@ def test_app_runs_every_tab_and_button():
     assert len(at.metric) >= 20 and all(m.help for m in at.metric), [m.label for m in at.metric if not m.help]
     assert at.radio(key="heat_mode").value == "Severe accidents"  # default heat layer (decision D44)
     assert at.segmented_control(key="level").value == "Municipalities"  # default border view (decision D45)
+    if P.PROMPT_HISTORY.exists():  # tab 📝 Prompt history shows the file exactly (decision D47)
+        text = P.PROMPT_HISTORY.read_text(encoding="utf-8").rstrip()  # st.code drops only the final line break
+        assert any(c.value.rstrip() == text for c in at.code)
     at.toggle(key="heat_imputed").set_value(True).run()
     assert not at.exception, [e.value for e in at.exception]
     for mode in ["All accidents", "Off", "Severe accidents"]:

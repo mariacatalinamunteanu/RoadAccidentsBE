@@ -1054,11 +1054,25 @@ road type × collision type × cyclist yes/no) had been as severe as normal, so 
             table(o, width="stretch", height=300)
 
 
+# =================================================================== PROMPT HISTORY
+def prompt_history_tab():
+    st.subheader("Prompt history")
+    text = D.load_prompt_history()
+    if text is None:
+        st.info("`Prompt history.txt` was not found in the project folder.")
+        return
+    changed = pd.Timestamp(P.PROMPT_HISTORY.stat().st_mtime, unit="s", tz="UTC").tz_convert("Europe/Brussels")
+    st.caption(f"Content of `Prompt history.txt`, read live from the project folder (last changed "
+               f"{changed:%d/%m/%Y %H:%M}). It is the student's own file: the app only shows it and never changes it.")
+    st.code(text, language=None, wrap_lines=True)
+
+
 # =================================================================== LAYOUT
 st.title("🚦 Road accidents in Belgium 2017–2024")
 st.caption("Hover over a **?** next to a number, chart title or column header to see what it means, how it is "
            "calculated and in which pipeline step it is created.")
-tab0, tab1, tab2, tab3 = st.tabs(["🔧 Pipeline & method", "📊 Data Explorer", "❓ Density vs severity", "🦠 COVID lockdowns"])
+tab0, tab1, tab2, tab3, tab4 = st.tabs(["🔧 Pipeline & method", "📊 Data Explorer", "❓ Density vs severity",
+                                        "🦠 COVID lockdowns", "📝 Prompt history"])
 with tab0:
     pipeline_tab()
 with tab1:
@@ -1071,3 +1085,5 @@ with tab2:
     density_tab()
 with tab3:
     covid_tab()
+with tab4:
+    prompt_history_tab()

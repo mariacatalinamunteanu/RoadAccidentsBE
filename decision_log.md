@@ -415,3 +415,21 @@ to be confirmed by the student (marked ☐ until confirmed).
     itself (`app_data.list_tests`), so it cannot fall behind (`test_pipeline_tab_lists_every_test`).
 - **Five-file check:** pipeline.py, app.py (+ app_data.py), tests, CLAUDE.md, decision_log.md all updated
   (+ Concept.txt, TEST_GAPS.md).
+
+### D47 · New main tab "📝 Prompt history" showing Prompt history.txt
+- **Decided by:** student (2026-11-15)
+- **What:** a fifth main tab shows the content of `Prompt history.txt`. It is **read live** from the file
+  (`app_data.load_prompt_history`, path `pipeline.PROMPT_HISTORY`), not copied into the code, so the tab always shows
+  the current file; it is re-read when the file changes. Shown with `st.code` (keeps line breaks and indentation,
+  wraps long lines) plus the date the file last changed.
+- **Never changes the file:** `tests/test_prompt_history_tab.py` checks that no code writes it; the app test checks
+  that the tab shows exactly the file content (Streamlit drops only the final line break).
+- **Deployed app:** shows the version of the file that is on GitHub, i.e. as of the last push.
+
+### D48 · Prompt history.txt is included in every commit
+- **Decided by:** student (2026-11-15: "Always include the prompt history.txt in the commit")
+- **What:** replaces the rule of D41 that `Prompt history.txt` is pushed only on request. Claude still never changes
+  its content, and still commits other files only when it changed them itself (explicit `git add`, never `git add -A`).
+- **Why:** with D47 the app shows the file; committing it every time keeps the deployed tab up to date.
+- **Five-file check (D47 + D48):** app.py (+ app_data.py), pipeline.py (path), tests (new file + app test),
+  CLAUDE.md, decision_log.md updated (+ Concept.txt).

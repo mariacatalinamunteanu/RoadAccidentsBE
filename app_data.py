@@ -121,6 +121,11 @@ def load_markdown(path):
     return read_text(path) or f"*{Path(path).name} not found*"
 
 
+def load_prompt_history():
+    """Content of the student's Prompt history.txt, read live (re-read when the file changes). Never written."""
+    return read_text(P.PROMPT_HISTORY)
+
+
 def load_covid_monthly():
     return read_csv(P.OUT_COVID_MONTHLY, parse_dates=["DATE"])
 

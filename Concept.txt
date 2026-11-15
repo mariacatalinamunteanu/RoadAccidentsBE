@@ -180,7 +180,7 @@ PART C – THE DASHBOARD (drawing)
 
 +===================================================================================================================+
 | 🚦 Road accidents in Belgium 2017–2024                                                                             |
-| [🔧 Pipeline & method] [📊 Data Explorer] [❓ Density vs severity] [🦠 COVID lockdowns]          <- 4 main tabs     |
+| [🔧 Pipeline & method] [📊 Data Explorer] [❓ Density vs severity] [🦠 COVID lockdowns] [📝 Prompt history]  <- 5  |
 +===================================================================================================================+
 
 ---------------------------------------------------------------------------------------------------------------------
@@ -258,6 +258,11 @@ TAB ❓ DENSITY VS SEVERITY  –  Q1
                 AREA_KM2, POP_DENSITY, CD_BUILD_UP_AREA (+TX), CD_COLLISION_TYPE, CD_LIGHT_CONDITION, CD_ROAD_TYPE,
                 LAT, LON, COORD_IMPUTED.
   Steps used: G1, G2, P1, 1–8 + aggregate_by_level, density_class_profile, collision_group.
+
+---------------------------------------------------------------------------------------------------------------------
+TAB 📝 PROMPT HISTORY  –  "Which instructions built this project?"
+  Shows Prompt history.txt (the student's file) exactly as it is, read live from the project folder; never changed
+  by the app or by Claude (decision D47). No filters.
 
 ---------------------------------------------------------------------------------------------------------------------
 TAB 🦠 COVID LOCKDOWNS  –  Q2
