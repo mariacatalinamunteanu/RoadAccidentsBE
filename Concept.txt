@@ -1,0 +1,317 @@
+CONCEPT – Road accidents in Belgium 2017–2024
+=============================================
+Design of the project (step 1 of the assignment, "Design first"). It describes what the dashboard answers, how the
+question is broken down (the four pillars of computational thinking), and draws every tab: sub-questions,
+categories, columns, filters and pipeline steps. A reader should be able to explain the dashboard without asking.
+
+Data: Statbel "Geolocatie van de verkeersongevallen 2017–2024" (289,532 accidents with at least one death or injury)
+      + Statbel population & area per municipality + Statbel municipality borders (statistical sectors 2024)
+      + Google COVID-19 Community Mobility Reports (BE, 2020–2022) + Oxford COVID-19 Government Response Tracker.
+Code: pipeline.py (all steps, pure functions) -> Data/Processed Data -> app.py (Streamlit, only shows).
+
+
+#####################################################################################################################
+PART A – THE CENTRAL QUESTIONS
+#####################################################################################################################
+
+Q1  "Is it true that as the density of the population increases, the severity of the accidents decreases? Why?"
+Q2  "Did the COVID-19 lockdowns make road accidents fewer but more severe? Why?"
+
+Key definitions (same everywhere, see CLAUDE.md):
+  * Severe accident  = CD_CLASS_ACCIDENTS 1 (with deaths), 2 (fatally injured) or 3 (seriously injured).
+                       Class 4 (only light injuries) = not severe.
+  * Severity Ratio   = severe accidents / all recorded injury accidents x 100. Each accident counts once.
+  * Population density = population on 1 January / area (km2), of the municipality, in the year of the accident.
+  * "Normal" (Q2)    = average of the same calendar month in 2017, 2018 and 2019.
+
+
+#####################################################################################################################
+PART B – THE FOUR PILLARS
+#####################################################################################################################
+
+=====================================================================================================================
+B1. DECOMPOSITION – break the big question into small questions you can answer one by one
+=====================================================================================================================
+
+Q1 – density vs severity
+  1.1  Is the data good enough?  What is missing, unknown or wrong in the accident file?        -> tab 1.1
+  1.2  Which accidents can we place on a map, and what do we do with the ones we cannot?        -> steps 5–8, tab 1.2
+  1.3  How dense is the municipality where each accident happened, in that year?                 -> step 4
+  1.4  What is the Severity Ratio per region / province / municipality / Belgium?                -> tab 2, map + table
+  1.5  Do denser units have a lower Severity Ratio? How strong is the relation?                  -> tab 2, scatter + rho
+  1.6  WHY? What is different about accidents in dense areas?
+         a. Where do they happen?  (inside / outside built-up area, motorway)                      -> tab 2, charts 2–3
+         b. What kind of crash?    (single vehicle / obstacle, pedestrian, frontal, rear-side)     -> tab 2, chart 4
+         c. Under which conditions? (night without street lighting)                               -> tab 2, chart 2
+         d. Does density still matter INSIDE built-up areas (same speed regime)?                  -> tab 2, chart 3
+  1.7  What can the data NOT tell us? (only injury accidents, no traffic volume, areas not people) -> assumptions box
+
+Q2 – COVID
+  2.1  When were the lockdowns, and how strict were they?                                       -> OxCGRT, phases
+  2.2  How much did people move during each phase?                                               -> Google mobility
+  2.3  How many accidents and severe accidents happened per month, compared with normal?         -> tab 3, time series
+  2.4  Was the Severity Ratio in Lockdown 1 / Lockdown 2 different from normal, and significant?  -> tab 3, metrics
+  2.5  Is the change the same in Flanders, Wallonia and Brussels?                               -> tab 3, area buttons
+  2.6  WHY? Did OTHER accidents happen (mix), or did the SAME accidents end worse (within)?       -> tab 3, charts 1–3
+  2.7  Does less mobility go together with fewer accidents / a higher ratio?                     -> tab 3, scatter
+
+=====================================================================================================================
+B2. PATTERN RECOGNITION – what repeats, what looks alike, what we expect to see
+=====================================================================================================================
+
+Patterns in the data (found while exploring, used in the design)
+  * Every accident has a municipality code (CD_NIS) that maps to exactly one name and one region
+    -> the municipality is the reliable "place" key; coordinates are not (12.7% unusable).
+  * Missing coordinates follow the year: 15–19% before 2022, 3–6% from 2022
+    -> missing values are not random over time; they must be shown per year.
+  * The same structure repeats in every coded column: a code column (CD_...) + a Dutch label (TX_..._NL)
+    + a code for "unknown" (9, 99, 0, -1, -3) -> one generic quality check for all coded columns.
+  * The same calculation repeats at every level (municipality -> province -> region -> BE):
+    count accidents, count severe, divide; sum population, sum area, divide
+    -> one function (aggregate_by_level) for all four border views.
+  * Rural areas: more accidents outside built-up areas, more single-vehicle crashes, more dark roads.
+    Cities: many low-speed rear/side collisions. -> expected to explain Q1.
+  * Accidents have a strong seasonal pattern (peaks in June and October)
+    -> Q2 must compare a month with the same month in other years, not with the month before.
+  * Lockdown months: mobility down 30–60%, accidents down; the 1st lockdown looks different from the 2nd
+    -> Q2 treats each lockdown separately.
+
+Patterns in the questions
+  * Q1 and Q2 have the same shape: "does X go together with a higher/lower share of severe accidents, and why?"
+    -> same Severity Ratio, same "why" approach: look at the MIX of accidents and at severity WITHIN each type.
+
+=====================================================================================================================
+B3. ABSTRACTION – what we keep, what we leave out, and the categories we choose
+=====================================================================================================================
+
+Kept / simplified
+  * An accident = one row = one count (number of victims ignored, as the Severity Ratio definition says).
+  * Severity: 4 classes -> 2 groups: severe (1-2-3) / not severe (4).
+  * Place: municipality code (581 post-2019 municipalities) instead of the exact point for all numbers;
+    the exact point only for the GPS heat layer.
+  * Time: year (Q1) and month (Q2). The day is not in the data, the hour only for the rush-hour share.
+  * Density: one number per municipality per year (1 January).
+  * COVID: a phase per month instead of exact dates.
+
+Left out on purpose
+  * French columns (identical to Dutch).
+  * Weather, road condition, obstacle details, crossway: not needed for the two questions (kept in the data, shown
+    in the Raw Data Explorer quality checks).
+  * Traffic volume (vehicle-km): not available -> we do not compute "risk per km driven" (stated in the app).
+  * Accidents with only material damage: not in the data -> stated in both question tabs.
+
+Categories (classification rules; full list in pipeline.CATEGORY_RULES, shown in the app)
+  +------------------------------------+--------------------------------------------------------------------------+
+  | Category                           | Rule                                                                     |
+  +------------------------------------+--------------------------------------------------------------------------+
+  | Severe                             | CD_CLASS_ACCIDENTS in {1, 2, 3}                                          |
+  | Border view                        | Regions (3) | Provinces (10 + Brussels = 11) | Municipalities (581) | BE  |
+  | Density class                      | < 250 | 250–500 | 500–1,000 | 1,000–2,500 | 2,500–5,000 | > 5,000 inh/km2 |
+  | Outside built-up area              | CD_BUILD_UP_AREA = 2 (9 = unknown, left out of chart 3)                 |
+  | Motorway                           | CD_ROAD_TYPE = 1                                                         |
+  | Single vehicle / obstacle          | CD_COLLISION_TYPE in {6, 7, 8}                                           |
+  | Collision group (Q1 chart 4)       | 6/7/8 single vehicle | 5 pedestrian | 2 frontal | 1/3/4/A rear-side-chain |
+  |                                    | | 0/9 other-unknown                                                      |
+  | Night without street lighting      | CD_LIGHT_CONDITION = 4                                                   |
+  | In the dark (Q2)                   | CD_LIGHT_CONDITION in {3, 4, 5}                                          |
+  | Cyclist / motorcyclist involved    | CD_ROAD_USR_TYPE1 or _TYPE2 = 3 / = 7                                    |
+  | Road-user group (Q2 chart 2)       | first match: single vehicle | pedestrian | cyclist | motorcyclist | other |
+  | Rush hour (Q2)                     | DT_TIME in {7, 8, 16, 17, 18}                                            |
+  | COVID phase                        | Pre-COVID 01–02/2020 | Lockdown 1 03–05/2020 | Summer 2020 06–10/2020   |
+  |                                    | | Lockdown 2 11/2020–04/2021 | Reopening 05/2021–02/2022 | Post 03/2022– |
+  | Coordinate status                  | ok | missing | out_of_range | outside_municipality (> 1,000 m)        |
+  +------------------------------------+--------------------------------------------------------------------------+
+
+=====================================================================================================================
+B4. ALGORITHM – the steps, in order (pipeline.py; each step reports rows in / out / dropped / changed / why)
+=====================================================================================================================
+
+  PREPARE GEOGRAPHY
+    G1  Read Statbel statistical sectors 2024 (19,795 polygons, Lambert 72).
+    G2  Dissolve into 581 municipalities; centre = centroid (representative point if outside: 5 cases).
+    G3  Dissolve into provinces (+ Brussels), regions and BE; compute their centres and simplified borders.
+
+  PREPARE POPULATION DENSITY
+    P1  2019–2024: take Statbel density per municipality as is.
+    P2  2017–2018: population per municipality (old codes) -> map to 2019 codes (7 mergers + Hainaut renumbering)
+        -> sum -> divide by the 2019 area.  Check: Belgium 2017 = 11,322,088 (Statbel).
+
+  ACCIDENT STEPS                                                         rows in -> out     changed
+    1  Load raw accidents (OPENDATA_MAP_2017-2024.xlsx)                  289,532 -> 289,532   –
+    2  Drop the 14 French columns                                         289,532 -> 289,532   –
+    3  Empty province (Brussels only) -> "Brussels Hoofdstedelijk Gewest" 289,532 -> 289,532   30,022
+    4  Join population density on CD_NIS + year                          289,532 -> 289,532   289,532
+    5  Check coordinates: missing / outside Belgium / > 1 km outside own municipality
+                                                                          289,532 -> 289,532   36,628 flagged
+    6  Replace flagged coordinates by the municipality centre             289,532 -> 289,532   36,628
+    7  Convert Lambert 72 -> latitude / longitude                        289,532 -> 289,532   all
+    8  View for the heat layer: only accidents at their own GPS position  289,532 -> 252,904   (not saved;
+       a switch on the map can add the 36,628 at their municipality centre)
+
+  COVID STEPS
+    C1  Google mobility: keep Belgium + 3 regions, drop provinces         13,636 -> 3,896 rows; monthly mean
+    C2  OxCGRT: keep Belgium (national)                                   202,760 -> 1,096 days; monthly mean
+    C3  Per month x area: accidents, severe, Severity Ratio, "normal" (same month 2017–2019), phase,
+        mobility, stringency -> covid_monthly_2017-2024.csv
+
+  ANALYSIS (in the app, with pipeline functions)
+    Q1  for the selected years and border view:
+          per unit: accidents, severe, SR = severe / accidents x 100, density = sum(pop) / sum(area)
+          dot at the unit centre: colour = SR, size = density
+          Spearman rho (density, SR) over municipalities; trend line weighted by sqrt(accidents)
+          per density class: SR, % outside built-up area, % single vehicle, % unlit night; SR inside vs outside
+    Q2  for the selected area and lockdown:
+          accidents and severe vs normal; SR vs normal; chi-square test
+          mix profile (shares) and SR per road-user group, lockdown vs normal
+          decomposition: expected SR = normal SR per cell (built-up x road type x collision type x cyclist),
+          weighted by the lockdown mix -> mix effect = expected - normal, within effect = observed - expected
+
+
+#####################################################################################################################
+PART C – THE DASHBOARD (drawing)
+#####################################################################################################################
+
++===================================================================================================================+
+| 🚦 Road accidents in Belgium 2017–2024                                                                             |
+| [🔧 Pipeline & method] [📊 Data Explorer] [❓ Density vs severity] [🦠 COVID lockdowns]          <- 4 main tabs     |
++===================================================================================================================+
+
+---------------------------------------------------------------------------------------------------------------------
+TAB 🔧 PIPELINE & METHOD  –  "Where does every number come from, and where does data disappear?"
+---------------------------------------------------------------------------------------------------------------------
++-------------------------------------------------------------+-------------------------------------------------+
+| ROW FUNNEL (steps 1–8, rows out per step)                   | Raw 289,532 · steps 2–7 drop 0 rows ·           |
+|  1 ████████████████████████ 289,532                         | step 8: 36,628 (12.7%) not drawn in heat layer  |
+|  ...                                                        | (not removed from the data)                     |
+|  8 ████████████████████     252,904                         |                                                 |
++-------------------------------------------------------------+-------------------------------------------------+
+| [Steps (rows in/out)] [Where does each number come from?] [Assumptions] [Category rules] [Decision log & tests] |
+|                                                                                                               |
+|  Steps table: order | data set | step | used in tab(s) | rows in | rows out | dropped | changed | function | why|
+|  ▸ Step 1 · Accidents – raw (OPENDATA_MAP_2017-2024.xlsx) · Load raw accidents → used in: 1.1 ... — in → out  |
+|  ▸ Step 2 ... ▸ Step 8 ... ▸ Step C1 ... ▸ Step C2                                                            |
+|      inside each: rows in / out / dropped / changed, data set, tabs, why, function, sample of changed rows     |
+|  Bar chart: % of accidents without usable coordinate per year (+ table)                                       |
++---------------------------------------------------------------------------------------------------------------+
+  Filters: none.   Data: pipeline_steps.csv, pipeline_samples/, coordinates_by_year.csv, decision_log.md,
+  tests/TEST_GAPS.md, pipeline.CATEGORY_RULES.
+
+---------------------------------------------------------------------------------------------------------------------
+TAB 📊 DATA EXPLORER  –  sub-tabs [1.1 Raw Data Explorer] [1.2 Processed Data Explorer]
+---------------------------------------------------------------------------------------------------------------------
+1.1 RAW  –  "Is the raw data good enough? What is missing, unknown, inconsistent or wrong?"
++---------------------------------------------------------------------------------------------------------------+
+| Variable list table (VAR_LIST_ACC_OPENDATA_MAP.xlsx)                                                          |
+| KPIs: rows 289,532 | columns 45 | municipalities 581 | rows with ≥1 missing | exact duplicates 66             |
+| ▸ Browse the raw data      filters: [Rows to show 100–5000] [Year (multi)]                                     |
+| [Missing values] [Unknown / unspecified] [Inconsistent & incorrect] [Coordinates]                             |
+|   Missing: bar per column (province 30,022 = Brussels; X/Y 35,881)                                           |
+|   Unknown: bar per column of codes meaning "unknown"; [Distribution of a coded column ▼] bar per code         |
+|   Inconsistent: issues table (category, column, issue, rows, handling step) + code↔label check + checks list  |
+|   Coordinates: status table + problems per year + map of the 745 points > 1 km outside their municipality      |
++---------------------------------------------------------------------------------------------------------------+
+1.2 PROCESSED  –  "What did the pipeline add, fix or remove?"
++---------------------------------------------------------------------------------------------------------------+
+| [Tables] [What changed] [Coordinates fixed] [Population density]                                              |
+|   Tables: (o) accidents_processed (o) population_density (o) municipality_centers (o) unit_centers            |
+|           (o) covid_monthly (o) covid_phases                                                                  |
+|           accidents filters: [Year (multi)] [Region (multi)] [Rows: All / Only replaced coordinates]          |
+|   What changed: removed 14 FR columns | added 10 columns (+ meaning) | empty before/after table | provinces bar |
+|   Coordinates fixed: KPIs per status, replaced per year, map original position → municipality centre         |
+|   Population density: source per year (2019–24 Statbel, 2017–18 derived), box plot per year                   |
++---------------------------------------------------------------------------------------------------------------+
+
+---------------------------------------------------------------------------------------------------------------------
+TAB ❓ DENSITY VS SEVERITY  –  Q1
+---------------------------------------------------------------------------------------------------------------------
++---------------------------------------------------------------------------------------------------------------+
+| ▸ ⚠️ Assumptions behind this tab (only injury accidents · denominator · coordinates · categories · areas)       |
+| [Regions][Provinces][Municipalities][BE]   Years [2017 ●────────● 2024]   Heat layer (o)All (o)Severe (o)Off  |
+|                                                                           [ ] Include accidents placed at the |
+|                                                                               municipality centre (36,628)    |
+| KPIs: injury accidents | severe (class 1–3) | Severity Ratio BE | Spearman rho (581 municipalities)           |
+| ✅ Answer box: "Yes. SR 13.6% (< 250 inh/km2) vs 4.9% (> 5,000 inh/km2) ..."                                  |
++-------------------------------------------------------------+-------------------------------------------------+
+| HEAT MAP (Belgium)                                          | SCATTER                                         |
+|   ● dot at centre of each unit                              |   x = density (log), y = Severity Ratio,        |
+|     colour = Severity Ratio (blue 0% → red 20%)             |   size = accidents, dashed weighted trend line  |
+|     size   = population density                             |   [Min. accidents per municipality 1–500, 30]   |
+|   ░ grey heat layer = accidents at GPS position             |   (municipality view only)                      |
+|   ─ borders of the selected view                            |   rho, p, slope                                 |
++-------------------------------------------------------------+-------------------------------------------------+
+| ▸ Table – level: name, population, area, density, accidents, per 1,000 inh, severe, deaths, SR, lat, lon     |
+| WHY?                                                                                                          |
+|  [1 SR by density class (bar)]              [2 % outside built-up / single vehicle / unlit night by class]    |
+|  [3 SR inside vs outside built-up area]     [4 SR by collision group]                                         |
+|  Explanation (speed, crash type, inside built-up areas, recording) – numbers computed live                    |
+| ▸ Data behind the charts   ▸ 🧮 Rows used in this tab (what is left out and why)                              |
++---------------------------------------------------------------------------------------------------------------+
+  Columns used: DT_YEAR_COLLISION, CD_NIS, TX_RGN/PROV/MUNTY_COLLISION_NL, CD_CLASS_ACCIDENTS, POPULATION,
+                AREA_KM2, POP_DENSITY, CD_BUILD_UP_AREA (+TX), CD_COLLISION_TYPE, CD_LIGHT_CONDITION, CD_ROAD_TYPE,
+                LAT, LON, COORD_IMPUTED.
+  Steps used: 1–8 + aggregate_by_level, density_class_profile, collision_group.
+
+---------------------------------------------------------------------------------------------------------------------
+TAB 🦠 COVID LOCKDOWNS  –  Q2
+---------------------------------------------------------------------------------------------------------------------
++---------------------------------------------------------------------------------------------------------------+
+| ▸ ⚠️ Assumptions behind this tab (only injury accidents · COVID · denominator · categories)                     |
+| [Belgium][Flanders][Wallonia][Brussels]                                                                       |
+| Lockdown 1 (03–05/2020): accidents vs normal | severe vs normal | SR vs normal | chi-square p                 |
+| Lockdown 2 (11/2020–04/2021): same 4 numbers                                                                  |
+| ✅/ℹ️ Answer box: "Yes for the first lockdown, no for the second ..."                                          |
++-------------------------------------------------------------+-------------------------------------------------+
+| Accidents per month 2017–2024 + normal + severe bars        | Severity Ratio per month + normal               |
+| (lockdowns shaded red, relaxed phases orange)               |                                                 |
++-------------------------------------------------------------+-------------------------------------------------+
+| Stringency (bars) + mobility workplaces/transit/residential | Scatter region-months: x = workplace mobility,  |
+|                                                             | y = [(o) accidents vs normal (o) SR vs normal]  |
++-------------------------------------------------------------+-------------------------------------------------+
+| WHY?   Compare with normal: (o) Lockdown 1 (o) Lockdown 2                                                     |
+|  [1 Accident mix: shares vs normal]   [2 SR within each road-user group]                                      |
+|  [3 normal | expected from mix | observed]  + how to read: mix effect / within effect                          |
+|  Explanation (less traffic, higher speeds, other road users, why not in Lockdown 2)                           |
+| ▸ 🧮 Rows used in this tab   ▸ Data behind this tab (phases, covid_monthly, raw mobility, OxCGRT Belgium)        |
++---------------------------------------------------------------------------------------------------------------+
+  Columns used: DT_YEAR_COLLISION, DT_MONTH_COLLISION, DT_TIME, TX_RGN_COLLISION_NL, CD_CLASS_ACCIDENTS,
+                CD_BUILD_UP_AREA, CD_ROAD_TYPE, CD_COLLISION_TYPE, CD_ROAD_USR_TYPE1/2, CD_LIGHT_CONDITION;
+                covid_monthly: ACCIDENTS, SEVERE, SEVERITY_RATIO, BASE_*, PHASE, MOB_WORKPLACES,
+                MOB_TRANSIT_STATIONS, MOB_RESIDENTIAL, STRINGENCY.
+  Steps used: 1–7, C1, C2, C3 + period_vs_baseline, mix_profile, road_user_group, mix_decomposition.
+
+
+#####################################################################################################################
+PART D – FILTERS AND CONTROLS (complete list)
+#####################################################################################################################
+  Tab                     Control                                     Values                       Changes
+  ----------------------  ------------------------------------------  ---------------------------  -------------------
+  1.1 Raw                 Rows to show (slider)                       100–5,000                    raw table
+  1.1 Raw                 Year (multiselect)                          2017–2024                    raw table
+  1.1 Raw                 Distribution of a coded column (dropdown)   11 coded columns             bar chart
+  1.2 Processed           Data set (radio)                            6 processed files            table shown
+  1.2 Processed           Year, Region (multiselect)                  2017–2024, 3 regions         accidents table
+  1.2 Processed           Rows (dropdown)                             All / only replaced coords   accidents table
+  ❓ Density              Border view (4 buttons)                     Regions/Provinces/Munic./BE  dots, scatter, table
+  ❓ Density              Years (range slider)                        2017–2024                    everything in tab
+  ❓ Density              Heat layer (radio)                          All / Severe / Off           grey layer
+  ❓ Density              Include accidents at municipality centre    off (default) / on           grey layer
+  ❓ Density              Min. accidents (slider, municipalities)     1–500, default 30            scatter
+  🦠 COVID                Area (4 buttons)                            Belgium/Flanders/Wallonia/BXL everything in tab
+  🦠 COVID                Y axis (radio)                              accidents / SR vs normal     scatter
+  🦠 COVID                Compare with normal (radio)                 Lockdown 1 / Lockdown 2      "Why" charts 1–3
+
+
+#####################################################################################################################
+PART E – ANSWERS (Belgium, all years) AND LIMITS
+#####################################################################################################################
+  Q1  Yes. SR 13.6% in municipalities < 250 inh/km2 vs 4.9% > 5,000 inh/km2; Spearman rho = -0.50 (581
+      municipalities, p < 0.001). Why: fewer accidents outside built-up areas (61% -> 2%), fewer single-vehicle
+      crashes (37% -> 12%), and even inside built-up areas the ratio falls (10.5% -> 4.9%).
+  Q2  Yes for Lockdown 1: 42% fewer accidents, SR 12.3% vs 10.2% normal (p = 1.6e-06); mostly a within effect
+      (+1.68 pp) rather than a mix effect (+0.49 pp) -> fits higher speeds on empty roads. No for Lockdown 2:
+      25% fewer accidents, SR 9.6% vs 9.7% (p = 0.85).
+  Limits: only injury accidents; no traffic volume (no risk per km); relations between areas, not individuals;
+      12.7% of coordinates replaced (does not affect the ratios, grouped by municipality code); months only for COVID.
+
+  More detail: decision_log.md (every choice: what, why, alternatives, impact), CLAUDE.md (agreements),
+  tests/TEST_GAPS.md (what is tested and what not).
