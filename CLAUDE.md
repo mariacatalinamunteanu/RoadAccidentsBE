@@ -49,7 +49,8 @@ in `pipeline.py` (constants at the top) and add an entry to `decision_log.md`.
 ## Working agreements
 - **Every number in the app shows its source** (`src(...)` caption: pipeline step / function).
 - **Rows that drop out are shown** (row funnel at the top of the tab "Pipeline & method", step expanders,
-  "Rows used in this tab"). The "only injury accidents" warning stays above all tabs.
+  "Rows used in this tab"). The "only injury accidents" statement is the first item of the Assumptions box in
+  both question tabs (tab 2 and tab 3).
 - New logic goes in `pipeline.py` as a pure function, with a test in `tests/`.
 - Run `python -m pytest` (fast) and `python -m pytest -m data` (real data) before merging into `main`.
 - Work on a branch, merge into `main` with `--no-ff`. Commit messages say what and why.

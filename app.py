@@ -29,9 +29,10 @@ COVID_Q = "Did the COVID-19 lockdowns make road accidents fewer but more severe?
 # ---------------------------------------------------------------- assumptions (same as decision_log.md)
 ASSUMPTIONS = {
     "casualties": ("Only accidents with casualties",
-                   "The data contains only accidents with at least one death or injury. Accidents with only material "
-                   "damage are not included. So 'most accidents' here means 'most injury accidents', and the Severity "
-                   "Ratio is a share among injury accidents, not among all accidents."),
+                   "This dataset contains only accidents with at least one death or injury. Accidents with only "
+                   "material damage are not included, so the most dangerous place according to this data is not the "
+                   "same as the place with the most accidents. The Severity Ratio is therefore a share among injury "
+                   "accidents, not among all accidents."),
     "coordinates": ("Missing / abnormal coordinates",
                     "36,628 accidents (12.7%) have no usable own coordinate: 35,881 missing, 2 impossible, 745 more than "
                     "1 km outside their municipality. 15-19% per year before 2022, 3-6% from 2022. They get the "
@@ -106,12 +107,6 @@ def top_funnel():
                     f"have no usable own coordinate → by default not drawn in the GPS heat layer (switch on the map)\n"
                     f"- All counts and ratios use all **{fmt(raw_n)}** rows (grouped by municipality code)")
         st.caption("Details per step: the expanders below.")
-
-
-def casualties_warning():
-    st.warning("ℹ️ This dataset contains **only accidents with at least one death or injury**. Accidents with only "
-               "material damage are not included, so the most dangerous place according to this data is not the same "
-               "as the place with the most accidents.")
 
 
 # =================================================================== PIPELINE & METHOD
@@ -864,7 +859,6 @@ road type × collision type × cyclist yes/no) had been as severe as normal, so 
 
 # =================================================================== LAYOUT
 st.title("🚦 Road accidents in Belgium 2017–2024")
-casualties_warning()
 tab0, tab1, tab2, tab3 = st.tabs(["🔧 Pipeline & method", "📊 Data Explorer", "❓ Density vs severity", "🦠 COVID lockdowns"])
 with tab0:
     pipeline_tab()
