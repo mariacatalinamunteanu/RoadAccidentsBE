@@ -145,9 +145,13 @@ def pipeline_tab():
                                   "Category rules", "Decision log & tests"])
     with t1:
         steps = D.load_steps()
-        st.dataframe(steps, hide_index=True, width="stretch")
+        st.dataframe(steps[["order", "dataset", "step", "tabs", "rows_in", "rows_out", "rows_dropped", "rows_changed",
+                            "function", "why"]].rename(columns={"dataset": "data set", "tabs": "used in tab(s)"}),
+                     hide_index=True, width="stretch")
+        st.markdown("Steps **1–8** work on the **accident data**; steps **C1–C2** on the **COVID data**. Each title "
+                    "shows the data set, what the step does, and the tabs that use the result.")
         for r in steps.itertuples():
-            label = (f"Step {r.order} · {r.step} — in {fmt(r.rows_in)} → out {fmt(r.rows_out)}"
+            label = (f"Step {r.order} · {r.dataset} · {r.step}  →  used in: {r.tabs}  —  in {fmt(r.rows_in)} → out {fmt(r.rows_out)}"
                      f"{(' · not drawn in heat layer by default ' if r.order == '8' else ' · dropped ') + fmt(r.rows_dropped) if r.rows_dropped else ''}"
                      f"{' · changed ' + fmt(r.rows_changed) if r.rows_changed else ''}")
             with st.expander(label):
@@ -156,7 +160,7 @@ def pipeline_tab():
                 c[1].metric("Rows out", fmt(r.rows_out))
                 c[2].metric("Dropped", fmt(r.rows_dropped))
                 c[3].metric("Changed", fmt(r.rows_changed))
-                st.markdown(f"**Why:** {r.why}")
+                st.markdown(f"**Data set:** {r.dataset}  \n**Used in tab(s):** {r.tabs}  \n**Why:** {r.why}")
                 st.caption(f"Function: `pipeline.{r.function}`")
                 sample = D.load_sample(r.order)
                 if sample is not None:
