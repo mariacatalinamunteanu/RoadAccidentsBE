@@ -201,3 +201,13 @@ to be confirmed by the student (marked ☐ until confirmed).
 - **Alternatives:** keep D17 only (hides the student's instruction on the map); always draw them (false hot spots).
 - **Impact:** all years: 36,628 accidents (12.7%) switched on/off. Tested in
   `test_gaps.py::test_app_runs_every_tab_and_button`.
+
+### D28 · "Only accidents with casualties" statement moved into the Assumptions of both question tabs
+- **Decided by:** student (2026-11-15)
+- **What changed:** the warning under the app title was removed. Its text ("This dataset contains only accidents with
+  at least one death or injury. Accidents with only material damage are not included, so the most dangerous place
+  according to this data is not the same as the place with the most accidents.") is now, word for word, the first item
+  of the "⚠️ Assumptions behind this tab" box in tab 2 (density vs severity) and tab 3 (COVID), followed by the note
+  that the Severity Ratio is a share among injury accidents. It also appears in "Pipeline & method" → "Assumptions".
+- **Why:** the statement is an assumption behind the answers to the two questions, so it belongs with the other
+  assumptions of those tabs instead of above the data explorer and pipeline tabs. Replaces the last part of D26.

@@ -233,3 +233,13 @@ History of everything Claude does in this project, newest entries at the bottom.
        * tests/test_gaps.py: app test also switches the toggle on.
        * CLAUDE.md, Presentation.txt (demo of the switch), decision_log.md D27.
    - Tests: 23 passed. Merged into main with --no-ff.
+
+
+------------------------------------------------------------------
+2026-11-15  |  "Only accidents with casualties" statement moved into the Assumptions of both question tabs
+------------------------------------------------------------------
+   - Branch ui/casualties-in-assumptions: removed the warning under the app title (casualties_warning());
+     the statement is now word for word the first item of "Assumptions behind this tab" in tab 2 and tab 3
+     (+ the note that the Severity Ratio is a share among injury accidents); also listed in Pipeline & method.
+   - Verified with AppTest: no warning above the tabs; statement found in exactly the 2 Assumptions boxes.
+   - CLAUDE.md updated; decision_log.md D28. Tests: 23 passed. Merged into main with --no-ff.
