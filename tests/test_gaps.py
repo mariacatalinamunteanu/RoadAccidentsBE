@@ -119,6 +119,8 @@ def test_app_runs_every_tab_and_button():
 
     at = AppTest.from_file(str(P.ROOT / "app.py"), default_timeout=600).run()
     assert not at.exception, [e.value for e in at.exception]
+    # every metric on screen carries an explanation dot (decision D35)
+    assert len(at.metric) >= 20 and all(m.help for m in at.metric), [m.label for m in at.metric if not m.help]
     at.toggle(key="heat_imputed").set_value(True).run()
     assert not at.exception, [e.value for e in at.exception]
     for lvl in ["Regions", "Municipalities", "BE", "Provinces"]:
