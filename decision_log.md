@@ -299,3 +299,12 @@ to be confirmed by the student (marked ☐ until confirmed).
 - **Alternatives:** restart the server after every change (easy to forget, and not possible for a viewer of the
   deployed app); Streamlit's file watcher (did not reload `pipeline.py` here).
 - **pipeline.py:** no change needed.
+
+### D38 · Deployed on Streamlit Community Cloud
+- **Decided by:** student (2026-11-15, assignment step 7)
+- **What:** https://road-accidents-be.streamlit.app/ – deployed by the student from GitHub, branch `main`, file `app.py`,
+  packages from `requirements.txt`. It redeploys after every push to `main`.
+- **First problem:** "Oh no. Error running app" right after deploying; solved by the student with **Reboot app**
+  (no code change). Kept as the first thing to try in `CLAUDE.md`.
+- **Open risk:** the free cloud has limited memory and the Raw Data Explorer reads the 58 MB raw xlsx (D25). If the
+  app runs out of memory: let the pipeline write the raw data as Parquet for the app.
