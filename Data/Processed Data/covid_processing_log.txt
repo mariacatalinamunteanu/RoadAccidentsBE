@@ -1,0 +1,15 @@
+COVID processing
+Accidents: 289,532 rows from accidents_processed_2017-2024.csv
+Mobility (Google): 2020_BE_Region_Mobility_Report.csv, 2021_BE_Region_Mobility_Report.csv, 2022_BE_Region_Mobility_Report.csv -> monthly mean per region, 2020-2022
+Measures (OxCGRT): OxCGRT_compact_national_v1.csv -> Belgium national, monthly mean, 2020-2022
+Baseline = mean of the same calendar month in 2017-2019
+covid_monthly_2017-2024.csv: 384 rows (4 areas x 96 months), 26 columns
+Phases: Pre-COVID 2020-01..2020-02; Lockdown 1 2020-03..2020-05; Summer 2020 2020-06..2020-10; Lockdown 2 2020-11..2021-04; Reopening 2021-05..2022-02; Post-COVID 2022-03..2024-12
+Belgium per phase (accidents, Severity Ratio %):
+   Baseline 2017-2019    114,197  10.21
+   Pre-COVID               5,640   9.02
+   Lockdown 1              5,579  12.33
+   Summer 2020            14,676  10.60
+   Lockdown 2             13,405   9.65
+   Reopening              30,782   9.70
+   Post-COVID            105,253   9.35

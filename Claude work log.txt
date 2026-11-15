@@ -1,0 +1,165 @@
+CLAUDE WORK LOG - Project 1.1
+=============================
+History of everything Claude does in this project, newest entries at the bottom.
+
+
+------------------------------------------------------------------
+2026-11-15  |  Task: find raw data + build processed accident data set
+------------------------------------------------------------------
+
+1. Explored the project
+   - Read Mission statement.txt, Progress.txt, Prompt history.txt.
+   - Inspected Data/Raw Data/Accidents/OPENDATA_MAP_2017-2024.xlsx:
+       289,532 rows x 45 columns, 581 municipality codes (post-2019 NIS codes, same set every year).
+       Missing: TX_PROV_COLLISION_FR/NL = 30,022 (all Brussels), MS_X/Y_COORD = 35,881.
+       Coordinates are Belgian Lambert 72 (EPSG:31370); 2 values impossibly large (~1e16).
+   - Inspected VAR_LIST_ACC_OPENDATA_MAP.xlsx (variable descriptions EN/NL/FR).
+
+2. Population density (saved in Data/Raw Data/Population Density)
+   - Downloaded from Statbel (https://statbel.fgov.be/en/themes/population/population-density):
+       Pop_density_en.xlsx         density per municipality, sheets 2019-2026
+       Bevolking_per_gemeente.xlsx population per municipality on 1 January, 1992-2026
+   - The density file has no 2017-2018 -> for those years: population (old NIS codes)
+     mapped to 2019 codes and divided by 2019 area.
+       Mergers 2019: Puurs+Sint-Amands->12041, Aalter+Knesselare->44084, Deinze+Nevele->44083,
+       Lovendegem+Waarschoot+Zomergem->44085, Kruishoutem+Zingem->45068,
+       Meeuwen-Gruitrode+Opglabbeek->72042, Neerpelt+Overpelt->72043.
+       Hainaut renumbering 2019 (same name, new code) mapped by name.
+   - Check: Belgium total 2017 = 11,322,088 (matches Statbel); 2018 vs 2019 density differs on
+     average -0.4 % per municipality (plausible).
+
+3. Municipality centres (saved in Data/Raw Data/Geo)
+   - Downloaded Statbel statistical sectors 1/1/2024, Lambert 72
+     (https://statbel.fgov.be/nl/open-data/statistische-sectoren-2024):
+       sh_statbel_statistical_sectors_31370_20240101.geojson.zip (+ extracted in sectors_2024/)
+   - Dissolved sectors into 581 municipalities; centre = centroid, or a point guaranteed inside
+     the polygon for the 5 municipalities where the centroid falls outside.
+   - Created: municipality_centers_2024.csv (X/Y Lambert 72 + lat/lon), municipalities_2024.geojson
+
+4. Processed data set (Data/Processed Data)
+   - Script: Scripts/prepare_data.py  (rerun: python Scripts/prepare_data.py)
+   - accidents_processed_2017-2024.csv (289,532 rows x 41 columns):
+       * Removed the 14 FR columns.
+       * Added POPULATION, AREA_KM2, POP_DENSITY (inhabitants/km2), matched on CD_NIS + year; 0 unmatched.
+       * Coordinate check -> 36,628 rows replaced by the municipality centre:
+           missing 35,881 | out of BE range 2 | > 1 km outside own municipality 745.
+         3,932 points 0-1 km outside own municipality kept (border roads). Threshold = OUTSIDE_TOLERANCE_M.
+       * TX_PROV_COLLISION_NL empty (30,022 Brussels rows) -> "Brussels Hoofdstedelijk Gewest".
+       * Extra columns: MS_X_COORD_ORIG, MS_Y_COORD_ORIG, DIST_TO_OWN_MUNTY_M, COORD_STATUS,
+         COORD_IMPUTED, LAT, LON (WGS84).
+   - population_density_2017-2024.csv (581 municipalities x 8 years = 4,648 rows)
+   - processing_log.txt (summary of the changes)
+   - Fix during run: Brabant provinces have codes 20001/20002 (not ...000) -> excluded from the
+     municipality list.
+
+
+------------------------------------------------------------------
+2026-11-15  |  Created this work log
+------------------------------------------------------------------
+   - Created "Claude work log.txt" at the project root; will be updated after every task.
+
+
+------------------------------------------------------------------
+2026-11-15  |  Task: build the Streamlit app (Data Explorer + density vs severity)
+------------------------------------------------------------------
+
+1. Analysis before building
+   - Profiled every code/label column of the raw accidents. Found: DT_TIME = 99 (3 rows), 66 exact
+     duplicate rows, label typo 'Ijzel, sneeuw+ roper', CD_OBSTACLES -1 carries a collision-type label,
+     CD_ROAD_USR_TYPE2 codes 10/11 are crash situations (not road users), combined codes like '2/4' in
+     weather/road condition, letter code 'A' in collision type, 'onbekend' vs 'Onbekend', column naming
+     issues (CD_ROAD_TYPE_FR/NL hold text, TX_COLLISON typo). Passed: NIS->name, NIS->region, months, years.
+   - Severity Ratio (class 1-3 / all x 100) falls with density: 13.5% (least dense fifth of accidents)
+     -> 5.7% (densest fifth); Spearman rho = -0.50 over 581 municipalities.
+     Drivers: share of accidents outside built-up areas 59% -> 11%, more single-vehicle/obstacle
+     crashes and unlit night roads in low-density areas; inside built-up areas the ratio still falls.
+
+2. Files created
+   - App/data.py : loading (cached; raw xlsx cached on disk after the first ~1 min load), quality checks,
+                   aggregation per level (Regions / Provinces / Municipalities / BE), density classes.
+   - App/app.py  : Streamlit app.
+       Tab "Data Explorer"
+         1.1 Raw Data Explorer: VAR_LIST table, raw data browser, quality sub-tabs
+             (missing values, unknown/unspecified codes, inconsistent & incorrect issues + checks,
+             coordinate check with map of points > 1 km outside their municipality).
+         1.2 Processed Data Explorer: tables (accidents, density, centres, processing log),
+             removed/added columns, before/after empty values, province fill, coordinates fixed
+             (per year + map original -> centre), population density sources per year.
+       Tab "Density vs severity"
+         - Border view bar with 4 buttons (Regions, Provinces, Municipalities, BE), year range slider.
+         - Heat map: dots at centre of each unit, colour = Severity Ratio (blue->red gradient, 0-20%),
+           size = population density; grey heat layer of accident GPS positions (all / severe / off);
+           unit borders drawn. Centres of regions/provinces/BE = centroid of dissolved municipality borders.
+         - Scatter density (log) vs Severity Ratio with weighted trend line and Spearman rho;
+           minimum-accidents filter for municipalities.
+         - "Why" charts: SR by density class, built-up area / single-vehicle / unlit-night shares,
+           SR inside vs outside built-up areas, SR by collision type, written explanation with caveats.
+
+3. Testing
+   - Ran the app headlessly with streamlit AppTest for all 4 border views: no exceptions.
+   - Started the app: streamlit run App/app.py  -> http://localhost:8501
+
+
+------------------------------------------------------------------
+2026-11-15  |  Run app.py
+------------------------------------------------------------------
+   - App already running (streamlit run App/app.py, port 8501, HTTP 200); opened http://localhost:8501 in the browser.
+
+
+------------------------------------------------------------------
+2026-11-15  |  Presentation
+------------------------------------------------------------------
+   - Created Presentation.txt: 10-minute talk script (concept -> sources -> processing -> app demo ->
+     answer -> conclusion) with timings, what to show in the app, what to say, and backup Q&A.
+
+
+------------------------------------------------------------------
+2026-11-15  |  Ideas for a new research question
+------------------------------------------------------------------
+   - Quick check on existing processed data: Brussels Severity Ratio 2017-2020 vs 2021-2024 (Ville 30 from
+     1/1/2021): 5.4/5.0/4.7/5.1 -> 3.9/5.2/4.2/5.4 (no clear drop). 2020 (COVID): fewer accidents everywhere,
+     SR up in Flanders (12.3%) and Wallonia (11.2%). Accidents involving a cyclist: 7,989 (2017) -> 10,273 (2022).
+   - Suggested questions: Brussels 30 km/h effect, COVID lockdown effect, cyclists/e-bikes trend,
+     socio-economic profile (income, car ownership), darkness/time change. Limitation noted: no day/date
+     in the data (only year, month, hour), so no daily weather or day-of-week analysis.
+
+
+------------------------------------------------------------------
+2026-11-15  |  Task: 3rd app tab – "Did the COVID-19 lockdowns make road accidents fewer but more severe? Why?"
+------------------------------------------------------------------
+
+1. Raw data
+   - Data/Raw Data/COVID Mobility/: 2020/2021/2022_BE_Region_Mobility_Report.csv
+       Google COVID-19 Community Mobility Reports (https://www.gstatic.com/covid19/mobility/Region_Mobility_Report_CSVs.zip).
+       Only the 3 Belgian files kept; the worldwide zip (98 MB) was deleted after extraction.
+       Daily % change vs Jan–Feb 2020 baseline, for Belgium, 3 regions, 11 provinces; 15/02/2020 – 15/10/2022.
+       No "driving" category -> workplaces / transit / residential used as proxies.
+   - Data/Raw Data/COVID Measures/: OxCGRT_compact_national_v1.csv (Oxford COVID-19 Government Response Tracker,
+       https://github.com/OxCGRT/covid-policy-dataset), all countries, daily 2020–2022; Belgium used.
+
+2. Processed data – Scripts/prepare_covid.py
+   - covid_phases.csv: Pre-COVID 2020-01..02 | Lockdown 1 2020-03..05 | Summer 2020 2020-06..10 |
+     Lockdown 2 2020-11..2021-04 | Reopening 2021-05..2022-02 | Post-COVID 2022-03..2024-12
+     (based on OxCGRT stay-at-home indicator and the Belgian measures).
+   - covid_monthly_2017-2024.csv: 4 areas (BE + 3 regions) x 96 months: accidents, severe, Severity Ratio,
+     baseline = same calendar month 2017–2019, % change, SR difference (pp), phase, monthly mobility, stringency.
+   - covid_processing_log.txt.
+   - Belgium per phase (SR %): baseline 10.21 | pre 9.02 | L1 12.33 | summer 9.65->10.60 | L2 9.65 | reopening 9.70 | post 9.35.
+
+3. App (App/app.py, App/data.py)
+   - New main tab "🦠 COVID lockdowns": area buttons (Belgium/Flanders/Wallonia/Brussels); per lockdown:
+     accidents, severe accidents and SR vs normal + chi-square test; monthly accidents and SR 2017–2024 with
+     shaded phases; stringency + Google mobility; scatter region-month mobility vs accident change / SR change;
+     "Why": accident mix vs normal, SR within each accident type, decomposition mix effect vs within effect
+     (standardised on built-up area x road type x collision type x cyclist); explanation + caveats;
+     expander with phases, processed table, raw mobility (with missing %), raw OxCGRT (Belgium).
+   - Processed Data Explorer: added covid_monthly and covid_phases to the tables list.
+   - Tested with streamlit AppTest (all areas, both lockdowns, both scatter options): no exceptions.
+   - Fixed wording: headline is neutral (Brussels SR went DOWN in L1); within-effect sign explained.
+
+4. Result (Belgium)
+   - Lockdown 1: 42% fewer injury accidents, SR 12.3% vs 10.2% normal (p = 1.6e-06).
+     Mix effect +0.49 pp, within effect +1.68 pp -> mainly "same accident, worse outcome" (fits higher speeds on
+     empty roads). Cyclist share 22% -> 32%, single-vehicle 20% -> 24%, motorway 7.8% -> 5.8%.
+   - Lockdown 2: 25% fewer accidents, SR 9.6% vs 9.7% (p = 0.85) -> no severity effect.
+   - Brussels: fewer accidents in L1 but no SR increase (4.0%).

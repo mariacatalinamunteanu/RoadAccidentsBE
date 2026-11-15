@@ -1,0 +1,49 @@
+Raw data: 
+
+1. Geoloca􀆟on of road accidents 2017–2024:
+   - from source https://statbel.fgov.be/nl/open-data/geolocalisatie-van-de-verkeersongevallen-2017-2024
+   - saved in C:\Users\catut\Learning\Data Scientist 2025-2028\2026-2027\Project 1\Project 1.1\Data\Raw Data\Accidents
+2. Find data that shows the density of the population, for each year between 2017 and 2024, split per BE municipality and save it in C:\Users\catut\Learning\Data Scientist 2025-2028\2026-2027\Project 1\Project 1.1\Data\Raw Data\Population Density
+3. Find data that contains the geolocation of the center of the BE municipalities and save it in C:\Users\catut\Learning\Data Scientist 2025-2028\2026-2027\Project 1\Project 1.1\Data\Raw Data\Geo
+
+
+Processed data:
+
+Create a processed data set, based on C:\Users\catut\Learning\Data Scientist 2025-2028\2026-2027\Project 1\Project 1.1\Data\Raw Data\Accidents, where:
+- remove all the FR columns - we will be working only based on the NL language
+- add the density population per municipality
+- check all the geo coordinates for abnormal/missing values; where abnormal values are found replace these with the geo coordinates of the centers of the municipalities where the accident happened 
+- fill in the column TX_PROV_COLLISION_NL with "Brussels Hoofdstedelijk Gewest" (for the purpose of the province view)
+
+Make an app that has 2 main tabs:
+
+1. Data Explorer - the tab contains 2 subtabs:
+
+   1.1 Raw Data Explorer for C:\Users\catut\Learning\Data Scientist 2025-2028\2026-2027\Project 1\Project 1.1\Data\Raw Data\Accidents
+   	- visualisation table of the data set VAR_LIST_ACC_OPENDATA_MAP.xlsx
+   	- exploration of the quality of the data set: show me what is missing and what is inconsistent/incorrect 
+
+   1.2 Processed Data Explorer for C:\Users\catut\Learning\Data Scientist 2025-2028\2026-2027\Project 1\Project 1.1\Data\Processed Data
+	- visualisation tables of the data sets
+   	- exploration of the quality of the data sets: show me what was added, fixed compared to the raw data
+
+2. "Is it true that as the density of the population increases, the severity of the accidents decreases? Why?" - the tab contains visualisations to answer this question
+
+	-> use the processed data from C:\Users\catut\Learning\Data Scientist 2025-2028\2026-2027\Project 1\Project 1.1\Data\Processed Data
+
+	-> a severe accident is defined as class accident 1, 2 and 3 
+
+	-> define "Severity Ratio" = accidents in the 1, 2 and 3 / all recorded injury accidents × 100. Each accident counts once.
+
+	-> create a heat map that allows the selection between 4 border views (a bar with 4 button choices):
+		- regions
+		- provinces
+		- municipalities
+		- BE
+           the heat map shows colored dots (choose colors that form a gradient but are distinctive enough for easy reading) that show the relationship between the density of the population and the Severity Ratio:
+	   the dots are recalculated for each button choices: regions, provinces, municipalities, BE and are placed in the center of the selected regions, or provinces, or municipalities, or BE
+           the position on the heatmap of the accident is given by GPS coordinates
+
+	   
+
+

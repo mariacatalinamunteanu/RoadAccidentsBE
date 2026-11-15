@@ -1,0 +1,7 @@
+﻿CODE,PHASE,FIRST_MONTH,LAST_MONTH,DESCRIPTION
+P0,Pre-COVID,2020-01,2020-02,Before the measures
+L1,Lockdown 1,2020-03,2020-05,"1st lockdown: stay at home, non-essential shops closed (from 18/03/2020)"
+R1,Summer 2020,2020-06,2020-10,Measures relaxed
+L2,Lockdown 2,2020-11,2021-04,"2nd lockdown: curfew, telework mandatory, contact restrictions"
+R2,Reopening,2021-05,2022-02,"Gradual reopening, Covid Safe Ticket"
+POST,Post-COVID,2022-03,2024-12,Measures lifted (07/03/2022)
