@@ -2,8 +2,13 @@
 
 Each processing step takes a DataFrame and returns (DataFrame, StepReport). The report records how many rows
 went in, how many came out, how many were dropped or changed, and why. `run_all()` reads the raw files, runs the
-steps in order and writes the processed files, the step reports and a sample of the data after every step to
+steps and writes the processed files, the step reports and a sample of the data after every step to
 Data/Processed Data. The app (app.py) only reads those outputs and calls the analysis functions below.
+
+Steps (shown in this order, STEP_DISPLAY_ORDER):  A1–A8 accidents · P1 population density · G1–G2 geography ·
+C1–C3 COVID. They RUN G1, G2, P1 first, because A4 needs P1 and A5/A6 need G1 (column run_order).
+Also here, so the app and the tests share one source: the project agreements (SEVERE_CLASSES, tolerances, phases),
+CATEGORY_RULES, the texts behind every explanation dot (EXPLANATIONS, COLUMN_HELP) and STEP_CONTEXT.
 
     python pipeline.py            # rebuild everything (about 3 minutes)
 """

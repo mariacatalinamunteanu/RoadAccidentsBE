@@ -1,8 +1,12 @@
 """Road accidents in Belgium 2017-2024 - Streamlit app.
 
 Run from the project folder:   streamlit run app.py
-Data comes from pipeline.py (run `python pipeline.py` first). Every number shows where it was created
-("Source: step ..."), and the tab "Pipeline & method" shows every step, the rows in/out and why.
+Data comes from pipeline.py (run `python pipeline.py` first); the app only reads its outputs.
+
+Tabs: 🔧 Pipeline & method (row funnel, steps A1–A8 · P1 · G1–G2 · C1–C3 with rows in/out and why, where each number
+comes from, assumptions, category rules, decision log & tests, prompt history) · 📊 Data Explorer (raw / processed)
+· ❓ Density vs severity · 🦠 COVID lockdowns.
+Every number has a "Source" line and an explanation dot (?), every chart a 📌 conclusion computed from its data.
 """
 import numpy as np
 import pandas as pd
@@ -161,8 +165,9 @@ LINEAGE = [
      "pipeline.build_density → population_density_2017-2024.csv; joined in pipeline.step_add_density", "P1 + step A4"),
     ("1.2 Processed: coordinates replaced", "36,628 rows", "pipeline.step_impute_coordinates → COORD_IMPUTED", "step A6"),
     ("Maps: LAT / LON", "WGS84 positions", "pipeline.step_add_wgs84", "step A7"),
-    ("Tab 2: grey heat layer", "accidents at GPS position", "switch off: pipeline.step_select_georeferenced (step A8, own "
-     "coordinates only) · switch on: all rows, replaced ones at the municipality centre (step A6)", "steps A6–A8"),
+    ("Tab 2: grey heat layer", "accidents at GPS position (default: severe only, D44)", "switch off: "
+     "pipeline.step_select_georeferenced (step A8, own coordinates only) · switch on: all rows, replaced ones at the "
+     "municipality centre (step A6); counts follow the selected layer", "steps A6–A8"),
     ("Tab 2: severe / Severity Ratio (all)", "class 1-3 share", "pipeline.is_severe, pipeline.severity_ratio", "analysis"),
     ("Tab 2: dots on the map + table", "per region / province / municipality / BE",
      "pipeline.aggregate_by_level (density = Σ population / Σ area; centre from unit_centers.csv)", "analysis (uses steps A4, A7)"),
@@ -182,6 +187,9 @@ LINEAGE = [
      "D39, D40, D45"),
     ("Tab 2: defaults", "Municipalities · min. accidents 1 · severe heat layer", "app.py (density_tab)", "D43, D44, D45"),
     ("Pipeline & method: all tests", "list of every test", "app_data.list_tests (reads tests/*.py)", "D46"),
+    ("Tab 3: ℹ️ How is this answer computed?", "rule behind Yes / No", "pipeline.EXPLANATIONS c_answer", "D35, D42"),
+    ("Pipeline & method: 📝 Prompt history", "the student's prompts", "app_data.load_prompt_history (reads "
+     "Prompt history.txt live, never writes it)", "D47, D49"),
 ]
 
 

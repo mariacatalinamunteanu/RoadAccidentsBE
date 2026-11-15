@@ -515,3 +515,17 @@ History of everything Claude does in this project, newest entries at the bottom.
    - CLAUDE.md, Concept.txt (drawing; also fixed leftover "Steps used: ... 1–8" -> A1–A8), decision_log.md D49.
    - Five files: app.py, tests, CLAUDE.md, decision_log.md updated; pipeline.py: no change needed.
    - Tests: 42 passed. Committed with Prompt history.txt (D48). Merged and pushed.
+
+
+------------------------------------------------------------------
+2026-11-15  |  Full consistency check: five files + Pipeline & method tab
+------------------------------------------------------------------
+   - Checked with scripts (not from memory): test counts per file vs CLAUDE.md/TEST_GAPS.md; decision IDs; old step
+     names; stale defaults; pipeline_steps.csv vs STEP_CONTEXT/STEP_DISPLAY_ORDER; superseded decisions.
+   - Found: TEST_GAPS said 39 tests (42); CLAUDE.md missed test_prompt_history_tab.py; 7 decisions without
+     "Later changed" link (D24, D27, D29, D35, D40, D41, D47); lineage missing Prompt history + COVID info point,
+     heat-layer row without severe default; module docstrings of pipeline.py/app.py outdated.
+   - Up to date: step data in the app, decision numbering D01-D49, no old step names, live sub-tabs (decision log,
+     TEST_GAPS, All tests, Prompt history).
+   - Branch docs/full-consistency-check: all fixed; new tests/test_docs_in_sync.py (6 tests, gap 13); D50.
+   - Five files: all updated. Tests: 48 passed. Committed with Prompt history.txt. Merged and pushed.
