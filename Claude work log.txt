@@ -550,3 +550,12 @@ History of everything Claude does in this project, newest entries at the bottom.
 ------------------------------------------------------------------
    - Checked: main and all branches already identical on GitHub; no local changes (Prompt history.txt unchanged).
    - Five files: no change needed. Only this log entry pushed.
+
+
+------------------------------------------------------------------
+2026-11-15  |  Question: estimated grade
+------------------------------------------------------------------
+   - Answered: estimate 75-85% (no grading scheme known), strongest = the 7 evaluation criteria; risks = missing
+     original design, spec-prompt sentence, 7 open decisions, CLAUDE.md new-session test, demo central question only
+     partly answered, the no-AI conversation.
+   - Five files: no change needed (question only).
