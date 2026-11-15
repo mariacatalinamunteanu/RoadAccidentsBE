@@ -21,7 +21,7 @@ in `pipeline.py` (constants at the top) and add an entry to `decision_log.md`.
 | `Data/Raw Data/` | Downloaded files, **never edited** (by hand or code). Exception: `Geo/municipality_centers_2024.csv` and `Geo/municipalities_2024.geojson` are written by `pipeline.py` (step G1), because the student asked for the centres in that folder. |
 | `Data/Processed Data/` | Everything else written by `pipeline.py`. Safe to delete and rebuild. |
 | `Claude work log.txt` | Chronological history of every task. |
-| `Mission statement.txt`, `Progress.txt`, `Prompt history.txt`, `Project 1 - demo-case *.pdf` | The student's own notes and the course assignment (not edited by Claude). |
+| `Mission statement.txt`, `Progress.txt`, `Prompt history.txt`, `Project 1 - demo-case *.pdf` | The student's own notes and the course assignment (not edited by Claude; `Prompt history.txt` is committed only on request). |
 
 ## Pipeline steps (pipeline_steps.csv, shown in the app)
 G1 municipalities + centres · G2 regions/provinces/BE centres + borders · P1 population density ·
@@ -72,8 +72,12 @@ G1, G2, P1 and C3 group rows (nothing lost); only C1 and C2 really drop rows (ot
   new `app.py` with an old `pipeline.py`. A new project module must be added there too.
 - Run `python -m pytest` (fast) and `python -m pytest -m data` (real data) before merging into `main`.
 - Work on a branch, merge into `main` with `--no-ff`. Commit messages say what and why.
-- Before `git add -A`: run `git status` and report any deleted or changed file that Claude did not touch (lesson:
-  the deletion of `Presentation.txt` was committed unnoticed in f25cd17).
+- **Commit only the files Claude changed**: `git add <file> ...` with explicit names, never `git add -A`. First run
+  `git status` and report any other changed or deleted file instead of committing it (lessons: the deletion of
+  `Presentation.txt` was committed unnoticed in f25cd17; an edit of `Prompt history.txt` was pushed with D40).
+- **`Prompt history.txt`**: the student's file. Claude never changes its content, and commits/pushes it **only when
+  the student asks**. Otherwise it is treated like every other project file (read it when useful).
+- **`Presentation.txt`** was deleted by the student on purpose (2026-11-15): do not restore or recreate it.
 - Large files (> 40 MB) are not committed (see `.gitignore`); they are downloaded or rebuilt by `pipeline.py`.
 - **After every prompt** (student's standing instruction, 2026-11-15): update `pipeline.py`, `app.py`, `tests/`,
   `CLAUDE.md` and `decision_log.md` so they reflect what was done – change each file the task affects, check the
