@@ -72,13 +72,23 @@ def test_answer_dot_explains_spearman_and_p_value_in_plain_words():
 
 def test_why_municipalities_info_point_under_the_heat_map():
     # decision D40: info point under the heat-map title, with the student's explanation behind its "?"
-    assert 'dot("ℹ️ **Why Municipalities Reveal a Clearer Link Between Population Density and Severity Ratio**"' in APP
+    assert 'dot("Why Municipalities Reveal a Clearer Link Between Population Density and Severity Ratio"' in APP
     assert APP.index("#### Heat map –") < APP.index("d_why_municipalities") < APP.index('explain="d_map"')
     t = P.EXPLANATIONS["d_why_municipalities"]
     for must in ["more informative scale", "averaged away", "581 municipalities", "11 larger areas",
                  "smaller share of severe crashes"]:
         assert must in t, must
     assert t.count("\n- ") >= 4
+
+
+def test_all_info_points_have_the_same_style():
+    # decision D42: the icon and bold come only from dot(); call sites pass plain text
+    labels = [c.args[0] for c in calls("dot") if c.args]
+    assert len(labels) >= 3
+    for node in labels:
+        text = ast.get_source_segment(APP, node)
+        assert not any(x in text for x in ["ⓘ", "ℹ", "**"]), f"style must come from dot(), not the label: {text}"
+    assert 'st.caption(f"{INFO_ICON} **{label}**", help=E(key))' in APP
 
 
 def test_columns_of_the_pipeline_outputs_have_column_help():
