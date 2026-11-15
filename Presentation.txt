@@ -66,7 +66,7 @@ c) Geography – statistical sectors 2024 (19,795 small areas with their borders
 -----------------------------------------------------------------------------------------------------
 3. DATA PROCESSING – pipeline.py  (2:00)
 -----------------------------------------------------------------------------------------------------
-[SHOW] The row funnel at the top of the app, then tab "Pipeline & method" -> "Steps (rows in/out)".
+[SHOW] Tab "Pipeline & method": the row funnel at the top, then "Steps (rows in/out)".
 SAY: "pipeline.py does all the processing, one pure function per step. Each step reports rows in, rows out,
      rows dropped or changed, and why. Steps 1-7 drop 0 rows; step 8 leaves 36,628 accidents (12.7%) out of the
      GPS heat layer only. Every number in the app has a 'Source' line saying which step created it."

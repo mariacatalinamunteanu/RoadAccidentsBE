@@ -83,7 +83,7 @@ def rows_used(rows):
                      hide_index=True, width="stretch")
 
 
-# =================================================================== TOP: row funnel
+# =================================================================== Row funnel (top of the Pipeline & method tab)
 def top_funnel():
     steps = D.load_steps()
     acc_steps = steps[steps.order.str.fullmatch(r"\d")]
@@ -104,7 +104,10 @@ def top_funnel():
                     f"- Step 8: **{fmt(raw_n - geo_n)} ({(raw_n - geo_n) / raw_n * 100:.1f}%)** have no usable own "
                     f"coordinate → left out of the GPS heat layer only\n"
                     f"- All counts and ratios use all **{fmt(raw_n)}** rows (grouped by municipality code)")
-        st.caption("Details per step: tab **🔧 Pipeline & method**.")
+        st.caption("Details per step: the expanders below.")
+
+
+def casualties_warning():
     st.warning("ℹ️ This dataset contains **only accidents with at least one death or injury**. Accidents with only "
                "material damage are not included, so the most dangerous place according to this data is not the same "
                "as the place with the most accidents.")
@@ -112,7 +115,7 @@ def top_funnel():
 
 # =================================================================== PIPELINE & METHOD
 LINEAGE = [
-    ("Top: row funnel", "rows in/out per step", "pipeline.run_all → pipeline_steps.csv", "steps 1–8"),
+    ("Pipeline & method: row funnel", "rows in/out per step", "pipeline.run_all → pipeline_steps.csv", "steps 1–8"),
     ("1.1 Raw: missing / unknown / issues / checks", "counts per column", "app_data.raw_quality on the raw xlsx", "step 1 (raw)"),
     ("1.1 Raw: coordinate status", "ok / missing / out of range / > 1 km", "pipeline.step_check_coordinates → COORD_STATUS, DIST_TO_OWN_MUNTY_M", "step 5"),
     ("1.2 Processed: columns removed", "14 FR columns", "pipeline.step_drop_french", "step 2"),
@@ -140,6 +143,7 @@ def pipeline_tab():
     st.subheader("Pipeline & method")
     st.markdown("Every number in this app comes from a function in `pipeline.py`. `python pipeline.py` runs the steps "
                 "below in order and writes the files in `Data/Processed Data`. The app only reads those files.")
+    top_funnel()
     t1, t2, t3, t4, t5 = st.tabs(["Steps (rows in/out)", "Where does each number come from?", "Assumptions",
                                   "Category rules", "Decision log & tests"])
     with t1:
@@ -842,7 +846,7 @@ road type × collision type × cyclist yes/no) had been as severe as normal, so 
 
 # =================================================================== LAYOUT
 st.title("🚦 Road accidents in Belgium 2017–2024")
-top_funnel()
+casualties_warning()
 tab0, tab1, tab2, tab3 = st.tabs(["🔧 Pipeline & method", "📊 Data Explorer", "❓ Density vs severity", "🦠 COVID lockdowns"])
 with tab0:
     pipeline_tab()

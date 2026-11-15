@@ -176,3 +176,11 @@ to be confirmed by the student (marked ☐ until confirmed).
 - **Not committed:** processed CSV, statistical sectors (200 MB), full municipality GeoJSON (55 MB), OxCGRT (44 MB).
   `pipeline.py` rebuilds or the files are re-downloaded (URLs in `Claude work log.txt`).
 - **Open point for deploy:** the raw accident xlsx (61 MB) is committed (below the 100 MB limit).
+
+### D26 · Row funnel at the top of the "Pipeline & method" tab, not above all tabs
+- **Decided by:** student (2026-11-15: "Doesn't it make more sense to be there?")
+- **What changed:** the funnel moved from above the tabs to the top of the tab "Pipeline & method", directly above
+  the step expanders it summarises. The warning "only accidents with casualties" stays above all tabs.
+- **Why:** the funnel describes the pipeline steps, so it belongs with them; above every tab it pushed the actual
+  questions down. The casualties warning applies to every number in the app, so it stays visible everywhere
+  (assignment: "name that difference explicitly on your dashboard").

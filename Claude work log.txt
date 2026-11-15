@@ -206,3 +206,12 @@ History of everything Claude does in this project, newest entries at the bottom.
      app runs every button).
    - Result: 23 passed.
    - App restarted from the new app.py (streamlit run app.py, port 8501).
+
+
+------------------------------------------------------------------
+2026-11-15  |  Move the row funnel into the "Pipeline & method" tab
+------------------------------------------------------------------
+   - Branch ui/funnel-in-pipeline-tab: app.py – top_funnel() now runs at the top of the "Pipeline & method" tab;
+     the "only accidents with casualties" warning (new casualties_warning()) stays above all tabs.
+   - Updated lineage table, CLAUDE.md, Presentation.txt; decision_log.md D26.
+   - Tests: 23 passed. Merged into main with --no-ff.
