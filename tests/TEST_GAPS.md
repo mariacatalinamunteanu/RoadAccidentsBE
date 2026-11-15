@@ -12,9 +12,10 @@ few hand-made rows. They all pass in under a second. Then we asked: **what does 
 | 5 | No test against an **external truth**. | Our 2017–2018 density is derived (code mapping); an error would not show in a unit test. | `test_population_matches_statbel_totals`: Belgian population 2017 = 11,322,088 (Statbel) and 2019–2024 = Statbel's Belgium row. | ✅ |
 | 6 | Nothing checks that what the **app tells** about the data is true. | The funnel and step expanders are read from `pipeline_steps.csv`; if that file is stale, the app lies. | `test_funnel_matches_data`: funnel numbers = counts in the processed data. | ✅ |
 | 7 | The COVID "normal" was only tested with a toy phase. | All COVID conclusions compare to "normal". | `test_covid_baseline_is_three_year_average`: April 2020's normal = (April 2017+2018+2019) / 3. | ✅ |
+| 9 | Every test starts with an **empty cache**, so none can see that a **running** app keeps serving an old file after `pipeline.py` rewrote it. Found the hard way: after a pipeline rerun the app crashed with `KeyError: "['dataset', 'tabs'] not in index"` while all 23 tests passed. | The app is kept running during a demo while the data is rebuilt. | `tests/test_app_cache.py`: a file is rewritten between two reads in the same process → the new columns must appear; an unchanged file must come from the cache. Fix: every cache in `app_data.py` is keyed on the file's modification time. | ✅ |
 | 8 | Unit tests never **start the app**. | A renamed column or file breaks the dashboard without any failing unit test. | `test_app_runs_every_tab_and_button`: runs the app headlessly and clicks every border view, area and radio button. | ✅ |
 
-Run: `python -m pytest` (all) · `python -m pytest -m "not data"` (fast unit tests only) · `python -m pytest -m data`.
+Run: `python -m pytest` (all, 25 tests) · `python -m pytest -m "not data"` (fast unit tests only) · `python -m pytest -m data`.
 
 ## Still not tested automatically (checked by hand)
 - **Whether the charts are readable and correct to the eye**: colours, dot sizes, map position. AppTest only checks

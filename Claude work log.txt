@@ -255,3 +255,18 @@ History of everything Claude does in this project, newest entries at the bottom.
      steps table with columns "data set" and "used in tab(s)"; data set and tabs repeated inside each expander;
      note that steps 1-8 = accident data, C1-C2 = COVID data.
    - decision_log.md D29. Tests: 23 passed. Merged into main with --no-ff.
+
+
+------------------------------------------------------------------
+2026-11-15  |  Bug fix: KeyError "['dataset', 'tabs'] not in index" after refreshing the app
+------------------------------------------------------------------
+   - Cause: the running app had cached the old pipeline_steps.csv (st.cache_data without arguments never expires);
+     the pipeline was rerun for D29 while the server kept running. Tests did not catch it: they start with an empty cache.
+   - Branch fix/cache-follows-file-changes:
+       * app_data.py: every cached loader is keyed on the file modification time (stamp()); new read_csv/read_text
+         helpers; raw-quality caches keyed on raw + processed files.
+       * app.py: Processed Data Explorer tables use D.read_csv instead of pd.read_csv.
+       * tests/test_app_cache.py (new, gap 9): rewritten file is read again; unchanged file comes from the cache.
+         (First version wrongly expected the same object back – st.cache_data returns a copy – corrected.)
+       * TEST_GAPS.md gap 9, CLAUDE.md rule, decision_log.md D30.
+   - Tests: 25 passed. Merged into main with --no-ff.

@@ -332,7 +332,7 @@ def processed_explorer():
             path = {"population": P.OUT_DENSITY, "municipality": P.OUT_CENTERS, "unit": P.OUT_UNIT_CENTERS,
                     "covid_monthly": P.OUT_COVID_MONTHLY, "covid_phases": P.OUT_COVID_PHASES}
             key = next(k for k in path if which.startswith(k))
-            st.dataframe(pd.read_csv(path[key], encoding="utf-8-sig"), width="stretch", height=450, hide_index=True)
+            st.dataframe(D.read_csv(path[key]), width="stretch", height=450, hide_index=True)
         with st.expander("Processing log (processing_log.txt)"):
             st.code(D.load_log(), language=None)
     with t2:
