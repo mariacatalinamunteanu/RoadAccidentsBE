@@ -287,3 +287,15 @@ to be confirmed by the student (marked ☐ until confirmed).
 - **What:** after each prompt, every one of the five files that the task affects is updated, the others are checked,
   and the answer says which needed no change. Recorded in `CLAUDE.md` (working agreements) so every session follows it.
 - **Why:** these five files are the deliverables of the assignment; they must always describe the project as it is.
+
+### D37 · Reload changed project modules in the running app (bug fix)
+- **Decided by:** Claude, after the student reported the error (2026-11-15)
+- **Problem:** after D35, refreshing the running app gave `AttributeError: module 'pipeline' has no attribute
+  'explain'`. Streamlit reran the new `app.py` but kept the old `pipeline.py` (without `explain`) in memory. All 31
+  tests passed, because each test run starts a new Python process. Same family of problem as D30 (stale cache).
+- **What changed:** new `module_reload.py` with `fresh(module)`: reloads a module when its file's modification time
+  changed. `app.py` calls it on `pipeline` and `app_data` at the start of every run. New
+  `tests/test_module_reload.py` (gap 11 in TEST_GAPS.md).
+- **Alternatives:** restart the server after every change (easy to forget, and not possible for a viewer of the
+  deployed app); Streamlit's file watcher (did not reload `pipeline.py` here).
+- **pipeline.py:** no change needed.

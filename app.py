@@ -15,6 +15,11 @@ from scipy import stats
 
 import app_data as D
 import pipeline as P
+from module_reload import fresh
+
+# A running server keeps old modules in memory; reload them when their file changed (decision D37).
+P = fresh(P)  # first pipeline (app_data imports it) ...
+D = fresh(D)  # ... then app_data
 
 st.set_page_config(page_title="Road accidents BE 2017-2024", page_icon="🚦", layout="wide")
 

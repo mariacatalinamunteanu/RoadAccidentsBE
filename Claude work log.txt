@@ -339,3 +339,19 @@ History of everything Claude does in this project, newest entries at the bottom.
          decision_log.md after every prompt; decision_log.md D35, D36. Concept.txt: note in part C.
        * Memory: feedback rule saved (update-five-files).
    - Tests: 31 passed. Merged into main with --no-ff and pushed.
+
+
+------------------------------------------------------------------
+2026-11-15  |  Bug fix: AttributeError "module 'pipeline' has no attribute 'explain'" after refreshing the app
+------------------------------------------------------------------
+   - Cause: the running server reran the new app.py but kept the old pipeline.py (without explain) in memory.
+     Tests did not catch it: each test run starts a new Python process. Server log showed the error twice.
+   - Branch fix/reload-changed-modules:
+       * module_reload.py (new): fresh(module) reloads a module when its file changed on disk.
+       * app.py: P = fresh(P); D = fresh(D) at the start of every run.
+       * tests/test_module_reload.py (new, gap 11): changed module is reloaded; unchanged one is not.
+       * TEST_GAPS.md gap 11; CLAUDE.md (file table, tests list, rule for new project modules); decision_log D37.
+       * pipeline.py: no change needed.
+   - Restarted the app server (old server still held the stale module); new server log: 0 errors.
+     (Headless Edge screenshots could not show the rendered page – Streamlit's websocket – so not used as proof.)
+   - Tests: 33 passed. Merged into main with --no-ff and pushed.
