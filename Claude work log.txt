@@ -529,3 +529,17 @@ History of everything Claude does in this project, newest entries at the bottom.
      TEST_GAPS, All tests, Prompt history).
    - Branch docs/full-consistency-check: all fixed; new tests/test_docs_in_sync.py (6 tests, gap 13); D50.
    - Five files: all updated. Tests: 48 passed. Committed with Prompt history.txt. Merged and pushed.
+
+
+------------------------------------------------------------------
+2026-11-15  |  Student confirms the 18 open decisions
+------------------------------------------------------------------
+   - Branch docs/confirm-decisions: decision_log.md – D04, D05, D06, D07, D08, D09, D12, D13, D14, D15, D16, D19, D20,
+     D21, D22, D25, D32, D33 marked ✅ "confirmed by student (2026-11-15)"; D51 added.
+   - Found while doing it: D20, D21, D22, D25 had no "Decided by" line (added); D24 had none either (added, Claude).
+     D11, D17, D23, D24, D30, D34, D37 were also Claude's choices but had never been marked ☐ -> not counted as
+     confirmed; marked ☐ (still open) and reported to the student.
+   - CLAUDE.md: rule "every decision has Decided by; Claude's choices ☐ until confirmed, then ✅".
+   - tests/test_docs_in_sync.py: new test for that rule (it found D24); TEST_GAPS.md count 49.
+   - Five files: decision_log.md, CLAUDE.md, tests updated; pipeline.py, app.py: no change needed (app shows the log
+     live). Tests: 49 passed. Committed with Prompt history.txt. Merged and pushed.
