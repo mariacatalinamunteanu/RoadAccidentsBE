@@ -52,6 +52,8 @@ in `pipeline.py` (constants at the top) and add an entry to `decision_log.md`.
   "Rows used in this tab"). The "only injury accidents" statement is the first item of the Assumptions box in
   both question tabs (tab 2 and tab 3).
 - New logic goes in `pipeline.py` as a pure function, with a test in `tests/`.
+- Every cached loader in `app_data.py` is keyed on the file's modification time (`stamp()`), so a running app
+  picks up files rewritten by `pipeline.py`. Never add `@st.cache_data` on a loader without a file stamp argument.
 - Run `python -m pytest` (fast) and `python -m pytest -m data` (real data) before merging into `main`.
 - Work on a branch, merge into `main` with `--no-ff`. Commit messages say what and why.
 - Large files (> 40 MB) are not committed (see `.gitignore`); they are downloaded or rebuilt by `pipeline.py`.

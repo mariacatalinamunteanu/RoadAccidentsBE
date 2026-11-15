@@ -220,3 +220,15 @@ to be confirmed by the student (marked ☐ until confirmed).
   columns "data set" and "used in tab(s)". Steps 1–8 = accident data, C1–C2 = COVID data.
 - **Why:** with only the action in the title ("Check coordinates") it was not visible which data set a step changes and
   where in the app its result can be seen – needed to point out every number "from within the app" (assignment).
+
+### D30 · App caches follow file changes (bug fix)
+- **Decided by:** Claude, after the student reported the error (2026-11-15)
+- **Problem:** after D29 the pipeline was rerun while the app kept running. The app still served the old
+  `pipeline_steps.csv` from its cache (`st.cache_data` without arguments never expires) and crashed with
+  `KeyError: "['dataset', 'tabs'] not in index"`. All 23 tests passed, because tests start with an empty cache.
+- **What changed:** every loader in `app_data.py` passes the file's modification time (`stamp()`) to the cached
+  function, so a rewritten file gets a new cache entry. Two tables in the Processed Data Explorer that were read with
+  `pd.read_csv` directly now use the same loader. New test file `tests/test_app_cache.py` (gap 9 in TEST_GAPS.md).
+- **Alternatives:** a time-to-live on the cache (still stale for minutes, re-reads unchanged files); clearing the cache
+  by hand after every pipeline run (easy to forget – exactly what went wrong).
+- **Side effect:** the raw xlsx is read once more (~1 min) because its cache key changed.

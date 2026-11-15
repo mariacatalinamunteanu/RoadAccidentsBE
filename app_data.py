@@ -19,106 +19,145 @@ CODE_LABEL = {
 }
 
 
-def _csv(path, **kw):
-    return pd.read_csv(path, encoding="utf-8-sig", **kw)
-
-
-@st.cache_data(show_spinner="Loading raw accident file (first time ~1 min, then cached)...", persist="disk")
-def load_raw():
-    return P.load_raw_accidents()
+# Every cache below is keyed on the file's modification time ("stamp"). When pipeline.py rewrites a file while the
+# app is running, the stamp changes and the file is read again - otherwise the app keeps serving the old version
+# (that caused: KeyError "['dataset', 'tabs'] not in index" after the pipeline was rerun, see decision_log D30).
+def stamp(*paths):
+    """Modification times (ns) of the given files; 0 for a missing file."""
+    return tuple(Path(x).stat().st_mtime_ns if Path(x).exists() else 0 for x in paths)
 
 
 @st.cache_data(show_spinner=False)
-def load_var_list():
+def _csv_cached(path, file_stamp, dtype=None, parse_dates=None):
+    return pd.read_csv(path, encoding="utf-8-sig", dtype=dtype, parse_dates=parse_dates)
+
+
+def read_csv(path, dtype=None, parse_dates=None):
+    return _csv_cached(str(path), stamp(path), dtype=dtype, parse_dates=parse_dates)
+
+
+@st.cache_data(show_spinner=False)
+def _text_cached(path, file_stamp):
+    return Path(path).read_text(encoding="utf-8") if Path(path).exists() else None
+
+
+def read_text(path):
+    return _text_cached(str(path), stamp(path))
+
+
+@st.cache_data(show_spinner="Loading raw accident file (first time ~1 min, then cached)...", persist="disk")
+def _raw_cached(file_stamp):
+    return P.load_raw_accidents()
+
+
+def load_raw():
+    return _raw_cached(stamp(P.RAW_ACCIDENTS))
+
+
+@st.cache_data(show_spinner=False)
+def _var_list_cached(file_stamp):
     v = pd.read_excel(P.VAR_LIST)
     v.columns = [str(c).strip() for c in v.columns]
     return v
 
 
+def load_var_list():
+    return _var_list_cached(stamp(P.VAR_LIST))
+
+
 @st.cache_data(show_spinner="Loading processed accident data...")
-def load_processed():
+def _processed_cached(file_stamp):
     return pd.read_parquet(P.OUT_ACCIDENTS_PARQUET)
 
 
-@st.cache_data(show_spinner=False)
+def load_processed():
+    return _processed_cached(stamp(P.OUT_ACCIDENTS_PARQUET))
+
+
 def load_density():
-    return _csv(P.OUT_DENSITY, dtype={"CD_NIS": str})
+    return read_csv(P.OUT_DENSITY, dtype={"CD_NIS": str})
 
 
-@st.cache_data(show_spinner=False)
 def load_centers():
-    return _csv(P.OUT_CENTERS, dtype={"CD_NIS": str})
+    return read_csv(P.OUT_CENTERS, dtype={"CD_NIS": str})
 
 
 @st.cache_data(show_spinner=False)
-def load_lookup():
+def _lookup_cached(file_stamp):
     return P.municipality_lookup(load_centers())
 
 
-@st.cache_data(show_spinner=False)
+def load_lookup():
+    return _lookup_cached(stamp(P.OUT_CENTERS))
+
+
 def load_unit_centers():
-    return _csv(P.OUT_UNIT_CENTERS, dtype={"KEY": str})
+    return read_csv(P.OUT_UNIT_CENTERS, dtype={"KEY": str})
 
 
-@st.cache_data(show_spinner=False)
 def load_outline(level):
-    return json.loads(Path(str(P.OUT_OUTLINES).format(level=level)).read_text(encoding="utf-8"))
+    text = read_text(str(P.OUT_OUTLINES).format(level=level))
+    return json.loads(text)
 
 
-@st.cache_data(show_spinner=False)
 def load_steps():
-    return _csv(P.OUT_STEPS, dtype={"order": str})
+    return read_csv(P.OUT_STEPS, dtype={"order": str})
 
 
-@st.cache_data(show_spinner=False)
 def load_sample(order):
     f = P.SAMPLES / f"{order}.csv"
-    return _csv(f) if f.exists() else None
+    return read_csv(f) if f.exists() else None
 
 
-@st.cache_data(show_spinner=False)
 def load_coords_by_year():
-    return _csv(P.OUT_MISSING_BY_YEAR)
+    return read_csv(P.OUT_MISSING_BY_YEAR)
 
 
-@st.cache_data(show_spinner=False)
 def load_log():
-    return P.OUT_LOG.read_text(encoding="utf-8") if P.OUT_LOG.exists() else ""
+    return read_text(P.OUT_LOG) or ""
 
 
-@st.cache_data(show_spinner=False)
 def load_markdown(path):
-    return Path(path).read_text(encoding="utf-8") if Path(path).exists() else f"*{Path(path).name} not found*"
+    return read_text(path) or f"*{Path(path).name} not found*"
 
 
-@st.cache_data(show_spinner=False)
 def load_covid_monthly():
-    return _csv(P.OUT_COVID_MONTHLY, parse_dates=["DATE"])
+    return read_csv(P.OUT_COVID_MONTHLY, parse_dates=["DATE"])
 
 
-@st.cache_data(show_spinner=False)
 def load_covid_phases():
-    return _csv(P.OUT_COVID_PHASES)
+    return read_csv(P.OUT_COVID_PHASES)
 
 
 @st.cache_data(show_spinner=False)
-def load_mobility_raw():
+def _mobility_cached(file_stamp):
     return P.load_mobility()
 
 
-@st.cache_data(show_spinner=False)
+def load_mobility_raw():
+    return _mobility_cached(stamp(*sorted(P.RAW_MOBILITY_DIR.glob("*_BE_Region_Mobility_Report.csv"))))
+
+
 def load_measures_bel():
-    return _csv(P.OUT_MEASURES_BEL)
+    return read_csv(P.OUT_MEASURES_BEL)
 
 
 @st.cache_data(show_spinner="Preparing COVID columns...")
-def load_covid_accidents():
+def _covid_accidents_cached(file_stamp):
     return P.add_covid_columns(load_processed())
 
 
+def load_covid_accidents():
+    return _covid_accidents_cached(stamp(P.OUT_ACCIDENTS_PARQUET))
+
+
 # ------------------------------------------------------------------ raw data quality
-@st.cache_data(show_spinner="Checking coordinates...")
 def raw_coordinate_status():
+    return _raw_coordinate_status_cached(stamp(P.RAW_ACCIDENTS, P.OUT_ACCIDENTS_PARQUET))
+
+
+@st.cache_data(show_spinner="Checking coordinates...")
+def _raw_coordinate_status_cached(file_stamp):
     """Coordinate status of each raw row (raw and processed rows are in the same order; checked here)."""
     raw, p = load_raw(), load_processed()
     if len(raw) != len(p) or not (raw.DT_YEAR_COLLISION.values == p.DT_YEAR_COLLISION.values).all():
@@ -130,8 +169,12 @@ def raw_coordinate_status():
                            "outside_municipality": "> 1 km outside municipality"})
 
 
-@st.cache_data(show_spinner="Running quality checks...")
 def raw_quality():
+    return _raw_quality_cached(stamp(P.RAW_ACCIDENTS, P.OUT_ACCIDENTS_PARQUET))
+
+
+@st.cache_data(show_spinner="Running quality checks...")
+def _raw_quality_cached(file_stamp):
     raw = load_raw()
     n = len(raw)
     res = {}
