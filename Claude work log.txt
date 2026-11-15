@@ -355,3 +355,10 @@ History of everything Claude does in this project, newest entries at the bottom.
    - Restarted the app server (old server still held the stale module); new server log: 0 errors.
      (Headless Edge screenshots could not show the rendered page – Streamlit's websocket – so not used as proof.)
    - Tests: 33 passed. Merged into main with --no-ff and pushed.
+
+
+------------------------------------------------------------------
+2026-11-15  |  Push to GitHub
+------------------------------------------------------------------
+   - Checked: main and all 11 branches were already identical on GitHub; working tree clean.
+   - Five files: no change needed (pipeline.py, app.py, tests, CLAUDE.md, decision_log.md). Only this log entry pushed.
