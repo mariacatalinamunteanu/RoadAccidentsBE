@@ -81,7 +81,10 @@ G1, G2, P1 and C3 group rows (nothing lost); only C1 and C2 really drop rows (ot
   in `decision_log.md`.
 - UI language: English; data labels stay Dutch.
 
-## Repository
+## Repository and deploy
+- Public app (Streamlit Community Cloud, branch `main`, file `app.py`): https://road-accidents-be.streamlit.app/
+  It redeploys by itself after every push to `main`. If it shows "Oh no. Error running app": Manage app → ⋮ →
+  **Reboot app** first; if that does not help, read the log (Manage app) before changing code.
 - GitHub: https://github.com/mariacatalinamunteanu/RoadAccidentsBE (public). `main` is the deployed branch;
   push feature branches too, so the branch history stays visible.
 

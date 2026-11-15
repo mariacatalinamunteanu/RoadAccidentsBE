@@ -362,3 +362,13 @@ History of everything Claude does in this project, newest entries at the bottom.
 ------------------------------------------------------------------
    - Checked: main and all 11 branches were already identical on GitHub; working tree clean.
    - Five files: no change needed (pipeline.py, app.py, tests, CLAUDE.md, decision_log.md). Only this log entry pushed.
+
+
+------------------------------------------------------------------
+2026-11-15  |  Streamlit Cloud app: "Error running app" -> solved by the student with a reboot
+------------------------------------------------------------------
+   - Public URL: https://road-accidents-be.streamlit.app/ . Local server checked: running, no errors in its log.
+   - Student rebooted the cloud app; it works. (A pip dry-run check for Linux reported a watchdog error: artefact of
+     the check with --only-binary/--platform, not a problem of the app.)
+   - Five files: CLAUDE.md (URL + reboot tip), decision_log.md D38; pipeline.py, app.py, tests: no change needed.
+     Presentation.txt: URL + tip. Merged into main with --no-ff and pushed.
