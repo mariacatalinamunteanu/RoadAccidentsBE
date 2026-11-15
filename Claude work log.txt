@@ -215,3 +215,21 @@ History of everything Claude does in this project, newest entries at the bottom.
      the "only accidents with casualties" warning (new casualties_warning()) stays above all tabs.
    - Updated lineage table, CLAUDE.md, Presentation.txt; decision_log.md D26.
    - Tests: 23 passed. Merged into main with --no-ff.
+
+
+------------------------------------------------------------------
+2026-11-15  |  Question: "why did you drop the lines where GPS coordinates are missing?" + map switch
+------------------------------------------------------------------
+   - Explained: rows were never dropped from the data (step 6 replaces them with the municipality centre, as asked;
+     all 289,532 rows are in every count and ratio). Only the GPS heat layer left them out (step 8, D17 – Claude's own
+     choice, not asked), and the funnel label made it look like a drop.
+   - Student chose option 3: a switch on the map.
+   - Branch feature/heat-layer-imputed-switch:
+       * app.py: toggle "Include accidents placed at the municipality centre (n)" in tab 2, off by default; caption under
+         the map, source line and "Rows used" table follow the switch; step-8 expander says "not drawn in heat layer by
+         default" instead of "dropped"; assumption text updated.
+       * pipeline.py: step 8 renamed "Heat layer only: accidents at their own GPS position"; explanation says nothing is
+         removed from the data. Pipeline rerun.
+       * tests/test_gaps.py: app test also switches the toggle on.
+       * CLAUDE.md, Presentation.txt (demo of the switch), decision_log.md D27.
+   - Tests: 23 passed. Merged into main with --no-ff.

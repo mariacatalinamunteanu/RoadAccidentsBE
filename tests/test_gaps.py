@@ -115,6 +115,8 @@ def test_app_runs_every_tab_and_button():
 
     at = AppTest.from_file(str(P.ROOT / "app.py"), default_timeout=600).run()
     assert not at.exception, [e.value for e in at.exception]
+    at.toggle(key="heat_imputed").set_value(True).run()
+    assert not at.exception, [e.value for e in at.exception]
     for lvl in ["Regions", "Municipalities", "BE", "Provinces"]:
         at.segmented_control(key="level").set_value(lvl).run()
         assert not at.exception, (lvl, [e.value for e in at.exception])

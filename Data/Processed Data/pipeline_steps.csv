@@ -6,6 +6,6 @@
 5,Check coordinates,step_check_coordinates,289532,289532,0,36628,"Flagged, not dropped: missing 35,881, out of Belgian range 2, > 1000 m outside own municipality 745."
 6,Replace abnormal coordinates,step_impute_coordinates,289532,289532,0,36628,Abnormal coordinates -> centre of the municipality in CD_NIS. Rows are kept because the municipality is known; COORD_IMPUTED marks them.
 7,Add latitude / longitude,step_add_wgs84,289532,289532,0,289532,Lambert 72 (EPSG:31370) -> WGS84 for the maps. No rows dropped.
-8,Keep accidents with own valid coordinates (maps at GPS position only),step_select_georeferenced,289532,252904,36628,0,"Accidents with a replaced coordinate sit on the municipality centre, not where they happened, so they are excluded from the GPS heat layer. They stay in all counts and ratios, which are grouped by municipality code."
+8,Heat layer only: accidents at their own GPS position,step_select_georeferenced,289532,252904,36628,0,"NOT removed from the data. Accidents with a replaced coordinate sit on the municipality centre, not where they happened, so by default the GPS heat layer leaves them out (a switch on the map can include them). They stay in all counts, ratios and dots, which are grouped by municipality code."
 C1,Mobility: country + regions only,mobility_monthly,13636,3896,9740,0,Province rows dropped: accidents are compared per region.
 C2,Measures: Belgium only,measures_belgium,202760,1096,201664,0,OxCGRT covers every country; only Belgium (national) is used.

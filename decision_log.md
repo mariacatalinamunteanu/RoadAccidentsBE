@@ -184,3 +184,20 @@ to be confirmed by the student (marked ☐ until confirmed).
 - **Why:** the funnel describes the pipeline steps, so it belongs with them; above every tab it pushed the actual
   questions down. The casualties warning applies to every number in the app, so it stays visible everywhere
   (assignment: "name that difference explicitly on your dashboard").
+
+### D27 · Switch on the map: include the accidents placed at the municipality centre (off by default)
+- **Decided by:** student (2026-11-15, option 3 of 3 proposed by Claude)
+- **Context:** the student asked why accidents with missing GPS coordinates were "dropped", since D03 says to replace
+  them with the municipality centre. They were never dropped from the data (all 289,532 rows are in every count and
+  ratio); D17 only left them out of the GPS heat layer, and the funnel label "Keep accidents with own valid
+  coordinates" made that look like a drop. D17 was Claude's own choice and had not been asked.
+- **What changed:** tab 2 has a switch "Include accidents placed at the municipality centre (n)". Off (default) = heat
+  layer from step 8, own coordinates only. On = all accidents, the replaced ones at their municipality centre (D03).
+  The caption under the map and the "Rows used" table follow the switch. Step 8 is renamed "Heat layer only:
+  accidents at their own GPS position" and its explanation says it removes nothing from the data.
+- **Why off by default:** with the switch on, municipality centres become dark spots that come from the replacement,
+  not from real accident locations (assignment pitfall: "a map that hides this is lying"). With the switch, both
+  views can be shown and compared.
+- **Alternatives:** keep D17 only (hides the student's instruction on the map); always draw them (false hot spots).
+- **Impact:** all years: 36,628 accidents (12.7%) switched on/off. Tested in
+  `test_gaps.py::test_app_runs_every_tab_and_button`.

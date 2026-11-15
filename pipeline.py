@@ -341,11 +341,12 @@ def step_add_wgs84(df):
 def step_select_georeferenced(df):
     """Rows whose OWN coordinates are valid - used for everything plotted at GPS position (heat layer)."""
     out = df[~df.COORD_IMPUTED]
-    return out, _report("8", "Keep accidents with own valid coordinates (maps at GPS position only)",
+    return out, _report("8", "Heat layer only: accidents at their own GPS position",
                         "step_select_georeferenced", df, out,
-                        why="Accidents with a replaced coordinate sit on the municipality centre, not where they "
-                            "happened, so they are excluded from the GPS heat layer. They stay in all counts and "
-                            "ratios, which are grouped by municipality code.")
+                        why="NOT removed from the data. Accidents with a replaced coordinate sit on the municipality "
+                            "centre, not where they happened, so by default the GPS heat layer leaves them out (a switch "
+                            "on the map can include them). They stay in all counts, ratios and dots, which are grouped "
+                            "by municipality code.")
 
 
 def coordinates_by_year(df) -> pd.DataFrame:

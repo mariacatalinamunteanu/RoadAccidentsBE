@@ -133,6 +133,11 @@ SAY: "Short answer: YES. In municipalities with fewer than 250 inhabitants/km²,
      correlation is -0.50, which is clearly negative and significant."
 
 [SHOW] The heat map. Click through: Regions -> Provinces -> Municipalities -> BE.
+[SHOW] Flip the switch "Include accidents placed at the municipality centre" on and off.
+SAY: "Off, the grey layer only shows accidents at their own GPS position. On, it also shows the 36,628 accidents
+     whose coordinates were missing or wrong, placed at their municipality centre, as decided in the processing.
+     You then see extra dark spots on the centres: those come from the replacement, not from real hot spots. That
+     is why it is off by default. They are always counted in the dots."
 SAY: "How to read it:
   - Each dot sits at the centre of a region, province or municipality, and it is recalculated for every
     button.
