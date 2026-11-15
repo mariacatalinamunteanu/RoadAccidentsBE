@@ -13,7 +13,8 @@ in `pipeline.py` (constants at the top) and add an entry to `decision_log.md`.
 | `pipeline.py` | **All** data logic: one pure function per step, no Streamlit. `python pipeline.py` rebuilds every processed file. |
 | `app.py` | Streamlit app (`streamlit run app.py`). Shows data, never computes new data rules itself. |
 | `app_data.py` | Cached file loaders for the app only. |
-| `tests/` | `test_pipeline.py` (15 unit tests, fast) · `test_gaps.py` (8 tests on real data, `-m data`) · `test_app_cache.py` (2, app cache) · `test_explanations.py` (6, explanation dots) · `TEST_GAPS.md` (what the tests miss) |
+| `module_reload.py` | `fresh()`: reloads `pipeline.py` / `app_data.py` in a running app when the file changed. |
+| `tests/` | `test_pipeline.py` (15 unit tests, fast) · `test_gaps.py` (8 tests on real data, `-m data`) · `test_app_cache.py` (2, app cache) · `test_explanations.py` (6, explanation dots) · `test_module_reload.py` (2, reload of changed modules) · `TEST_GAPS.md` (what the tests miss) |
 | `pytest.ini`, `requirements.txt` | Test settings; packages for Streamlit Community Cloud. |
 | `decision_log.md` | What was decided, why, alternatives, impact. |
 | `Concept.txt` | Design: four pillars, sub-questions, categories, columns, filters, steps, drawing of every tab. |
@@ -68,6 +69,8 @@ G1, G2, P1 and C3 group rows (nothing lost); only C1 and C2 really drop rows (ot
 - New logic goes in `pipeline.py` as a pure function, with a test in `tests/`.
 - Every cached loader in `app_data.py` is keyed on the file's modification time (`stamp()`), so a running app
   picks up files rewritten by `pipeline.py`. Never add `@st.cache_data` on a loader without a file stamp argument.
+- `app.py` passes every project module it imports through `module_reload.fresh()`, so a running server never mixes a
+  new `app.py` with an old `pipeline.py`. A new project module must be added there too.
 - Run `python -m pytest` (fast) and `python -m pytest -m data` (real data) before merging into `main`.
 - Work on a branch, merge into `main` with `--no-ff`. Commit messages say what and why.
 - Large files (> 40 MB) are not committed (see `.gitignore`); they are downloaded or rebuilt by `pipeline.py`.
