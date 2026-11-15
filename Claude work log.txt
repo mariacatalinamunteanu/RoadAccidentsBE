@@ -415,3 +415,12 @@ History of everything Claude does in this project, newest entries at the bottom.
    - Branch docs/file-rules: CLAUDE.md (commit only own files with explicit git add, Prompt history.txt and
      Presentation.txt rules), decision_log.md D41. pipeline.py, app.py, tests: no change needed.
    - Committed with explicit file names only. Merged into main with --no-ff and pushed.
+
+
+------------------------------------------------------------------
+2026-11-15  |  Consistent style for the info points
+------------------------------------------------------------------
+   - Branch ui/consistent-info-points: dot() adds icon + bold (INFO_ICON); the 3 call sites pass plain titles.
+   - tests: new test_all_info_points_have_the_same_style; why-municipalities test adapted.
+   - Five files: app.py, tests, CLAUDE.md, decision_log.md D42 updated; pipeline.py: no change needed.
+   - Tests: fast suites 28 passed + app test passed. Only own files committed. Merged into main and pushed.

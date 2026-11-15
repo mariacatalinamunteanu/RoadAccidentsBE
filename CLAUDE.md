@@ -59,7 +59,8 @@ G1, G2, P1 and C3 group rows (nothing lost); only C1 and C2 really drop rows (ot
 ## Working agreements
 - **Every number in the app shows its source** (`src(...)` caption: pipeline step / function).
 - **Every number has an explanation dot (?)**: `help=E("key")` on every `metric`, `explain="key"` on every
-  `show_fig`, `table(...)` instead of `st.dataframe` (dots on column headers), `dot(...)` for other numbers.
+  `show_fig`, `table(...)` instead of `st.dataframe` (dots on column headers), `dot("Plain title", "key")` for info points
+  (one style everywhere: ℹ️ + bold title + ?, added by `dot()` – never put an icon or ** in the title).
   The texts live in `pipeline.EXPLANATIONS` and `pipeline.COLUMN_HELP` (what it is, how it is calculated, which
   step). A new number without a text fails `tests/test_explanations.py`.
 - **Rows that drop out are shown** (row funnel at the top of the tab "Pipeline & method", step expanders,

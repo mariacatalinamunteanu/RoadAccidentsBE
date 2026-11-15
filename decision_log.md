@@ -345,3 +345,12 @@ to be confirmed by the student (marked ☐ until confirmed).
   edit of `Prompt history.txt`). Staging named files makes that impossible.
 - **Five-file check for this prompt:** `CLAUDE.md` and `decision_log.md` updated; `pipeline.py`, `app.py`, tests: no
   change needed (rules about files, no code or data change).
+
+### D42 · One style for all info points (ℹ️ + bold title + ?)
+- **Decided by:** student (2026-11-15: "Keep the formatting of the 'I' point consistent in the tab")
+- **Problem:** in tab ❓ Density vs severity, "ⓘ How is this answer computed?" (small ⓘ, plain text) and
+  "ℹ️ **Why Municipalities …**" (coloured ℹ️, bold) looked different, because each title carried its own icon/format.
+- **What changed:** `dot()` in `app.py` now adds the icon (`INFO_ICON = "ℹ️"`) and the bold itself; call sites pass the
+  plain title. All three info points (density answer, "Why Municipalities …", COVID answer) look the same.
+- **Test:** `test_explanations.py::test_all_info_points_have_the_same_style` fails if a title brings its own icon or **.
+- **Five-file check:** app.py, tests, CLAUDE.md (dot rule), decision_log.md updated; pipeline.py: no change needed.

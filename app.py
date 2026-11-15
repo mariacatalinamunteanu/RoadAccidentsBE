@@ -90,9 +90,12 @@ def table(data, **kwargs):
     return st.dataframe(df, column_config=cfg, **kwargs)
 
 
+INFO_ICON = "ℹ️"
+
+
 def dot(label, key):
-    """A small caption line with an explanation dot."""
-    st.caption(label, help=E(key))
+    """Info point: one style everywhere (ℹ️ + bold title + ? dot). Pass the plain title, without icon or **."""
+    st.caption(f"{INFO_ICON} **{label}**", help=E(key))
 
 
 def src(text):
@@ -546,12 +549,12 @@ def density_tab():
                f"with fewer than 250 inhabitants/km² and **{prof['Severity Ratio (%)'].iloc[-1]:.1f}%** in municipalities "
                f"with more than 5,000 inhabitants/km². Denser areas have more injury accidents, but a smaller share of "
                f"them are severe. The *why* is explained below the map.")
-    dot("ⓘ How is this answer computed?", "d_answer")
+    dot("How is this answer computed?", "d_answer")
     st.caption("Severity Ratio = accidents of class 1 (deaths), 2 (fatally injured) and 3 (seriously injured) ÷ all "
                "recorded injury accidents × 100. Each accident counts once.")
 
     st.markdown(f"#### Heat map – {level.lower() if level != 'BE' else 'Belgium'}")
-    dot("ℹ️ **Why Municipalities Reveal a Clearer Link Between Population Density and Severity Ratio**",
+    dot("Why Municipalities Reveal a Clearer Link Between Population Density and Severity Ratio",
         "d_why_municipalities")
     st.caption("Each **dot** sits at the centre of a unit. **Colour** = Severity Ratio (blue = low, red = high). "
                "**Size** = population density. The grey **heat layer** shows accidents at their own GPS position.")
@@ -739,7 +742,7 @@ def covid_tab():
         f"{area_label}, Lockdown 1 had {fewer(l1)} injury accidents than normal, and a Severity Ratio of **{l1['sr']:.1f}%** "
         f"(normal {l1['bsr']:.1f}%, p = {l1['p']:.2g}). Lockdown 2 had {fewer(l2)} accidents and a ratio of "
         f"**{l2['sr']:.1f}%** (normal {l2['bsr']:.1f}%, p = {l2['p']:.2g}).")
-    dot("ⓘ How is this answer computed?", "c_answer")
+    dot("How is this answer computed?", "c_answer")
 
     st.markdown("#### Accidents and severity month by month (2017–2024)")
     t1, t2 = st.columns(2)
