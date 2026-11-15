@@ -18,7 +18,6 @@ in `pipeline.py` (constants at the top) and add an entry to `decision_log.md`.
 | `pytest.ini`, `requirements.txt` | Test settings; packages for Streamlit Community Cloud. |
 | `decision_log.md` | What was decided, why, alternatives, impact. |
 | `Concept.txt` | Design: four pillars, sub-questions, categories, columns, filters, steps, drawing of every tab. |
-| `Presentation.txt` | 10-minute talk script + backup questions. |
 | `Data/Raw Data/` | Downloaded files, **never edited** (by hand or code). Exception: `Geo/municipality_centers_2024.csv` and `Geo/municipalities_2024.geojson` are written by `pipeline.py` (step G1), because the student asked for the centres in that folder. |
 | `Data/Processed Data/` | Everything else written by `pipeline.py`. Safe to delete and rebuild. |
 | `Claude work log.txt` | Chronological history of every task. |
@@ -73,6 +72,8 @@ G1, G2, P1 and C3 group rows (nothing lost); only C1 and C2 really drop rows (ot
   new `app.py` with an old `pipeline.py`. A new project module must be added there too.
 - Run `python -m pytest` (fast) and `python -m pytest -m data` (real data) before merging into `main`.
 - Work on a branch, merge into `main` with `--no-ff`. Commit messages say what and why.
+- Before `git add -A`: run `git status` and report any deleted or changed file that Claude did not touch (lesson:
+  the deletion of `Presentation.txt` was committed unnoticed in f25cd17).
 - Large files (> 40 MB) are not committed (see `.gitignore`); they are downloaded or rebuilt by `pipeline.py`.
 - **After every prompt** (student's standing instruction, 2026-11-15): update `pipeline.py`, `app.py`, `tests/`,
   `CLAUDE.md` and `decision_log.md` so they reflect what was done – change each file the task affects, check the

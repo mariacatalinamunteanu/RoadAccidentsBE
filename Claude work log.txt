@@ -371,4 +371,16 @@ History of everything Claude does in this project, newest entries at the bottom.
    - Student rebooted the cloud app; it works. (A pip dry-run check for Linux reported a watchdog error: artefact of
      the check with --only-binary/--platform, not a problem of the app.)
    - Five files: CLAUDE.md (URL + reboot tip), decision_log.md D38; pipeline.py, app.py, tests: no change needed.
-     Presentation.txt: URL + tip. Merged into main with --no-ff and pushed.
+     Merged into main with --no-ff and pushed.
+   - CORRECTION (same day): this entry first said Presentation.txt and decision_log D38 were updated. They were not:
+     the update script stopped because Presentation.txt no longer exists (see next entry). D38 added afterwards.
+
+
+------------------------------------------------------------------
+2026-11-15  |  Presentation.txt found missing
+------------------------------------------------------------------
+   - Presentation.txt is not in the project folder. git shows it was deleted in commit f25cd17 ("Add Concept.txt"):
+     the file was already gone from the folder, and `git add -A` in that commit recorded the deletion without it being
+     noticed or reported. Last version is recoverable: git show f25cd17^:Presentation.txt
+   - Asked the student whether the deletion was intended. New working agreement in CLAUDE.md: check `git status`
+     before `git add -A` and report deletions that Claude did not make.
