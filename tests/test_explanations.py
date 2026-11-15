@@ -70,10 +70,11 @@ def test_answer_dot_explains_spearman_and_p_value_in_plain_words():
     assert t.count("\n- ") >= 8 and "\n1. " in t  # bullet points and numbered steps, not one long sentence
 
 
-def test_why_municipalities_info_point_under_the_heat_map():
-    # decision D40: info point under the heat-map title, with the student's explanation behind its "?"
+def test_why_municipalities_info_point_under_the_border_view_buttons():
+    # decision D40 (text) + D45 (place): info point directly under the border-view buttons
     assert 'dot("Why Municipalities Reveal a Clearer Link Between Population Density and Severity Ratio"' in APP
-    assert APP.index("#### Heat map –") < APP.index("d_why_municipalities") < APP.index('explain="d_map"')
+    assert APP.index('segmented_control("Border view"') < APP.index("d_why_municipalities") < APP.index("#### Heat map –")
+    assert APP.count("d_why_municipalities") == 1  # shown once, not also under the heat map
     t = P.EXPLANATIONS["d_why_municipalities"]
     for must in ["more informative scale", "averaged away", "581 municipalities", "11 larger areas",
                  "smaller share of severe crashes"]:

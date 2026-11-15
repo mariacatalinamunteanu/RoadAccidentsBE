@@ -122,6 +122,7 @@ def test_app_runs_every_tab_and_button():
     # every metric on screen carries an explanation dot (decision D35)
     assert len(at.metric) >= 20 and all(m.help for m in at.metric), [m.label for m in at.metric if not m.help]
     assert at.radio(key="heat_mode").value == "Severe accidents"  # default heat layer (decision D44)
+    assert at.segmented_control(key="level").value == "Municipalities"  # default border view (decision D45)
     at.toggle(key="heat_imputed").set_value(True).run()
     assert not at.exception, [e.value for e in at.exception]
     for mode in ["All accidents", "Off", "Severe accidents"]:
