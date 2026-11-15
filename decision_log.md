@@ -211,3 +211,12 @@ to be confirmed by the student (marked ☐ until confirmed).
   that the Severity Ratio is a share among injury accidents. It also appears in "Pipeline & method" → "Assumptions".
 - **Why:** the statement is an assumption behind the answers to the two questions, so it belongs with the other
   assumptions of those tabs instead of above the data explorer and pipeline tabs. Replaces the last part of D26.
+
+### D29 · Pipeline steps named after their data set and the tabs that use them
+- **Decided by:** student (2026-11-15)
+- **What changed:** every step report has two extra fields, `dataset` (what the step works on) and `tabs` (which app
+  tabs use the result), defined once in `pipeline.STEP_CONTEXT` and saved in `pipeline_steps.csv`. In "Pipeline & method"
+  each expander title reads "Step n · data set · action → used in: tabs — rows in → out", and the steps table has the
+  columns "data set" and "used in tab(s)". Steps 1–8 = accident data, C1–C2 = COVID data.
+- **Why:** with only the action in the title ("Check coordinates") it was not visible which data set a step changes and
+  where in the app its result can be seen – needed to point out every number "from within the app" (assignment).

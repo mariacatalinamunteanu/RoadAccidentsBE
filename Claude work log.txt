@@ -243,3 +243,15 @@ History of everything Claude does in this project, newest entries at the bottom.
      (+ the note that the Severity Ratio is a share among injury accidents); also listed in Pipeline & method.
    - Verified with AppTest: no warning above the tabs; statement found in exactly the 2 Assumptions boxes.
    - CLAUDE.md updated; decision_log.md D28. Tests: 23 passed. Merged into main with --no-ff.
+
+
+------------------------------------------------------------------
+2026-11-15  |  Pipeline steps named after their data set and the tabs that use them
+------------------------------------------------------------------
+   - Branch ui/step-names-tabs-datasets.
+   - pipeline.py: StepReport gets fields dataset + tabs, filled from pipeline.STEP_CONTEXT (one place);
+     saved in pipeline_steps.csv. Pipeline rerun.
+   - app.py (Pipeline & method): expander title "Step n · data set · action -> used in: tabs — in -> out";
+     steps table with columns "data set" and "used in tab(s)"; data set and tabs repeated inside each expander;
+     note that steps 1-8 = accident data, C1-C2 = COVID data.
+   - decision_log.md D29. Tests: 23 passed. Merged into main with --no-ff.

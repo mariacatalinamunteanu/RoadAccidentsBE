@@ -119,6 +119,23 @@ CATEGORY_RULES = [
 
 
 # ====================================================================================== step reports
+# Per step: the data set it works on, and the app tabs that use its result (shown in the tab "Pipeline & method").
+TAB_RAW, TAB_PROC = "1.1 Raw Data Explorer", "1.2 Processed Data Explorer"
+TAB_DENS, TAB_COVID = "❓ Density vs severity", "🦠 COVID lockdowns"
+STEP_CONTEXT = {
+    "1": ("Accidents – raw (OPENDATA_MAP_2017-2024.xlsx)", f"{TAB_RAW}; input of all other tabs"),
+    "2": ("Accidents – processing", f"{TAB_PROC}, {TAB_DENS}, {TAB_COVID}"),
+    "3": ("Accidents – processing", f"{TAB_PROC}, {TAB_DENS} (province view)"),
+    "4": ("Accidents + population density (population_density_2017-2024.csv)", f"{TAB_PROC}, {TAB_DENS}"),
+    "5": ("Accidents + municipality borders (Statbel statistical sectors 2024)", f"{TAB_RAW} (coordinates), {TAB_PROC}, {TAB_DENS}"),
+    "6": ("Accidents + municipality centres (municipality_centers_2024.csv)", f"{TAB_PROC}, {TAB_DENS} (heat-layer switch)"),
+    "7": ("Accidents – processed (accidents_processed_2017-2024.csv / .parquet)", f"{TAB_PROC}, {TAB_DENS} (maps)"),
+    "8": ("Accidents – processed, view for the map (not saved)", f"{TAB_DENS} (grey heat layer)"),
+    "C1": ("Google COVID-19 mobility reports BE 2020-2022", f"{TAB_COVID} (via covid_monthly_2017-2024.csv)"),
+    "C2": ("OxCGRT government measures (OxCGRT_compact_national_v1.csv)", f"{TAB_COVID} (via covid_measures_BEL_daily.csv, covid_monthly_2017-2024.csv)"),
+}
+
+
 @dataclass
 class StepReport:
     order: str
@@ -129,6 +146,12 @@ class StepReport:
     rows_dropped: int
     rows_changed: int
     why: str
+    dataset: str = ""
+    tabs: str = ""
+
+    def __post_init__(self):
+        ds, tabs = STEP_CONTEXT.get(self.order, ("", ""))
+        self.dataset, self.tabs = self.dataset or ds, self.tabs or tabs
 
 
 def _report(order, step, function, df_in, df_out, changed=0, why=""):

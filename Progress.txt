@@ -6,13 +6,12 @@ Raw data:
 2. Find data that shows the density of the population, for each year between 2017 and 2024, split per BE municipality and save it in C:\Users\catut\Learning\Data Scientist 2025-2028\2026-2027\Project 1\Project 1.1\Data\Raw Data\Population Density
 3. Find data that contains the geolocation of the center of the BE municipalities and save it in C:\Users\catut\Learning\Data Scientist 2025-2028\2026-2027\Project 1\Project 1.1\Data\Raw Data\Geo
 
-
 Processed data:
 
 Create a processed data set, based on C:\Users\catut\Learning\Data Scientist 2025-2028\2026-2027\Project 1\Project 1.1\Data\Raw Data\Accidents, where:
 - remove all the FR columns - we will be working only based on the NL language
 - add the density population per municipality
-- check all the geo coordinates for abnormal/missing values; where abnormal values are found replace these with the geo coordinates of the centers of the municipalities where the accident happened 
+- check all the geo coordinates for abnormal/missing values; where abnormal/missing values are found replace these with the geo coordinates of the centers of the municipalities where the accident happened 
 - fill in the column TX_PROV_COLLISION_NL with "Brussels Hoofdstedelijk Gewest" (for the purpose of the province view)
 
 Make an app that has 2 main tabs:
