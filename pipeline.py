@@ -209,6 +209,18 @@ EXPLANATIONS = {
         "- → **Strong evidence of an association.**\n\n"
         "**Careful:** whether density *causes* the difference is a separate question (see \"Why?\" below)."
     ),
+    "d_why_municipalities": (
+        "**Municipalities are the more informative scale for this question.**\n\n"
+        "**1. They keep local differences**\n"
+        "- They preserve local differences in **population density** and **crash severity**.\n"
+        "- These differences can be **averaged away** when municipalities are grouped into larger areas.\n\n"
+        "**2. More observations**\n"
+        "- Comparing **581 municipalities** gives the analysis more observations to work with\n"
+        "- … than comparing **11 larger areas**.\n\n"
+        "**3. Clearer evidence**\n"
+        "- At the municipal level, the evidence is clearer that **denser places** tend to have a **smaller share of "
+        "severe crashes** among recorded injury crashes."
+    ),
     "d_map": "One **dot per unit** of the selected border view, at its centre (step G2). Colour = Severity Ratio "
              "(blue 0% → red 20%), size = population density (Σ population / Σ area). Grey layer = accidents at "
              "their GPS position (step 8; switch adds the step-6 centres). `pipeline.aggregate_by_level`.",
