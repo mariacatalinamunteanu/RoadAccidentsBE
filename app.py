@@ -41,8 +41,8 @@ ASSUMPTIONS = {
     "coordinates": ("Missing / abnormal coordinates",
                     "36,628 accidents (12.7%) have no usable own coordinate: 35,881 missing, 2 impossible, 745 more than "
                     "1 km outside their municipality. 15-19% per year before 2022, 3-6% from 2022. They get the "
-                    "municipality centre (step 6) so they still count in all numbers grouped by municipality, but they are "
-                    "by default not drawn in the grey GPS heat layer (step 8). A switch on the map adds them at the "
+                    "municipality centre (step A6) so they still count in all numbers grouped by municipality, but they are "
+                    "by default not drawn in the grey GPS heat layer (step A8). A switch on the map adds them at the "
                     "municipality centre."),
     "denominator": ("The denominator problem",
                     "More accidents in a place can simply mean more residents or more traffic. This project does not "
@@ -72,13 +72,20 @@ def E(key):
     return P.explain(key)
 
 
-def show_fig(fig, key=None, explain=None, title=None):
-    """Chart with its title as a heading carrying an explanation dot (?) - the title moves out of the figure."""
+def show_fig(fig, key=None, explain=None, title=None, conclusion=None):
+    """Chart with its title as a heading carrying an explanation dot (?), and under it the conclusion of the chart
+    (📌, computed from the data shown, decision D46). The title moves out of the figure."""
     if explain:
         t = title or (fig.layout.title.text if fig.layout.title and fig.layout.title.text else "")
         st.markdown(f"**{t}**" if t else "&nbsp;", help=E(explain))
         fig.update_layout(title=None)
+    if conclusion:
+        st.markdown(f"📌 *Conclusion:* {conclusion}")
     st.plotly_chart(fig, width="stretch", key=key)
+
+
+def pct(part, whole):
+    return part / whole * 100 if whole else 0.0
 
 
 def table(data, **kwargs):
@@ -120,7 +127,7 @@ def rows_used(rows):
 # =================================================================== Row funnel (top of the Pipeline & method tab)
 def top_funnel():
     steps = D.load_steps()
-    acc_steps = steps[steps.order.str.fullmatch(r"\d")]
+    acc_steps = steps[steps.order.str.fullmatch(r"A\d")]
     raw_n = int(acc_steps.rows_in.iloc[0])
     geo_n = int(acc_steps.rows_out.iloc[-1])
     c1, c2 = st.columns([2.2, 1])
@@ -130,12 +137,14 @@ def top_funnel():
             textinfo="value+percent initial", marker=dict(color=["#4575b4"] * (len(acc_steps) - 1) + ["#f46d43"]),
             connector=dict(line=dict(color="#d1d5db"))))
         fig.update_layout(height=290, margin=dict(l=0, r=0, t=10, b=0), yaxis=dict(tickfont=dict(size=11)))
-        show_fig(fig, key="funnel", explain="funnel", title="Row funnel – accident rows after each step")
+        show_fig(fig, key="funnel", explain="funnel", title="Row funnel – accident rows after each step",
+                 conclusion=f"No accident is lost in steps A1–A7 ({fmt(raw_n)} rows all the way). Step A8 only leaves "
+                            f"{fmt(raw_n - geo_n)} ({pct(raw_n - geo_n, raw_n):.1f}%) out of the GPS heat layer.")
     with c2:
         st.markdown("**Row funnel – where data disappears**")
         st.markdown(f"- Raw accidents: **{fmt(raw_n)}**\n"
-                    f"- Steps 2–7 drop **0 rows**: they fix or add values\n"
-                    f"- Step 8 is **not** a drop from the data: **{fmt(raw_n - geo_n)} ({(raw_n - geo_n) / raw_n * 100:.1f}%)** "
+                    f"- Steps A2–A7 drop **0 rows**: they fix or add values\n"
+                    f"- Step A8 is **not** a drop from the data: **{fmt(raw_n - geo_n)} ({(raw_n - geo_n) / raw_n * 100:.1f}%)** "
                     f"have no usable own coordinate → by default not drawn in the GPS heat layer (switch on the map)\n"
                     f"- All counts and ratios use all **{fmt(raw_n)}** rows (grouped by municipality code)")
         st.caption("Details per step: the expanders below.")
@@ -143,20 +152,20 @@ def top_funnel():
 
 # =================================================================== PIPELINE & METHOD
 LINEAGE = [
-    ("Pipeline & method: row funnel", "rows in/out per step", "pipeline.run_all → pipeline_steps.csv", "steps 1–8"),
-    ("1.1 Raw: missing / unknown / issues / checks", "counts per column", "app_data.raw_quality on the raw xlsx", "step 1 (raw)"),
-    ("1.1 Raw: coordinate status", "ok / missing / out of range / > 1 km", "pipeline.step_check_coordinates → COORD_STATUS, DIST_TO_OWN_MUNTY_M", "step 5"),
-    ("1.2 Processed: columns removed", "14 FR columns", "pipeline.step_drop_french", "step 2"),
-    ("1.2 Processed: province filled", "30,022 rows", "pipeline.step_fill_province", "step 3"),
+    ("Pipeline & method: row funnel", "rows in/out per step", "pipeline.run_all → pipeline_steps.csv", "steps A1–A8"),
+    ("1.1 Raw: missing / unknown / issues / checks", "counts per column", "app_data.raw_quality on the raw xlsx", "step A1 (raw)"),
+    ("1.1 Raw: coordinate status", "ok / missing / out of range / > 1 km", "pipeline.step_check_coordinates → COORD_STATUS, DIST_TO_OWN_MUNTY_M", "step A5"),
+    ("1.2 Processed: columns removed", "14 FR columns", "pipeline.step_drop_french", "step A2"),
+    ("1.2 Processed: province filled", "30,022 rows", "pipeline.step_fill_province", "step A3"),
     ("1.2 Processed / tab 2: POPULATION, AREA_KM2, POP_DENSITY", "per municipality and year",
-     "pipeline.build_density → population_density_2017-2024.csv; joined in pipeline.step_add_density", "P1 + step 4"),
-    ("1.2 Processed: coordinates replaced", "36,628 rows", "pipeline.step_impute_coordinates → COORD_IMPUTED", "step 6"),
-    ("Maps: LAT / LON", "WGS84 positions", "pipeline.step_add_wgs84", "step 7"),
-    ("Tab 2: grey heat layer", "accidents at GPS position", "switch off: pipeline.step_select_georeferenced (step 8, own "
-     "coordinates only) · switch on: all rows, replaced ones at the municipality centre (step 6)", "steps 6–8"),
+     "pipeline.build_density → population_density_2017-2024.csv; joined in pipeline.step_add_density", "P1 + step A4"),
+    ("1.2 Processed: coordinates replaced", "36,628 rows", "pipeline.step_impute_coordinates → COORD_IMPUTED", "step A6"),
+    ("Maps: LAT / LON", "WGS84 positions", "pipeline.step_add_wgs84", "step A7"),
+    ("Tab 2: grey heat layer", "accidents at GPS position", "switch off: pipeline.step_select_georeferenced (step A8, own "
+     "coordinates only) · switch on: all rows, replaced ones at the municipality centre (step A6)", "steps A6–A8"),
     ("Tab 2: severe / Severity Ratio (all)", "class 1-3 share", "pipeline.is_severe, pipeline.severity_ratio", "analysis"),
     ("Tab 2: dots on the map + table", "per region / province / municipality / BE",
-     "pipeline.aggregate_by_level (density = Σ population / Σ area; centre from unit_centers.csv)", "analysis (uses steps 4, 7)"),
+     "pipeline.aggregate_by_level (density = Σ population / Σ area; centre from unit_centers.csv)", "analysis (uses steps A4, A7)"),
     ("1.1 / 1.2 / tab 2: municipality borders and centres", "581 municipalities", "pipeline.build_municipalities → municipality_centers_2024.csv", "G1"),
     ("Tab 2: unit centres and borders", "LAT / LON of each dot", "pipeline.build_units → unit_centers.csv, outlines_*.geojson", "G2"),
     ("Tab 2: Spearman ρ, trend", "relation density ↔ SR", "scipy.stats.spearmanr / numpy.polyfit in app.py on aggregate_by_level", "analysis"),
@@ -166,6 +175,13 @@ LINEAGE = [
     ("Tab 3: lockdown metrics, chi-square", "per lockdown vs normal", "pipeline.period_vs_baseline + scipy.stats.chi2_contingency", "analysis"),
     ("Tab 3: mix vs within effect", "standardised SR", "pipeline.mix_decomposition", "analysis"),
     ("Tab 3: accident mix / SR per group", "shares and SR", "pipeline.mix_profile, pipeline.road_user_group", "analysis"),
+    ("Every chart: 📌 Conclusion", "1–2 sentences under the title", "computed in app.py from the data of that chart "
+     "(follows the filters)", "analysis (D46)"),
+    ("Every metric / chart / column: ? dot", "explanation text", "pipeline.EXPLANATIONS, pipeline.COLUMN_HELP", "D35"),
+    ("Tab 2: ℹ️ info points", "answer + why municipalities", "pipeline.EXPLANATIONS d_answer, d_why_municipalities",
+     "D39, D40, D45"),
+    ("Tab 2: defaults", "Municipalities · min. accidents 1 · severe heat layer", "app.py (density_tab)", "D43, D44, D45"),
+    ("Pipeline & method: all tests", "list of every test", "app_data.list_tests (reads tests/*.py)", "D46"),
 ]
 
 
@@ -178,16 +194,19 @@ def pipeline_tab():
                                   "Category rules", "Decision log & tests"])
     with t1:
         steps = D.load_steps()
-        table(steps[["order", "dataset", "step", "tabs", "rows_in", "rows_out", "rows_dropped", "rows_changed",
-                            "function", "why"]].rename(columns={"dataset": "data set", "tabs": "used in tab(s)"}),
-                     hide_index=True, width="stretch")
-        st.markdown("Steps **G1–G2** build the **geography**, **P1** the **population density**, **1–8** work on the "
-                    "**accident data**, **C1–C3** on the **COVID data**. Each title shows the data set, what the step "
-                    "does, and the tabs that use the result. Steps that *group* rows (G1, G2, P1, C3) lose nothing: "
-                    "fewer rows out means rows were combined.")
+        table(steps[["order", "run_order", "dataset", "step", "tabs", "rows_in", "rows_out", "rows_dropped",
+                     "rows_changed", "function", "why"]].rename(columns={"dataset": "data set", "tabs": "used in tab(s)"}),
+              hide_index=True, width="stretch")
+        st.markdown("Steps **A1–A8** work on the **accident data**, **P1** builds the **population density**, **G1–G2** the "
+                    "**geography**, **C1–C3** the **COVID data**. Each title shows the data set, what the step does, and the "
+                    "tabs that use the result. Steps that *group* rows (P1, G1, G2, C3) lose nothing: fewer rows out means "
+                    "rows were combined.")
+        st.caption("Shown in the order A → P → G → C. `python pipeline.py` *runs* P1, G1 and G2 first (column "
+                   "**run_order**), because A4 needs the density (P1) and A5/A6 need the municipality borders and centres "
+                   "(G1).")
         for r in steps.itertuples():
             label = (f"Step {r.order} · {r.dataset} · {r.step}  →  used in: {r.tabs}  —  in {fmt(r.rows_in)} → out {fmt(r.rows_out)}"
-                     f"{(' · not drawn in heat layer by default ' if r.order == '8' else ' · dropped ') + fmt(r.rows_dropped) if r.rows_dropped else ''}"
+                     f"{(' · not drawn in heat layer by default ' if r.order == 'A8' else ' · dropped ') + fmt(r.rows_dropped) if r.rows_dropped else ''}"
                      f"{' · changed ' + fmt(r.rows_changed) if r.rows_changed else ''}")
             with st.expander(label):
                 c = st.columns(4)
@@ -207,9 +226,13 @@ def pipeline_tab():
                      labels={"excluded_pct": "% of accidents", "YEAR": "Year"})
         fig.update_traces(marker_color="#f46d43", texttemplate="%{text:,}")
         fig.update_layout(height=280, margin=dict(l=0, r=0, t=10, b=0))
-        show_fig(fig, key="cy", explain="coords_by_year", title="Accidents without usable own coordinate, per year (%)")
+        early, late = cy[cy.YEAR <= 2021].excluded_pct, cy[cy.YEAR >= 2022].excluded_pct
+        show_fig(fig, key="cy", explain="coords_by_year", title="Accidents without usable own coordinate, per year (%)",
+                 conclusion=f"From 2017 to 2021, {early.min():.0f}–{early.max():.0f}% of the accidents per year had no "
+                            f"usable own coordinate; from 2022 only {late.min():.0f}–{late.max():.0f}%. GPS maps of the "
+                            f"early years are therefore less complete.")
         table(cy, hide_index=True, width="stretch")
-        src("pipeline.coordinates_by_year → coordinates_by_year.csv (step 5 status per year)")
+        src("pipeline.coordinates_by_year → coordinates_by_year.csv (step A5 status per year)")
     with t2:
         table(pd.DataFrame(LINEAGE, columns=["where in the app", "number", "created by", "step"]),
                      hide_index=True, width="stretch", height=600)
@@ -221,11 +244,16 @@ def pipeline_tab():
                      hide_index=True, width="stretch", height=560)
         src("pipeline.CATEGORY_RULES (same rules as in CLAUDE.md)")
     with t5:
-        a, b = st.tabs(["decision_log.md", "tests/TEST_GAPS.md"])
+        a, b, c = st.tabs(["decision_log.md", "tests/TEST_GAPS.md", "All tests (read from tests/)"])
         with a:
             st.markdown(D.load_markdown(D.DECISION_LOG))
         with b:
             st.markdown(D.load_markdown(D.TEST_GAPS))
+        with c:
+            tl = D.list_tests()
+            st.caption(f"{len(tl)} tests in {tl.file.nunique()} files, read directly from the `tests/` folder, so this list "
+                       "is always up to date. Run them with `python -m pytest`.")
+            table(tl, hide_index=True, width="stretch", height=560)
 
 
 # =================================================================== DATA EXPLORER
@@ -244,7 +272,7 @@ def raw_explorer():
     c[2].metric("Municipalities (CD_NIS)", raw.CD_NIS.nunique(), help=E("raw_municipalities"))
     c[3].metric("Rows with ≥1 missing value", fmt(raw.isna().any(axis=1).sum()), help=E("raw_rows_missing"))
     c[4].metric("Exact duplicate rows", fmt(raw.duplicated().sum()), help=E("raw_duplicates"))
-    src("step 1 – raw file as delivered by Statbel (pipeline.load_raw_accidents)")
+    src("step A1 – raw file as delivered by Statbel (pipeline.load_raw_accidents)")
     with st.expander("Browse the raw data"):
         n = st.slider("Rows to show", 100, 5000, 500, step=100, key="raw_rows")
         yr = st.multiselect("Year", sorted(raw.DT_YEAR_COLLISION.unique()), key="raw_year")
@@ -259,12 +287,17 @@ def raw_explorer():
                      labels={"missing": "Empty cells", "column": ""})
         fig.update_traces(marker_color="#d73027", texttemplate="%{text:.1f}%")
         fig.update_layout(height=260, margin=dict(l=0, r=0, t=10, b=0))
-        show_fig(fig, explain="raw_missing", title="Empty cells per column")
+        top = m.iloc[0]
+        tops = " and ".join(m[m.missing == top["missing"]].column)  # ties: name every column with the maximum
+        show_fig(fig, explain="raw_missing", title="Empty cells per column",
+                 conclusion=f"Only {len(m)} of {raw.shape[1]} columns have empty cells. The most: {tops} "
+                            f"({fmt(top['missing'])} each, {top['missing %']:.1f}%). The empty province is not an error: "
+                            f"Brussels has no province.")
         table(m, hide_index=True, width="stretch")
         miss_rgn = raw[raw.TX_PROV_COLLISION_NL.isna()].TX_RGN_COLLISION_NL.value_counts()
         st.info(f"Province is empty only for **{', '.join(miss_rgn.index)}** ({fmt(miss_rgn.sum())} rows): Brussels "
                 "does not belong to a province, so this is structural, not an error.")
-        src("app_data.raw_quality – raw file (step 1)")
+        src("app_data.raw_quality – raw file (step A1)")
     with t2:
         st.markdown("Cells that are filled in but mean *unknown / not specified*. They are not empty, so they do not "
                     "show up as missing values.")
@@ -272,9 +305,13 @@ def raw_explorer():
         fig = px.bar(u, x="% of rows", y="column", orientation="h", text="rows")
         fig.update_traces(marker_color="#fdae61", texttemplate="%{text:,}")
         fig.update_layout(height=380, margin=dict(l=0, r=0, t=10, b=0), yaxis=dict(autorange="reversed"))
-        show_fig(fig, explain="raw_unknown", title="Cells meaning 'unknown' per column (% of rows)")
+        u1, u2 = u.iloc[0], u.iloc[1]
+        show_fig(fig, explain="raw_unknown", title="Cells meaning 'unknown' per column (% of rows)",
+                 conclusion=f"'Unknown' is most frequent in {u1['column']} ({u1['% of rows']:.1f}%) and {u2['column']} "
+                            f"({u2['% of rows']:.1f}%): use these columns with care. The accident class (severity) has no "
+                            f"'unknown' code.")
         table(u, hide_index=True, width="stretch")
-        src("app_data.raw_quality with pipeline.UNKNOWN_CODES – raw file (step 1)")
+        src("app_data.raw_quality with pipeline.UNKNOWN_CODES – raw file (step A1)")
         col = st.selectbox("Distribution of a coded column", list(D.CODE_LABEL)[:-1], index=6, key="dist_col")
         lab = D.CODE_LABEL[col]
         dist = raw.groupby([col, lab], dropna=False).size().reset_index(name="rows")
@@ -283,7 +320,11 @@ def raw_explorer():
         fig = px.bar(dist.sort_values("rows"), x="rows", y="label", color="unknown", orientation="h",
                      color_discrete_map={True: "#fdae61", False: "#4575b4"}, labels={"label": ""})
         fig.update_layout(height=max(250, 28 * len(dist)), margin=dict(l=0, r=0, t=10, b=0))
-        show_fig(fig, explain="raw_code_dist", title="Accidents per code")
+        topc = dist.loc[dist.rows.idxmax()]
+        show_fig(fig, explain="raw_code_dist", title="Accidents per code",
+                 conclusion=f"Most frequent in {col}: {topc['label']} ({pct(topc['rows'], dist.rows.sum()):.0f}%). Codes "
+                            f"meaning 'unknown': {pct(dist[dist.unknown].rows.sum(), dist.rows.sum()):.1f}% of the "
+                            f"accidents.")
     with t3:
         table(q["issues"], hide_index=True, width="stretch",
                      column_config={"rows": st.column_config.NumberColumn(format="%d", help=P.COLUMN_HELP["rows"]),
@@ -296,7 +337,7 @@ def raw_explorer():
             st.markdown("**Checks passed / failed**")
             table(q["checks"].assign(passed=q["checks"].passed.map({True: "✅", False: "❌"})),
                          hide_index=True, width="stretch")
-        src("app_data.raw_quality – raw file (step 1); 'handling' column = the pipeline step that deals with it")
+        src("app_data.raw_quality – raw file (step A1); 'handling' column = the pipeline step that deals with it")
         dups = raw[raw.duplicated(keep=False)].sort_values(list(raw.columns[:4]))
         with st.expander(f"Show the {fmt(len(dups))} rows involved in exact duplicates"):
             table(dups, width="stretch", height=300)
@@ -316,8 +357,11 @@ def raw_explorer():
             fig = px.bar(long, x="YEAR", y="rows", color="status", labels={"YEAR": "Year", "rows": "Rows with a problem"},
                          color_discrete_sequence=["#d73027", "#a50026", "#fdae61"])
             fig.update_layout(height=320, margin=dict(l=0, r=0, t=10, b=0), legend_title="")
-            show_fig(fig, explain="raw_coord_year", title="Coordinate problems per year")
-        src("pipeline.step_check_coordinates (step 5) → COORD_STATUS, DIST_TO_OWN_MUNTY_M")
+            probs = int(long.rows.sum())
+            show_fig(fig, explain="raw_coord_year", title="Coordinate problems per year",
+                     conclusion=f"{pct(cy.missing.sum(), probs):.0f}% of the {fmt(probs)} coordinate problems are missing "
+                                f"coordinates, mostly in 2017–2021; wrong positions are rare.")
+        src("pipeline.step_check_coordinates (step A5) → COORD_STATUS, DIST_TO_OWN_MUNTY_M")
         p = D.load_processed()
         bad = p[p.COORD_STATUS == "outside_municipality"]
         lon, lat = Transformer.from_crs(31370, 4326, always_xy=True).transform(bad.MS_X_COORD_ORIG.values,
@@ -331,7 +375,10 @@ def raw_explorer():
         fig.update_layout(map=dict(style="carto-positron", center=BE_CENTER, zoom=6.4), height=480,
                           margin=dict(l=0, r=0, t=30, b=0),
                           title=f"Where the {fmt(len(bad))} points lying > 1 km outside their municipality were recorded")
-        show_fig(fig, explain="raw_coord_map")
+        show_fig(fig, explain="raw_coord_map",
+                 conclusion=f"These {fmt(len(bad))} points lie a median {bad.DIST_TO_OWN_MUNTY_M.median() / 1000:.1f} km and "
+                            f"up to {bad.DIST_TO_OWN_MUNTY_M.max() / 1000:.0f} km outside their municipality – too far for a "
+                            f"border road, so they are geocoding errors.")
 
 
 def processed_explorer():
@@ -350,7 +397,7 @@ def processed_explorer():
             c[2].metric("Empty cells in key columns",
                         int(p[["MS_X_COORD", "MS_Y_COORD", "TX_PROV_COLLISION_NL", "POP_DENSITY"]].isna().sum().sum()),
                         help=E("proc_empty_key"))
-            src("output of step 7 (accidents_processed_2017-2024.csv / .parquet)")
+            src("output of step A7 (accidents_processed_2017-2024.csv / .parquet)")
             f1, f2, f3 = st.columns(3)
             yr = f1.multiselect("Year", sorted(p.DT_YEAR_COLLISION.unique()))
             rg = f2.multiselect("Region", sorted(p.TX_RGN_COLLISION_NL.unique()))
@@ -374,18 +421,18 @@ def processed_explorer():
     with t2:
         removed = [c for c in raw_cols if c not in p.columns]
         added = [c for c in p.columns if c not in raw_cols]
-        desc = {"POPULATION": "Population on 1 January of the accident year (step 4)",
-                "AREA_KM2": "Area of the municipality in km² (step 4)",
-                "POP_DENSITY": "Inhabitants per km² for that municipality and year (step 4)",
-                "MS_X_COORD_ORIG": "Original X coordinate (step 5)", "MS_Y_COORD_ORIG": "Original Y coordinate (step 5)",
-                "DIST_TO_OWN_MUNTY_M": "Distance (m) from the original point to its municipality; 0 = inside (step 5)",
-                "COORD_STATUS": "ok / missing / out_of_range / outside_municipality (step 5)",
-                "COORD_IMPUTED": "True if MS_X/Y_COORD were replaced by the municipality centre (step 6)",
-                "LAT": "Latitude (WGS84) of the final coordinates (step 7)",
-                "LON": "Longitude (WGS84) of the final coordinates (step 7)"}
+        desc = {"POPULATION": "Population on 1 January of the accident year (step A4)",
+                "AREA_KM2": "Area of the municipality in km² (step A4)",
+                "POP_DENSITY": "Inhabitants per km² for that municipality and year (step A4)",
+                "MS_X_COORD_ORIG": "Original X coordinate (step A5)", "MS_Y_COORD_ORIG": "Original Y coordinate (step A5)",
+                "DIST_TO_OWN_MUNTY_M": "Distance (m) from the original point to its municipality; 0 = inside (step A5)",
+                "COORD_STATUS": "ok / missing / out_of_range / outside_municipality (step A5)",
+                "COORD_IMPUTED": "True if MS_X/Y_COORD were replaced by the municipality centre (step A6)",
+                "LAT": "Latitude (WGS84) of the final coordinates (step A7)",
+                "LON": "Longitude (WGS84) of the final coordinates (step A7)"}
         a, b = st.columns(2)
         with a:
-            st.markdown(f"**➖ Removed (step 2): {len(removed)} French columns**")
+            st.markdown(f"**➖ Removed (step A2): {len(removed)} French columns**")
             table(pd.DataFrame({"column": removed}), hide_index=True, width="stretch", height=300)
         with b:
             st.markdown(f"**➕ Added: {len(added)} columns**")
@@ -395,7 +442,7 @@ def processed_explorer():
         before = raw[["TX_PROV_COLLISION_NL", "MS_X_COORD"]].isna().sum()
         comp = pd.DataFrame({
             "column": ["TX_PROV_COLLISION_NL", "MS_X_COORD / MS_Y_COORD", "POP_DENSITY"],
-            "step": ["3", "5-6", "4"],
+            "step": ["A3", "A5–A6", "A4"],
             "empty before": [before.TX_PROV_COLLISION_NL, before.MS_X_COORD, len(p)],
             "values changed": [before.TX_PROV_COLLISION_NL, int(p.COORD_IMPUTED.sum()), len(p)],
             "empty after": [p.TX_PROV_COLLISION_NL.isna().sum(), p.MS_X_COORD.isna().sum(), p.POP_DENSITY.isna().sum()],
@@ -406,11 +453,15 @@ def processed_explorer():
         table(comp, hide_index=True, width="stretch")
         prov = p.TX_PROV_COLLISION_NL.value_counts().rename_axis("province").reset_index(name="accidents")
         fig = px.bar(prov, x="accidents", y="province", orientation="h",
-                     color=prov.province.eq(P.BRUSSELS).map({True: "filled (step 3)", False: "original"}),
-                     color_discrete_map={"filled (step 3)": "#f46d43", "original": "#4575b4"},
+                     color=prov.province.eq(P.BRUSSELS).map({True: "filled (step A3)", False: "original"}),
+                     color_discrete_map={"filled (step A3)": "#f46d43", "original": "#4575b4"},
                      labels={"color": "", "province": ""}, title="Accidents per province after filling Brussels")
         fig.update_layout(height=380, margin=dict(l=0, r=0, t=40, b=0), yaxis=dict(autorange="reversed"))
-        show_fig(fig, explain="proc_provinces")
+        bru_rank = int(prov.index[prov.province == P.BRUSSELS][0]) + 1
+        show_fig(fig, explain="proc_provinces",
+                 conclusion=f"{prov.province.iloc[0]} has the most injury accidents ({fmt(prov.accidents.iloc[0])}). "
+                            f"Brussels, filled in step A3, is number {bru_rank} of {len(prov)} with "
+                            f"{fmt(prov.accidents[prov.province == P.BRUSSELS].iloc[0])}.")
     with t3:
         s = p.COORD_STATUS.value_counts().rename_axis("status").reset_index(name="rows")
         c = st.columns(len(s) + 1)
@@ -418,13 +469,17 @@ def processed_explorer():
                     delta_color="off", help=E("coord_replaced"))
         for i, r in s.iterrows():
             c[i + 1].metric(r.status, fmt(r.rows), help=E(f"status_{r.status}"))
-        src("step 5 (COORD_STATUS) and step 6 (COORD_IMPUTED)")
+        src("step A5 (COORD_STATUS) and step A6 (COORD_IMPUTED)")
         by = p[p.COORD_IMPUTED].groupby(["DT_YEAR_COLLISION", "COORD_STATUS"]).size().reset_index(name="rows")
         fig = px.bar(by, x="DT_YEAR_COLLISION", y="rows", color="COORD_STATUS",
                      labels={"DT_YEAR_COLLISION": "Year", "rows": "Rows replaced", "COORD_STATUS": ""},
                      color_discrete_sequence=["#d73027", "#fdae61", "#a50026"], title="Replaced coordinates per year")
         fig.update_layout(height=320, margin=dict(l=0, r=0, t=40, b=0))
-        show_fig(fig, explain="proc_replaced_year")
+        per_year = by.groupby("DT_YEAR_COLLISION").rows.sum()
+        show_fig(fig, explain="proc_replaced_year",
+                 conclusion=f"Most replacements in {per_year.idxmax()} ({fmt(per_year.max())}), fewest in "
+                            f"{per_year.idxmin()} ({fmt(per_year.min())}). {pct(by[by.COORD_STATUS == 'missing'].rows.sum(), by.rows.sum()):.0f}% "
+                            f"of them were missing coordinates.")
         st.markdown("**Points > 1 km outside their municipality: original position → municipality centre**")
         bad = p[p.COORD_STATUS == "outside_municipality"]
         olon, olat = Transformer.from_crs(31370, 4326, always_xy=True).transform(bad.MS_X_COORD_ORIG.values,
@@ -441,7 +496,9 @@ def processed_explorer():
                                     hovertemplate="%{text}<extra>new</extra>"))
         fig.update_layout(map=dict(style="carto-positron", center=BE_CENTER, zoom=6.4), height=520,
                           margin=dict(l=0, r=0, t=0, b=0), legend=dict(x=0, y=1, bgcolor="rgba(255,255,255,.8)"))
-        show_fig(fig, explain="proc_moved_map", title="Original position → municipality centre")
+        show_fig(fig, explain="proc_moved_map", title="Original position → municipality centre",
+                 conclusion=f"Each of the {fmt(len(bad))} wrong points (red) now sits on the centre of its own municipality "
+                            f"(green); the longest move is {bad.DIST_TO_OWN_MUNTY_M.max() / 1000:.0f} km.")
         st.caption(f"{fmt(((p.DIST_TO_OWN_MUNTY_M > 0) & (p.DIST_TO_OWN_MUNTY_M <= 1000)).sum())} points less than 1 km "
                    "outside their municipality (mostly border roads) were kept as they are.")
     with t4:
@@ -451,13 +508,17 @@ def processed_explorer():
         tot = dens.groupby(["YEAR", "SOURCE"]).agg(municipalities=("CD_NIS", "nunique"),
                                                    population=("POPULATION", "sum")).reset_index()
         table(tot, hide_index=True, width="stretch")
-        src("pipeline.build_density → population_density_2017-2024.csv (used in step 4)")
+        src("pipeline.build_density → population_density_2017-2024.csv (used in step A4)")
         fig = px.box(dens, x="YEAR", y="POP_DENSITY", log_y=True, points=False,
                      labels={"POP_DENSITY": "Inhabitants / km² (log)", "YEAR": "Year"},
                      title="Distribution of municipal population density per year")
         fig.update_traces(marker_color="#4575b4")
         fig.update_layout(height=360, margin=dict(l=0, r=0, t=40, b=0))
-        show_fig(fig, explain="proc_density_box")
+        med = dens.groupby("YEAR").POP_DENSITY.median()
+        show_fig(fig, explain="proc_density_box",
+                 conclusion=f"Municipal densities range from {dens.POP_DENSITY.min():.0f} to {dens.POP_DENSITY.max():,.0f} "
+                            f"inh./km². The median goes from {med.iloc[0]:.0f} ({med.index[0]}) to {med.iloc[-1]:.0f} "
+                            f"({med.index[-1]}): the spread is stable over the years.")
 
 
 # =================================================================== TAB 2: density vs severity
@@ -489,6 +550,22 @@ def heat_map(agg, level, geo_acc, heat_mode):
                                             line=dict(width=0.5 if level == "Municipalities" else 1.3))]),
                       height=640, margin=dict(l=0, r=0, t=0, b=0), showlegend=False)
     return fig
+
+
+def map_conclusion(agg, level):
+    """Conclusion of the heat map: highest / lowest Severity Ratio and whether red dots are the small (sparse) ones."""
+    if len(agg) < 2:
+        r = agg.iloc[0]
+        return f"Belgium as a whole: Severity Ratio {r.SEVERITY_RATIO:.1f}% at {r.POP_DENSITY:,.0f} inh./km²."
+    pool = agg[agg.ACCIDENTS >= 30] if level == "Municipalities" else agg  # ignore tiny, noisy municipalities here
+    hi, lo = pool.loc[pool.SEVERITY_RATIO.idxmax()], pool.loc[pool.SEVERITY_RATIO.idxmin()]
+    rho = stats.spearmanr(agg.POP_DENSITY, agg.SEVERITY_RATIO)[0]
+    note = " (among municipalities with ≥ 30 accidents)" if level == "Municipalities" else ""
+    pattern = ("Red dots (high ratio) are mostly the small dots (low density)." if rho < -0.2 else
+               "No clear link between dot colour and dot size at this level." if abs(rho) <= 0.2 else
+               "Red dots are mostly the large dots (high density).")
+    return (f"Highest Severity Ratio{note}: {hi.NAME} ({hi.SEVERITY_RATIO:.1f}%, {hi.POP_DENSITY:,.0f} inh./km²); "
+            f"lowest: {lo.NAME} ({lo.SEVERITY_RATIO:.1f}%, {lo.POP_DENSITY:,.0f} inh./km²). {pattern}")
 
 
 def relation_scatter(agg, level, min_n):
@@ -532,8 +609,8 @@ def density_tab():
     what = "severe accidents" if heat_mode == "Severe accidents" else "accidents"
     include_imputed = c3.toggle(f"Include {what} placed at the municipality centre ({fmt(int(layer.COORD_IMPUTED.sum()))})",
                                 value=False, key="heat_imputed", disabled=heat_mode == "Off",
-                                help="Off: only accidents at their own GPS position (step 8). On: also the accidents "
-                                     "whose coordinate was missing or abnormal, drawn at the centre of their municipality (step 6).")
+                                help="Off: only accidents at their own GPS position (step A8). On: also the accidents "
+                                     "whose coordinate was missing or abnormal, drawn at the centre of their municipality (step A6).")
     own_geo, _ = P.step_select_georeferenced(layer)
     geo = layer if include_imputed else own_geo
     agg = P.aggregate_by_level(acc, dens, look, units, level, yrs)
@@ -548,7 +625,7 @@ def density_tab():
     k[2].metric("Severity Ratio Belgium", f"{sev.mean() * 100:.1f}%", help=E("d_sr_be"))
     k[3].metric("Spearman ρ density ↔ SR (581 municipalities)", f"{rho:.2f}",
                 "p < 0.001" if pval < 0.001 else f"p = {pval:.3f}", delta_color="off", help=E("d_rho"))
-    src("rows: steps 1–7 + year filter · severe: pipeline.is_severe (class 1-3) · SR: pipeline.severity_ratio · "
+    src("rows: steps A1–A7 + year filter · severe: pipeline.is_severe (class 1-3) · SR: pipeline.severity_ratio · "
         "ρ: scipy.stats.spearmanr on pipeline.aggregate_by_level('Municipalities')")
     verdict = "Yes" if rho < 0 and pval < 0.05 else "No clear evidence"
     st.success(f"**{verdict}.** The Severity Ratio is **{prof['Severity Ratio (%)'].iloc[0]:.1f}%** in municipalities "
@@ -568,18 +645,19 @@ def density_tab():
         st.caption("Heat layer is **off**: only the dots are shown.")
     elif include_imputed:
         st.caption(f"⚠️ Heat layer: **all {fmt(len(layer))} {what}** are drawn, including **{fmt(n_imp)} "
-                   f"({n_imp / max(len(layer), 1) * 100:.1f}%)** placed at the **centre of their municipality** (step 6). "
+                   f"({n_imp / max(len(layer), 1) * 100:.1f}%)** placed at the **centre of their municipality** (step A6). "
                    f"Dark spots on municipality centres are partly caused by these replaced coordinates, not by where the "
                    f"accidents really happened.")
     else:
         st.caption(f"⚠️ Heat layer: **{fmt(len(geo))} {what}** drawn; **{fmt(excl)} ({excl / max(len(layer), 1) * 100:.1f}%)** "
-                   f"without a usable own coordinate are **not drawn** (step 8). Use the switch to draw them at their "
+                   f"without a usable own coordinate are **not drawn** (step A8). Use the switch to draw them at their "
                    f"municipality centre. They are always counted in the dots, which are grouped by municipality code.")
     m1, m2 = st.columns([3, 2])
     with m1:
-        show_fig(heat_map(agg, level, geo, heat_mode), key="map", explain="d_map", title="Heat map")
+        show_fig(heat_map(agg, level, geo, heat_mode), key="map", explain="d_map", title="Heat map",
+                 conclusion=map_conclusion(agg, level))
         src("dots: pipeline.aggregate_by_level (centres: unit_centers.csv from pipeline.build_units) · "
-            "heat layer: LAT/LON from step 7; switch off = step 8 (own coordinates only), on = also step-6 centres")
+            "heat layer: LAT/LON from step A7; switch off = step A8 (own coordinates only), on = also step-A6 centres")
     min_n = 1
     with m2:
         if level == "Municipalities":
@@ -593,7 +671,11 @@ def density_tab():
                     "municipalities, or the density classes below.")
         else:
             fig, res = relation_scatter(agg, level, min_n)
-            show_fig(fig, key="scatter", explain="d_scatter", title="Population density vs Severity Ratio")
+            show_fig(fig, key="scatter", explain="d_scatter", title="Population density vs Severity Ratio",
+                     conclusion=(f"Every 10× more density goes with {res['slope']:+.1f} percentage points of Severity Ratio "
+                                 f"(ρ = {res['rho']:.2f}): denser {level.lower()} have a "
+                                 f"{'lower' if res['rho'] < 0 else 'higher'} severe share." if res else
+                                 "Too few units to draw a trend."))
             if res:
                 st.caption(f"{res['n']} units · Spearman ρ = **{res['rho']:.2f}** (p = {res['p']:.2g}) · trend: "
                            f"**{res['slope']:+.1f} percentage points** of Severity Ratio per 10× more density.")
@@ -614,7 +696,11 @@ def density_tab():
                      title="1 · Severity Ratio by density class")
         fig.update_traces(texttemplate="%{text:.1f}%")
         fig.update_layout(height=380, coloraxis_showscale=False, margin=dict(l=0, r=0, t=40, b=0))
-        show_fig(fig, explain="d_ch1")
+        srs = prof["Severity Ratio (%)"]
+        show_fig(fig, explain="d_ch1",
+                 conclusion=f"The Severity Ratio falls from {srs.iloc[0]:.1f}% (< 250 inh./km²) to {srs.iloc[-1]:.1f}% "
+                            f"(> 5,000 inh./km²)" + (" – lower in every denser class." if srs.is_monotonic_decreasing
+                                                    else "."))
     with w2:
         long = prof.melt(id_vars="DENSITY_CLASS", value_vars=["outside built-up area (%)", "single vehicle / obstacle (%)",
                                                                "night, no street lighting (%)"],
@@ -624,8 +710,15 @@ def density_tab():
                       title="2 · Where and how accidents happen, by density class",
                       color_discrete_sequence=["#d73027", "#f46d43", "#313695"])
         fig.update_layout(height=380, margin=dict(l=0, r=0, t=40, b=0), legend=dict(orientation="h", y=-0.25))
-        show_fig(fig, explain="d_ch2")
-    src("charts 1–2: pipeline.density_class_profile (classes: pipeline.DENSITY_BINS; rules: tab Pipeline & method → Category rules)")
+        f_ = lambda c: (prof[c].iloc[0], prof[c].iloc[-1])  # noqa: E731
+        (o1, o2), (s1, s2), (n1, n2) = (f_("outside built-up area (%)"), f_("single vehicle / obstacle (%)"),
+                                        f_("night, no street lighting (%)"))
+        show_fig(fig, explain="d_ch2",
+                 conclusion=f"From the least to the most dense class: outside built-up areas {o1:.0f}% → {o2:.0f}%, "
+                            f"single-vehicle crashes {s1:.0f}% → {s2:.0f}%, night without lighting {n1:.1f}% → {n2:.1f}%. "
+                            f"Dense areas have far fewer high-speed situations.")
+    src("charts 1–2: pipeline.density_class_profile (classes: pipeline.DENSITY_BINS; rules: tab Pipeline & method → "
+        "Category rules)")
     w3, w4 = st.columns(2)
     known_bu = P.add_density_class(a[a.CD_BUILD_UP_AREA.isin([1, 2])])
     with w3:
@@ -637,8 +730,16 @@ def density_tab():
                      color_discrete_map={"binnen bebouwde kom": "#4575b4", "buiten bebouwde kom": "#d73027"},
                      title="3 · Severity Ratio inside vs outside built-up areas")
         fig.update_layout(height=380, margin=dict(l=0, r=0, t=40, b=0), legend=dict(orientation="h", y=-0.25))
-        show_fig(fig, explain="d_ch3")
+        bp = bu.pivot(index="DENSITY_CLASS", columns="TX_BUILD_UP_AREA_NL", values="Severity Ratio (%)")
+        inside, outside = bp.get("binnen bebouwde kom"), bp.get("buiten bebouwde kom")
+        higher = int((outside > inside).sum()) if inside is not None and outside is not None else 0
+        show_fig(fig, explain="d_ch3",
+                 conclusion=f"Outside built-up areas the ratio is higher in {higher} of {len(bp)} density classes. Inside "
+                            f"built-up areas it still falls from {inside.iloc[0]:.1f}% to {inside.iloc[-1]:.1f}%: density "
+                            f"matters even where speeds are similar." if inside is not None else None)
         st.caption(f"{fmt(len(a) - len(known_bu))} accidents with unknown built-up area (code 9) are left out of this chart.")
+        src("chart 3: accidents with built-up area code 1 (inside) or 2 (outside), per density class "
+            "(pipeline.add_density_class) · SR: pipeline.is_severe")
     with w4:
         sit = (a.assign(situation=P.collision_group(a), SEV=P.is_severe(a.CD_CLASS_ACCIDENTS).values)
                .groupby("situation").agg(n=("SEV", "size"), SR=("SEV", "mean")).reset_index())
@@ -649,8 +750,15 @@ def density_tab():
                      title="4 · Severity Ratio by type of collision (all of Belgium)")
         fig.update_traces(texttemplate="%{text:.1f}%")
         fig.update_layout(height=380, coloraxis_showscale=False, margin=dict(l=0, r=0, t=40, b=0))
-        show_fig(fig, explain="d_ch4")
-    src("chart 3: built-up area code 1/2 only · chart 4: pipeline.collision_group")
+        hi_, lo_ = sit.loc[sit.SR.idxmax()], sit.loc[sit.SR.idxmin()]
+        sv, rs = sit.set_index("situation").SR.get("single vehicle / obstacle"), sit.set_index("situation").SR.get("rear / side / chain")
+        show_fig(fig, explain="d_ch4",
+                 conclusion=f"Most often severe: {hi_.situation} ({hi_.SR:.1f}%); least: {lo_.situation} ({lo_.SR:.1f}%)."
+                            + (f" A single-vehicle crash is {sv / rs:.1f}× as often severe as a rear/side/chain crash."
+                               if sv and rs else ""))
+        src("chart 4: accidents of the selected years, all of Belgium, grouped by CD_COLLISION_TYPE with "
+            "pipeline.collision_group (groups: Pipeline & method → Category rules → 'Collision type groups') · SR per "
+            "group: pipeline.is_severe (class 1–3) / all accidents of the group · hover: number of accidents")
 
     out_lo, out_hi = prof["outside built-up area (%)"].iloc[[0, -1]]
     sv_lo, sv_hi = prof["single vehicle / obstacle (%)"].iloc[[0, -1]]
@@ -682,7 +790,7 @@ def density_tab():
          "Layer switched off" if heat_mode == "Off" else
          ("Not severe (class 4); " if heat_mode == "Severe accidents" else "")
          + ("replaced coordinates drawn at the municipality centre (switch on)" if include_imputed
-            else "no usable own coordinate (step 8) – use the switch to include them at the municipality centre")),
+            else "no usable own coordinate (step A8) – use the switch to include them at the municipality centre")),
         ("Chart 3 (inside / outside built-up area)", len(a), len(known_bu), len(a) - len(known_bu), "Built-up area unknown (code 9)"),
         ("Scatter (municipalities, units)", len(mun), int((mun.ACCIDENTS >= min_n).sum()) if level == "Municipalities" else len(mun),
          int((mun.ACCIDENTS < min_n).sum()) if level == "Municipalities" else 0, f"Fewer than {min_n} accidents (slider)"),
@@ -764,7 +872,12 @@ def covid_tab():
         add_phase_shading(fig, phases)
         fig.update_layout(height=380, margin=dict(l=0, r=0, t=30, b=0), title="Number of accidents",
                           legend=dict(orientation="h", y=-0.15))
-        show_fig(fig, key="cv_n", explain="c_ts_n")
+        cov = m[m.YEAR.between(2020, 2021)]
+        low = cov.loc[cov.ACCIDENTS_CHANGE_PCT.idxmin()]
+        post = m[m.PHASE == "Post-COVID"].ACCIDENTS_CHANGE_PCT.mean()
+        show_fig(fig, key="cv_n", explain="c_ts_n",
+                 conclusion=f"Deepest drop: {low.DATE:%B %Y} ({low.ACCIDENTS_CHANGE_PCT:+.0f}% vs normal, {low.PHASE}). "
+                            f"After the measures (from March 2022) months are on average {post:+.0f}% vs normal.")
     with t2:
         fig = go.Figure()
         fig.add_trace(go.Scatter(x=m.DATE, y=m.BASE_SEVERITY_RATIO.where(m.YEAR >= 2020), name="normal",
@@ -775,7 +888,11 @@ def covid_tab():
         add_phase_shading(fig, phases)
         fig.update_layout(height=380, margin=dict(l=0, r=0, t=30, b=0), title="Severity Ratio (%)",
                           legend=dict(orientation="h", y=-0.15))
-        show_fig(fig, key="cv_sr", explain="c_ts_sr")
+        top_sr = cov.loc[cov.SR_DIFF_PP.idxmax()]
+        show_fig(fig, key="cv_sr", explain="c_ts_sr",
+                 conclusion=f"Largest rise: {top_sr.DATE:%B %Y} ({top_sr.SEVERITY_RATIO:.1f}% vs normal "
+                            f"{top_sr.BASE_SEVERITY_RATIO:.1f}%, {top_sr.PHASE}). After March 2022 the monthly ratio is on "
+                            f"average {m[m.PHASE == 'Post-COVID'].SR_DIFF_PP.mean():+.1f} pp vs normal.")
     src("pipeline.covid_monthly → covid_monthly_2017-2024.csv (ACCIDENTS, SEVERE, SEVERITY_RATIO, BASE_*)")
 
     st.markdown("#### Measures and mobility")
@@ -792,7 +909,12 @@ def covid_tab():
         fig.update_yaxes(title_text="% change vs pre-COVID", secondary_y=True)
         fig.update_layout(height=380, margin=dict(l=0, r=0, t=30, b=0), legend=dict(orientation="h", y=-0.15),
                           title="Strictness of measures (OxCGRT) and mobility (Google)")
-        show_fig(fig, key="cv_mob", explain="c_mob")
+        wmin, smax = mm.loc[mm.MOB_WORKPLACES.idxmin()], mm.loc[mm.STRINGENCY.idxmax()]
+        wlast = mm[mm.MOB_WORKPLACES.notna()].iloc[-1]
+        show_fig(fig, key="cv_mob", explain="c_mob",
+                 conclusion=f"Workplace mobility was lowest in {wmin.DATE:%B %Y} ({wmin.MOB_WORKPLACES:+.0f}%); stringency "
+                            f"peaked in {smax.DATE:%B %Y} ({smax.STRINGENCY:.0f}/100). In the last month with data "
+                            f"({wlast.DATE:%B %Y}) workplace mobility was still {wlast.MOB_WORKPLACES:+.0f}% vs pre-COVID.")
         src("STRINGENCY: step C2 + pipeline.measures_monthly · MOB_*: step C1 pipeline.mobility_monthly")
     sc = mon[(mon.AREA != "België") & (mon.DATE >= "2020-03-01")].copy()
     sc_used = sc[sc.MOB_WORKPLACES.notna()].assign(region=lambda d: d.AREA.map({v: k for k, v in AREAS.items()}))
@@ -805,7 +927,12 @@ def covid_tab():
         rho, p = stats.spearmanr(sc_used.MOB_WORKPLACES, sc_used[ycol])
         fig.add_hline(y=0, line_color=GREY, line_dash="dot")
         fig.update_layout(height=340, margin=dict(l=0, r=0, t=10, b=0), legend=dict(orientation="h", y=-0.2))
-        show_fig(fig, key="cv_sc", explain="c_scatter", title="Mobility vs accidents / Severity Ratio")
+        what_y = "fewer accidents" if ycol == "ACCIDENTS_CHANGE_PCT" else "a lower Severity Ratio"
+        what_y2 = "more accidents" if ycol == "ACCIDENTS_CHANGE_PCT" else "a higher Severity Ratio"
+        show_fig(fig, key="cv_sc", explain="c_scatter", title="Mobility vs accidents / Severity Ratio",
+                 conclusion=(f"ρ = {rho:.2f}: months with less workplace mobility had {what_y if rho > 0 else what_y2} "
+                             f"than normal." if p < 0.05 else
+                             f"ρ = {rho:.2f}, p = {p:.2g}: no clear relation between mobility and this measure."))
         st.caption(f"Each dot = one region in one month with mobility data (Mar 2020 – Oct 2022). Spearman ρ = "
                    f"**{rho:.2f}** (p = {p:.2g}).")
         src("covid_monthly_2017-2024.csv · ρ: scipy.stats.spearmanr")
@@ -824,7 +951,11 @@ def covid_tab():
         fig.update_traces(texttemplate="%{text:.0f}%")
         fig.update_layout(height=430, margin=dict(l=0, r=0, t=40, b=0), yaxis=dict(autorange="reversed", title=""),
                           legend=dict(orientation="h", y=-0.12))
-        show_fig(fig, key="cv_mix", explain="c_mix")
+        prof_i = prof.set_index("share of accidents")
+        chg = (prof_i[ph] - prof_i["normal"]).abs().sort_values(ascending=False).index[:2]
+        show_fig(fig, key="cv_mix", explain="c_mix",
+                 conclusion=f"Biggest changes in {ph}: " + "; ".join(
+                     f"{k} {prof_i.loc[k, 'normal']:.0f}% → {prof_i.loc[k, ph]:.0f}%" for k in chg) + ".")
         src("pipeline.mix_profile (rules: Category rules)")
     with w2:
         g = pd.concat([base.assign(period="normal"), cur.assign(period=ph)])
@@ -836,7 +967,12 @@ def covid_tab():
                      labels={"SR": "Severity Ratio (%)", "group": ""}, title="2 · Severity Ratio within each type of accident")
         fig.update_traces(texttemplate="%{text:.1f}%")
         fig.update_layout(height=430, margin=dict(l=0, r=0, t=40, b=0), legend=dict(orientation="h", y=-0.12))
-        show_fig(fig, key="cv_within", explain="c_within")
+        sp = s.pivot(index="group", columns="period", values="SR")
+        rise = (sp[ph] - sp["normal"]).dropna()
+        show_fig(fig, key="cv_within", explain="c_within",
+                 conclusion=f"In {ph} the Severity Ratio was higher than normal in {int((rise > 0).sum())} of {len(rise)} "
+                            f"groups; largest rise: {rise.idxmax()} ({sp.loc[rise.idxmax(), 'normal']:.1f}% → "
+                            f"{sp.loc[rise.idxmax(), ph]:.1f}%).")
         src("pipeline.road_user_group (one group per accident, first matching rule)")
 
     dec = P.mix_decomposition(cur, base)
@@ -849,7 +985,13 @@ def covid_tab():
                      title="3 · Mix effect vs 'same accident, worse outcome'")
         fig.update_traces(texttemplate="%{text:.2f}%")
         fig.update_layout(height=360, margin=dict(l=0, r=0, t=40, b=0), showlegend=False)
-        show_fig(fig, key="cv_dec", explain="c_dec")
+        tot = dec["observed_sr"] - dec["base_sr"]
+        show_fig(fig, key="cv_dec", explain="c_dec",
+                 conclusion=(f"Hardly any change vs normal ({tot:+.2f} pp)." if abs(tot) < 0.3 else
+                             f"The ratio changed {tot:+.2f} pp: mix effect {dec['mix_effect_pp']:+.2f} pp, within effect "
+                             f"{dec['within_effect_pp']:+.2f} pp → mostly "
+                             + ("the same kind of accident ending worse." if abs(dec['within_effect_pp']) >
+                                abs(dec['mix_effect_pp']) else "a different mix of accidents.")))
         src("pipeline.mix_decomposition (cells: pipeline.MIX_CELLS)")
     with w4:
         st.markdown(f"""

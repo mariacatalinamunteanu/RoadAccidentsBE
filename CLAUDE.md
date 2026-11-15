@@ -14,7 +14,7 @@ in `pipeline.py` (constants at the top) and add an entry to `decision_log.md`.
 | `app.py` | Streamlit app (`streamlit run app.py`). Shows data, never computes new data rules itself. |
 | `app_data.py` | Cached file loaders for the app only. |
 | `module_reload.py` | `fresh()`: reloads `pipeline.py` / `app_data.py` in a running app when the file changed. |
-| `tests/` | `test_pipeline.py` (15 unit tests, fast) · `test_gaps.py` (8 tests on real data, `-m data`) · `test_app_cache.py` (2, app cache) · `test_explanations.py` (6, explanation dots) · `test_module_reload.py` (2, reload of changed modules) · `TEST_GAPS.md` (what the tests miss) |
+| `tests/` | `test_pipeline.py` (15 unit tests, fast) · `test_gaps.py` (8 tests on real data, `-m data`) · `test_app_cache.py` (2, app cache) · `test_explanations.py` (12, explanation dots, conclusions, info points, test list) · `test_module_reload.py` (2, reload of changed modules) · `TEST_GAPS.md` (what the tests miss) |
 | `pytest.ini`, `requirements.txt` | Test settings; packages for Streamlit Community Cloud. |
 | `decision_log.md` | What was decided, why, alternatives, impact. |
 | `Concept.txt` | Design: four pillars, sub-questions, categories, columns, filters, steps, drawing of every tab. |
@@ -23,26 +23,28 @@ in `pipeline.py` (constants at the top) and add an entry to `decision_log.md`.
 | `Claude work log.txt` | Chronological history of every task. |
 | `Mission statement.txt`, `Progress.txt`, `Prompt history.txt`, `Project 1 - demo-case *.pdf` | The student's own notes and the course assignment (not edited by Claude; `Prompt history.txt` is committed only on request). |
 
-## Pipeline steps (pipeline_steps.csv, shown in the app)
-G1 municipalities + centres · G2 regions/provinces/BE centres + borders · P1 population density ·
-1 load accidents · 2 drop FR · 3 Brussels province · 4 add density · 5 check coordinates · 6 replace by centre ·
-7 lat/lon · 8 heat-layer view (not saved) · C1 mobility · C2 measures · C3 monthly COVID table.
-G1, G2, P1 and C3 group rows (nothing lost); only C1 and C2 really drop rows (other provinces / countries).
+## Pipeline steps (pipeline_steps.csv, shown in the app in this order – `pipeline.STEP_DISPLAY_ORDER`)
+A1 load accidents · A2 drop FR · A3 Brussels province · A4 add density · A5 check coordinates · A6 replace by centre ·
+A7 lat/lon · A8 heat-layer view (not saved) · P1 population density · G1 municipalities + centres ·
+G2 regions/provinces/BE centres + borders · C1 mobility · C2 measures · C3 monthly COVID table.
+They **run** in another order (column `run_order`): G1, G2, P1 first, because A4 needs P1 and A5/A6 need G1.
+P1, G1, G2 and C3 group rows (nothing lost); only A8 (view), C1 and C2 leave rows out.
+Until D46 the accident steps were called 1–8; older decision-log entries use those numbers.
 
 ## Data agreements
-- **Language:** Dutch only. All `_FR` columns are dropped (step 2).
+- **Language:** Dutch only. All `_FR` columns are dropped (step A2).
 - **Severe accident:** `CD_CLASS_ACCIDENTS` in {1, 2, 3} (deaths, fatally injured, seriously injured). Class 4 = not severe.
 - **Severity Ratio** = severe accidents / all injury accidents × 100. Each accident counts once.
 - **Only injury accidents** are in the data. Never call a place "the most dangerous" based on counts; say "injury accidents".
 - **Denominator:** we do not rank places by accident counts. Population per municipality (Statbel) is used for density
   and accidents per 1,000 inhabitants. There is no traffic-volume data: never claim "risk per km driven".
-- **Brussels province:** empty `TX_PROV_COLLISION_NL` → `"Brussels Hoofdstedelijk Gewest"` (step 3). Must only happen in Brussels.
+- **Brussels province:** empty `TX_PROV_COLLISION_NL` → `"Brussels Hoofdstedelijk Gewest"` (step A3). Must only happen in Brussels.
 - **Missing / abnormal coordinates:** missing, outside the Belgian Lambert range, or more than **1,000 m** outside the
-  municipality in `CD_NIS` → replaced by the **municipality centre** (step 6) and flagged `COORD_IMPUTED = True`.
+  municipality in `CD_NIS` → replaced by the **municipality centre** (step A6) and flagged `COORD_IMPUTED = True`.
   - They **stay in all counts and ratios** (grouped by municipality code).
-  - In the GPS heat layer they are **left out by default** (step 8); a switch on the map ("Include accidents placed at
+  - In the GPS heat layer they are **left out by default** (step A8); a switch on the map ("Include accidents placed at
     the municipality centre") draws them at the centre. The app always says how many are left out or placed on centres.
-  - Step 8 never removes rows from the data set.
+  - Step A8 never removes rows from the data set.
 - **Defaults in tab ❓ Density vs severity:** border view **Municipalities** (with the ℹ️ "Why Municipalities …" point
   directly under its buttons), minimum accidents 1, heat layer severe.
 - **Heat layer default:** severe accidents (class 1–3); "All accidents" and "Off" can be chosen. Every count about
@@ -67,6 +69,9 @@ G1, G2, P1 and C3 group rows (nothing lost); only C1 and C2 really drop rows (ot
   (one style everywhere: ℹ️ + bold title + ?, added by `dot()` – never put an icon or ** in the title).
   The texts live in `pipeline.EXPLANATIONS` and `pipeline.COLUMN_HELP` (what it is, how it is calculated, which
   step). A new number without a text fails `tests/test_explanations.py`.
+- **Every chart has a conclusion** under its title: `show_fig(..., conclusion=...)`, 1–2 sentences computed from the
+  data the chart shows (so it follows the filters). Check new conclusions against the rendered numbers – a test only
+  proves that a conclusion exists, not that it is true.
 - **Rows that drop out are shown** (row funnel at the top of the tab "Pipeline & method", step expanders,
   "Rows used in this tab"). The "only injury accidents" statement is the first item of the Assumptions box in
   both question tabs (tab 2 and tab 3).

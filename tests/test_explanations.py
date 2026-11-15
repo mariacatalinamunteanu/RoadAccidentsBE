@@ -40,6 +40,24 @@ def test_every_chart_has_an_explanation_dot():
     assert not missing, missing
 
 
+def test_every_chart_has_a_conclusion():
+    # decision D46: a 📌 conclusion under every chart title, computed from the chart data
+    charts = calls("show_fig")
+    missing = [ast.get_source_segment(APP, c)[:60] for c in charts if "conclusion" not in {k.arg for k in c.keywords}]
+    assert not missing, missing
+
+
+def test_pipeline_tab_lists_every_test():
+    # decision D46: the 'All tests' sub-tab reads tests/ itself, so it can never fall behind
+    import app_data as D
+
+    listed = set(D.list_tests().test)
+    in_files = set()
+    for f in (P.ROOT / "tests").glob("test_*.py"):
+        in_files |= set(re.findall(r"^def (test_\w+)\(", f.read_text(encoding="utf-8"), flags=re.M))
+    assert listed == in_files and "test_pipeline_tab_lists_every_test" in listed
+
+
 def test_every_table_goes_through_the_column_help_wrapper():
     # st.dataframe may only be called inside table(); everything else must use table()
     direct = [n for n in calls("dataframe") if isinstance(n.func, ast.Attribute)]
@@ -73,8 +91,9 @@ def test_answer_dot_explains_spearman_and_p_value_in_plain_words():
 def test_why_municipalities_info_point_under_the_border_view_buttons():
     # decision D40 (text) + D45 (place): info point directly under the border-view buttons
     assert 'dot("Why Municipalities Reveal a Clearer Link Between Population Density and Severity Ratio"' in APP
-    assert APP.index('segmented_control("Border view"') < APP.index("d_why_municipalities") < APP.index("#### Heat map –")
-    assert APP.count("d_why_municipalities") == 1  # shown once, not also under the heat map
+    call = 'dot("Why Municipalities Reveal'  # the info-point call itself (the key is also named in the lineage table)
+    assert APP.index('segmented_control("Border view"') < APP.index(call) < APP.index("#### Heat map –")
+    assert APP.count(call) == 1  # shown once, not also under the heat map
     t = P.EXPLANATIONS["d_why_municipalities"]
     for must in ["more informative scale", "averaged away", "581 municipalities", "11 larger areas",
                  "smaller share of severe crashes"]:

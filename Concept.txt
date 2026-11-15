@@ -35,8 +35,8 @@ B1. DECOMPOSITION – break the big question into small questions you can answer
 
 Q1 – density vs severity
   1.1  Is the data good enough?  What is missing, unknown or wrong in the accident file?        -> tab 1.1
-  1.2  Which accidents can we place on a map, and what do we do with the ones we cannot?        -> steps 5–8, tab 1.2
-  1.3  How dense is the municipality where each accident happened, in that year?                 -> step 4
+  1.2  Which accidents can we place on a map, and what do we do with the ones we cannot?        -> steps A5–A8, tab 1.2
+  1.3  How dense is the municipality where each accident happened, in that year?                 -> step A4
   1.4  What is the Severity Ratio per region / province / municipality / Belgium?                -> tab 2, map + table
   1.5  Do denser units have a lower Severity Ratio? How strong is the relation?                  -> tab 2, scatter + rho
   1.6  WHY? What is different about accidents in dense areas?
@@ -126,6 +126,8 @@ Categories (classification rules; full list in pipeline.CATEGORY_RULES, shown in
 B4. ALGORITHM – the steps, in order (pipeline.py; each step reports rows in / out / dropped / changed / why)
 =====================================================================================================================
 
+  (Listed in RUN order. The app shows them in the order A1–A8, P1, G1, G2, C1–C3; column run_order – D46.)
+
   PREPARE GEOGRAPHY                                                      rows in -> out (grouped, nothing lost)
     G1  Statbel statistical sectors 2024 (Lambert 72) dissolved into municipalities;
         centre = centroid (representative point if outside: 5 cases)    19,795 -> 581
@@ -138,15 +140,15 @@ B4. ALGORITHM – the steps, in order (pipeline.py; each step reports rows in / 
         Check: Belgium 2017 = 11,322,088 (Statbel).                       5,120 sheet rows -> 4,648 (581 x 8)
 
   ACCIDENT STEPS                                                         rows in -> out     changed
-    1  Load raw accidents (OPENDATA_MAP_2017-2024.xlsx)                  289,532 -> 289,532   –
-    2  Drop the 14 French columns                                         289,532 -> 289,532   –
-    3  Empty province (Brussels only) -> "Brussels Hoofdstedelijk Gewest" 289,532 -> 289,532   30,022
-    4  Join population density on CD_NIS + year                          289,532 -> 289,532   289,532
-    5  Check coordinates: missing / outside Belgium / > 1 km outside own municipality
+    A1 Load raw accidents (OPENDATA_MAP_2017-2024.xlsx)                  289,532 -> 289,532   –
+    A2 Drop the 14 French columns                                         289,532 -> 289,532   –
+    A3 Empty province (Brussels only) -> "Brussels Hoofdstedelijk Gewest" 289,532 -> 289,532   30,022
+    A4 Join population density on CD_NIS + year                          289,532 -> 289,532   289,532
+    A5 Check coordinates: missing / outside Belgium / > 1 km outside own municipality
                                                                           289,532 -> 289,532   36,628 flagged
-    6  Replace flagged coordinates by the municipality centre             289,532 -> 289,532   36,628
-    7  Convert Lambert 72 -> latitude / longitude                        289,532 -> 289,532   all
-    8  View for the heat layer: only accidents at their own GPS position  289,532 -> 252,904   (not saved;
+    A6 Replace flagged coordinates by the municipality centre             289,532 -> 289,532   36,628
+    A7 Convert Lambert 72 -> latitude / longitude                        289,532 -> 289,532   all
+    A8 View for the heat layer: only accidents at their own GPS position  289,532 -> 252,904   (not saved;
        a switch on the map can add the 36,628 at their municipality centre)
 
   COVID STEPS
@@ -174,6 +176,7 @@ PART C – THE DASHBOARD (drawing)
 
   Every metric, chart title and table column header has an explanation dot (?): hover to see what the number is,
   how it is calculated and in which step it is created (texts: pipeline.EXPLANATIONS / COLUMN_HELP, decision D35).
+  Under every chart title: 📌 Conclusion – 1–2 sentences computed from the data shown (decision D46).
 
 +===================================================================================================================+
 | 🚦 Road accidents in Belgium 2017–2024                                                                             |
@@ -184,16 +187,16 @@ PART C – THE DASHBOARD (drawing)
 TAB 🔧 PIPELINE & METHOD  –  "Where does every number come from, and where does data disappear?"
 ---------------------------------------------------------------------------------------------------------------------
 +-------------------------------------------------------------+-------------------------------------------------+
-| ROW FUNNEL (steps 1–8, rows out per step)                   | Raw 289,532 · steps 2–7 drop 0 rows ·           |
-|  1 ████████████████████████ 289,532                         | step 8: 36,628 (12.7%) not drawn in heat layer  |
+| ROW FUNNEL (steps A1–A8, rows out per step)                   | Raw 289,532 · steps A2–A7 drop 0 rows ·           |
+|  1 ████████████████████████ 289,532                         | step A8: 36,628 (12.7%) not drawn in heat layer  |
 |  ...                                                        | (not removed from the data)                     |
 |  8 ████████████████████     252,904                         |                                                 |
 +-------------------------------------------------------------+-------------------------------------------------+
 | [Steps (rows in/out)] [Where does each number come from?] [Assumptions] [Category rules] [Decision log & tests] |
 |                                                                                                               |
 |  Steps table: order | data set | step | used in tab(s) | rows in | rows out | dropped | changed | function | why|
-|  ▸ Step 1 · Accidents – raw (OPENDATA_MAP_2017-2024.xlsx) · Load raw accidents → used in: 1.1 ... — in → out  |
-|  ▸ Step 2 ... ▸ Step 8 ... ▸ Step C1 ... ▸ Step C2                                                            |
+|  ▸ Step A1 · Accidents – raw (OPENDATA_MAP_2017-2024.xlsx) · Load raw accidents → used in: 1.1 ... — in → out  |
+|  ▸ Step A2 ... ▸ Step A8 ... ▸ Step C1 ... ▸ Step C2                                                            |
 |      inside each: rows in / out / dropped / changed, data set, tabs, why, function, sample of changed rows     |
 |  Bar chart: % of accidents without usable coordinate per year (+ table)                                       |
 +---------------------------------------------------------------------------------------------------------------+

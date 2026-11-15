@@ -4,6 +4,9 @@ Each entry: **what** was decided, **why**, the alternatives, the **impact** in n
 *Decided by*: **student** = answer/instruction given in a prompt; **Claude** = proposed by Claude while building,
 to be confirmed by the student (marked ☐ until confirmed).
 
+> **Step names:** since D46 the accident steps are called **A1–A8** (before: steps 1–8). Entries D01–D45 use the
+> old numbers: step *n* = A*n*.
+
 ---
 
 ## Data preparation (2026-11-15)
@@ -390,3 +393,25 @@ to be confirmed by the student (marked ☐ until confirmed).
   checks the place (once, between the buttons and the heat-map title).
 - **Five-file check:** app.py, tests, CLAUDE.md, decision_log.md updated (+ Concept.txt); pipeline.py: no change
   needed (the explanation texts did not change).
+
+### D46 · Conclusions under every chart · own source for chart 4 · steps A1–A8 in order A, P, G, C · Pipeline tab audit
+- **Decided by:** student (2026-11-15)
+- **Conclusions:** every chart (24) shows "📌 Conclusion:" under its title – 1–2 sentences computed in `app.py` from the
+  data of that chart, so they follow the filters (years, area, lockdown, border view). Claude rendered all 24 and read
+  them against the numbers; 2 were corrected (tie MS_X/MS_Y_COORD; an unverified "until 2022" replaced by the
+  measured value). Test: `test_every_chart_has_a_conclusion` (presence only – TEST_GAPS gap 12).
+- **Chart 4 (tab ❓, Severity Ratio by type of collision):** has its own source line (selected years, all of Belgium,
+  `pipeline.collision_group`, SR per group); chart 3 got its own line too (they shared one before).
+- **Step names and order:** steps 1–8 → **A1–A8** (code, texts, samples `pipeline_samples/A1.csv`…, tests, docs).
+  Shown in the order A1–A8, P1, G1, G2, C1–C3 (`pipeline.STEP_DISPLAY_ORDER`). They still RUN G1, G2, P1 first
+  (A4 needs P1, A5/A6 need G1); the new column `run_order` shows that, explained under the steps table.
+  Old entries of this log keep the old numbers (note at the top).
+- **Pipeline & method tab checked against D01–D45 and the tests:**
+  - *Where does each number come from?*: 5 rows added (conclusions, explanation dots D35, info points D39/D40/D45,
+    tab defaults D43–D45, test list); step names updated.
+  - *Assumptions*: step names updated; content still matches D17, D27, D28, D44.
+  - *Category rules*: added heat-layer default (D44), minimum accidents (D43), border-view default (D45).
+  - *Decision log & tests*: TEST_GAPS said 33 tests (now 39) → corrected; new sub-tab **All tests** reads `tests/`
+    itself (`app_data.list_tests`), so it cannot fall behind (`test_pipeline_tab_lists_every_test`).
+- **Five-file check:** pipeline.py, app.py (+ app_data.py), tests, CLAUDE.md, decision_log.md all updated
+  (+ Concept.txt, TEST_GAPS.md).
